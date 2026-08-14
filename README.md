@@ -38,7 +38,7 @@ Cámara/QR para identificar rápidamente al productor al momento de registrar su
 | Heiner Apaza Apaza | 20220559 | Coordinación |
 | Juana Tito Larico | 202414032 | UI |
 | Reyder Villafuerte Yupanqui | 202414014 | Lógica y datos |
-| Mayda Rocio Carlos | 202414045 | QA y documentación |
+| Mayda Rocio Carlos | 202122346 | QA y documentación |
 
 ## Tecnologías
 
