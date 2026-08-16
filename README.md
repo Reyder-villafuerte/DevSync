@@ -36,7 +36,7 @@ Cámara/QR para identificar rápidamente al productor al momento de registrar su
 | Integrante | Código | Rol semana 1 |
 |---|---|---|
 | Heiner Apaza Apaza | 20220559 | Coordinación |
-| Juana Tito Larico | 202414032 | UI |
+| Juana Tito Larico | 202413202 | UI |
 | Reyder Villafuerte Yupanqui | 202414014 | Lógica y datos |
 | Mayda Rocio Carlos | 202122346 | QA y documentación |
 
