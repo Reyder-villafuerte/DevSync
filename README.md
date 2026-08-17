@@ -2,6 +2,10 @@
 
 > Registra y controla la entrega diaria de leche de cada productor, sin depender de internet.
 
+## Estado del proyecto
+
+Documentacion inicial del proyecto MilkFlow. La aplicacion esta planificada para operar sin conexion y sincronizar los datos cuando haya acceso a internet.
+
 ## Problema que resuelve
 
 Planteamiento del Problema y Solución Propuesta
