@@ -6,6 +6,8 @@
 
 Documentacion inicial del proyecto MilkFlow. La aplicacion esta planificada para operar sin conexion y sincronizar los datos cuando haya acceso a internet.
 
+Siguiente paso: definir el flujo de registro diario de acopio para el operador.
+
 ## Problema que resuelve
 
 Planteamiento del Problema y Solución Propuesta
