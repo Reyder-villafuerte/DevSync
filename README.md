@@ -8,7 +8,7 @@ Los centros de acopio o asociaciones de productores lecheros suelen llevar el re
 
 ## Público objetivo
 
-Un centro de acopio o asociación de productores lecheros real, con dos tipos de usuario: el **operador**, que registra la entrega diaria de cada productor, y el **administrador**, que supervisa el precio vigente, revisa reportes y gestiona a los productores.
+Un centro de acopio o asociación de productores lecheros real, con dos tipos de usuario: el **operador**, que registra la entrega diaria de cada productor, y el **administrador**, que supervisa el precio vigente, revisa reportes (diario, semanal o mensual) y gestiona a los productores.
 
 ## Funcionalidades previstas
 
