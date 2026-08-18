@@ -12,7 +12,7 @@ Siguiente paso: definir el flujo de registro diario de acopio para el operador.
 
 Planteamiento del Problema y Solución Propuesta
 
-Los centros de acopio o asociaciones de productores lecheros suelen llevar el registro de las entregas diarias en cuadernos físicos. Esto dificulta calcular el pago mensual a cada productor (más aún si el precio por litro varía según la temporada), detectar errores y llevar un historial confiable. Muchas zonas rurales, además, no tienen conexión a internet estable durante den día.
+Los centros de acopio o asociaciones de productores lecheros suelen llevar el registro de las entregas diarias en cuadernos físicos. Esto dificulta calcular el pago mensual a cada productor (más aún si el precio por litro varía según la temporada), detectar errores y llevar un historial confiable. Muchas zonas rurales, además, no tienen conexión a internet estable durante el día.
 
 Para resolver esta problemática, el sistema digital se divide en dos tipos de usuarios principales:
 
