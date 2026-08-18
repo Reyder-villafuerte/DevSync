@@ -60,7 +60,7 @@ Después de evaluar las cinco propuestas, se seleccionó **MilkFlow** debido a q
 
 La primera reunión de coordinación se realizó el **15 de agosto de 2026**, con la participación de los cuatro integrantes.
 
-Durante la reunión se analizaron las propuestas de aplicación, se seleccionó el proyecto **MilkFlow**, se distribuyeron los roles correspondientes a la semana y se establecieron las primeras responsabilidades.
+Durante la reunión se analizaron las propuestas de aplicación, se seleccionó el proyecto **MilkFlow**, se asignaron los roles correspondientes a la semana y se establecieron las primeras responsabilidades.
 
 📌 El horario fijo para las siguientes reuniones será establecido de acuerdo con la disponibilidad académica de todos los integrantes.
 
