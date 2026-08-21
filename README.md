@@ -59,3 +59,7 @@ Cámara/QR para identificar rápidamente al productor al momento de registrar su
 Kotlin Multiplatform · Compose Multiplatform · targets Android y Desktop
 
 (iOS preparado: requiere macOS para compilar)
+## Bitácora
+
+- s1: entorno configurado; proyecto ejecutando en Android y Desktop.
+- s2: modelo de dominio (Producto, Categoria) en commonMain con pruebas en verde.
