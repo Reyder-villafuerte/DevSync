@@ -23,7 +23,7 @@ kotlin {
     }
 
     android {
-        namespace = "com.example.holamundo.shared"
+        namespace = "pe.edu.upeu.milkflow.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 

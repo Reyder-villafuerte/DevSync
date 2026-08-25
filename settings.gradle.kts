@@ -1,4 +1,4 @@
-rootProject.name = "HolaMundo"
+rootProject.name = "MilkFlow"
 
 pluginManagement {
     repositories {

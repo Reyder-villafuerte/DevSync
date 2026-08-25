@@ -20,11 +20,11 @@ dependencies {
 }
 
 android {
-    namespace = "com.example.holamundo"
+    namespace = "pe.edu.upeu.milkflow"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.holamundo"
+        applicationId = "pe.edu.upeu.milkflow"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

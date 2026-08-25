@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		1D5493BD97F82AD7B01F0AAC /* HolaMundo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HolaMundo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D5493BD97F82AD7B01F0AAC /* MilkFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MilkFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,7 +59,7 @@
 		3805A3C63BF54FA7539155E4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D5493BD97F82AD7B01F0AAC /* HolaMundo.app */,
+				1D5493BD97F82AD7B01F0AAC /* MilkFlow.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,7 +87,7 @@
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = 1D5493BD97F82AD7B01F0AAC /* HolaMundo.app */;
+			productReference = 1D5493BD97F82AD7B01F0AAC /* MilkFlow.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

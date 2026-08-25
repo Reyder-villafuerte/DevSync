@@ -1,66 +1,44 @@
 # MilkFlow
 
-> Registra y controla la entrega diaria de leche de cada productor, sin depender de internet.
+## Descripción
+Aplicación móvil multiplataforma orientada a la gestión del acopio de leche en zonas rurales. Permite digitalizar el registro de entregas diarias, gestionar a los productores (socios) y administrar los precios vigentes.
 
-## Estado del proyecto
-
-Documentacion inicial del proyecto MilkFlow. La aplicacion esta planificada para operar sin conexion y sincronizar los datos cuando haya acceso a internet.
-
-Siguiente paso: definir el flujo de registro diario de acopio para el operador.
-
-## Problema que resuelve
-
-Planteamiento del Problema y Solución Propuesta
-
-Los centros de acopio o asociaciones de productores lecheros suelen llevar el registro de las entregas diarias en cuadernos físicos. Esto dificulta calcular el pago mensual a cada productor (más aún si el precio por litro varía según la temporada), detectar errores y llevar un historial confiable. Muchas zonas rurales, además, no tienen conexión a internet estable durante el día.
-
-Para resolver esta problemática, el sistema digital se divide en dos tipos de usuarios principales:
-
-Operador: Encargado de registrar las entregas diarias de cada productor de forma local y segura, incluso sin conexión a internet permanente.
-
-Administrador: Responsable de supervisar el precio vigente, auditar reportes de volumen y gestionar la información de los productores para agilizar el cálculo y la liquidación mensual de pagos.
-
-## Público objetivo
-
-Un centro de acopio o asociación de productores lecheros real, con dos tipos de usuario: el **operador**, que registra la entrega diaria de cada productor, y el **administrador**, que supervisa el precio vigente, revisa reportes (diario, semanal o mensual) y gestiona a los productores.
-
-## Funcionalidades previstas
-
-- F1: Registrar el acopio diario de leche (productor, litros, fecha, precio del día)
-- F2: Listar y filtrar los acopios por productor y por fecha
-- F3: Iniciar sesión con roles diferenciados (operador / administrador)
-- F4: Trabajar sin conexión y sincronizar cuando haya internet
-- F5: Gestionar el listado de productores/socios
-- F6: Actualizar el precio por litro vigente según la temporada (solo administrador)
-
-## Entidad principal del CRUD
-
-**Acopio**: fecha, productor (relación), litros, precio por litro aplicado, observación de calidad (opcional)
-
-## Entidad secundaria
-
-**Productor**: nombre, código de socio, ubicación/comunidad
-
-## Capacidad nativa prevista
-
-Cámara/QR para identificar rápidamente al productor al momento de registrar su entrega (se implementará en la semana 9)
-
-## Equipo DevSync
-
-| Integrante | Código | Rol semana 1 |
-|---|---|---|
-| Heiner Apaza Apaza | 20220559 | Coordinación |
-| Juana Tito Larico | 202413202 | UI |
-| Reyder Villafuerte Yupanqui | 202414014 | Lógica y datos |
-| Mayda Rocio Carlos | 202122346 | QA y documentación |
+## Problema que busca resolver
+Sustituir los registros manuales en cuadernos físicos en centros de acopio, reduciendo errores en el cálculo de pagos, facilitando el acceso a historiales confiables y permitiendo el trabajo en zonas con conectividad limitada mediante un enfoque **offline-first**.
 
 ## Tecnologías
+- **Kotlin Multiplatform (KMP)**: Lógica compartida entre plataformas.
+- **Compose Multiplatform**: Interfaz de usuario declarativa compartida.
+- **Material 3**: Sistema de diseño moderno.
+- **Kotlin Coroutines**: Gestión de asincronía.
 
-Kotlin Multiplatform · Compose Multiplatform · targets Android y Desktop
+## Plataformas
+- **Android**: Aplicación móvil principal.
+- **Desktop (JVM)**: Versión para administración en oficina.
+- **iOS**: Soporte base preparado.
 
-(iOS preparado: requiere macOS para compilar)
-## Bitácora
+## Estructura del proyecto
+- `shared/`: Contiene la lógica de negocio y UI compartida.
+    - `commonMain/`: Modelos de dominio y pantallas compartidas.
+    - `androidMain/`, `iosMain/`, `jvmMain/`: Implementaciones específicas de plataforma.
+- `androidApp/`: Punto de entrada para la aplicación Android.
 
-- s1: entorno configurado; proyecto ejecutando en Android y Desktop.
-- s2: modelo de dominio (Producto, Categoria) en commonMain con pruebas en verde.
-- s3: catálogo con LazyColumn y formulario con validación en commonMain.
+## Modelo de dominio actual
+- **Acopio**: Registro de litros, precio y productor.
+- **Productor**: Datos del socio (nombre, código, comunidad).
+- **Usuario**: Roles de Administrador y Operador.
+- **PrecioLecheVigente**: Gestión de precios por temporada.
+
+## Funcionalidades actualmente implementadas
+- [x] Modelado de dominio completo.
+- [x] Pruebas unitarias para reglas de negocio.
+- [x] Estructura base multiplataforma configurada.
+- [x] Flujo offline-first conceptualizado en el dominio.
+
+## Estado actual
+El proyecto ha completado su fase de migración y limpieza, eliminando todo el código de demostración anterior. La base está lista para la implementación de la navegación y la persistencia de datos.
+
+## Próximos pasos
+- Implementación de navegación multiplataforma (Semana 4).
+- Persistencia local con base de datos (offline-first).
+- Integración de escaneo QR para identificación de productores.
