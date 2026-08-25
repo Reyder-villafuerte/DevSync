@@ -21,7 +21,7 @@
 
 ---
 
-## 📚 Fuentes (APA 7)
+## Fuentes (APA 7)
 
 * JetBrains. (2026). *Kotlin Multiplatform documentation*. Kotlin Documentation.
 * JetBrains. (2026). *Kotlin Multiplatform vs. React Native: A cross-platform comparison*. Kotlin Documentation.
@@ -31,7 +31,7 @@
 
 ---
 
-## 🎯 Conclusión del equipo
+##  Conclusión del equipo
 
 Para **MilkFlow**, nuestro equipo **DevSync** eligió **Kotlin Multiplatform (KMP) junto con Compose Multiplatform**.
 
@@ -39,19 +39,19 @@ La elección se debe principalmente a que el proyecto está orientado al **acopi
 
 Además, KMP nos permite trabajar con **Kotlin**, lenguaje que resulta adecuado para el desarrollo Android y que facilita la integración con funcionalidades nativas del dispositivo.
 
-🥛 **MilkFlow busca digitalizar y mejorar el control del acopio de leche**, reemplazando progresivamente los registros manuales realizados en cuadernos por una solución móvil organizada, accesible y preparada para trabajar en entornos con conectividad limitada.
+ **MilkFlow busca digitalizar y mejorar el control del acopio de leche**, reemplazando progresivamente los registros manuales realizados en cuadernos por una solución móvil organizada, accesible y preparada para trabajar en entornos con conectividad limitada.
 
-### ✅ Tecnología seleccionada
+###  Tecnología seleccionada
 
 **Kotlin Multiplatform + Compose Multiplatform**
 
 **Motivos principales:**
 
-* 📱 Desarrollo orientado principalmente a Android.
-* 📴 Soporte para una estrategia **offline-first**.
-* 🗄️ Posibilidad de almacenamiento local.
-* ⚡ Buen rendimiento.
-* 🔐 Integración con funcionalidades nativas.
-* 👨‍💻 Uso de Kotlin.
-* 🥛 Adaptación directa a las necesidades de **MilkFlow**.
+*  Desarrollo orientado principalmente a Android.
+*  Soporte para una estrategia **offline-first**.
+*  Posibilidad de almacenamiento local.
+*  Buen rendimiento.
+*  Integración con funcionalidades nativas.
+*  Uso de Kotlin.
+*  Adaptación directa a las necesidades de **MilkFlow**.
 
