@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    // KSP para Room en androidMain
+    alias(libs.plugins.ksp)
+    // Kotlinx Serialization para DTOs en commonMain
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -50,6 +54,9 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+            // ── Room: persistencia offline (Android-específico) ─────────────────
+            implementation(libs.room.runtime)
+            implementation(libs.room.ktx)
         }
 
         commonMain.dependencies {
@@ -61,6 +68,8 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            // ── Kotlinx Serialization: DTOs de red (multiplatform) ─────────────
+            implementation(libs.kotlinx.serialization.json)
         }
 
         commonTest.dependencies {
@@ -71,4 +80,6 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+    // Room annotation processor — KSP en KMP requiere especificar el target Android
+    add("kspAndroid", libs.room.compiler)
 }

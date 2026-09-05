@@ -3,6 +3,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    // Procesador de anotaciones moderno (reemplaza kapt)
+    alias(libs.plugins.ksp)
+    // Serialización Kotlin para DTOs de red
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -17,6 +21,14 @@ dependencies {
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+
+    // ── Room: Persistencia offline ──────────────────────────────────────────
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // ── Kotlinx Serialization: DTOs de sincronización ────────────────────
+    implementation(libs.kotlinx.serialization.json)
 }
 
 android {
