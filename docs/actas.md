@@ -1,4 +1,4 @@
-# 📋 Actas del equipo DevSync
+# 📋 actas del equipo DevSync
 
 ## 📝 Acta 1 — Semana 1
 
