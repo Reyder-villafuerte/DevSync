@@ -12,9 +12,11 @@ data class EntregaUiState(
     val productorId: String? = null,
     val litros: String = "",
     val tipo: TipoEntrega = TipoEntrega.DIRECTA,
+    val tiposDisponibles: List<TipoEntrega> = listOf(TipoEntrega.DIRECTA, TipoEntrega.RECOGIDA),
     val acopiadorId: String? = null,
     val sector: String = "",
     val submission: EntregaSubmissionState = EntregaSubmissionState.Idle,
+    val titulo: String = "Registrar entrega",
 ) {
     val productorSeleccionado: Productor?
         get() = productores.firstOrNull { it.id == productorId }

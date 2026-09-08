@@ -43,8 +43,13 @@ fun ProductoresScreen(
         )
         ProductorContentState.Empty -> EmptyState(
             modifier = modifier.padding(MilkFlowSpacing.Medium),
-            title = "Sin productores",
-            message = "No existen productores registrados.",
+            title = "Sin productores registrados",
+            message = "No existen productores activos en el sistema.",
+            actionText = if (state.puedeRegistrar) "Registrar productor" else null,
+            onAction = {
+                onEvent(ProductorUiEvent.Nuevo)
+                onActualizarProductor()
+            },
         )
         is ProductorContentState.Error -> ErrorState(
             message = content.message,

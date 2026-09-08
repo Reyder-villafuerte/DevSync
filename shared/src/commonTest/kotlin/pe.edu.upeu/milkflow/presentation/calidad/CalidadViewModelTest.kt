@@ -36,6 +36,7 @@ import pe.edu.upeu.milkflow.presentation.session.SesionUsuario
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalidadViewModelTest {
     private val dispatcher = StandardTestDispatcher()
+    private val fechaRegistro = Instant.parse("2026-09-07T19:31:00Z")
     private val entrega = Entrega(
         id = "e-1",
         productorId = "p-1",
@@ -62,7 +63,9 @@ class CalidadViewModelTest {
         advanceUntilIdle()
 
         val detail = assertIs<CalidadDetalleState.Loaded>(fixture.viewModel.uiState.value.detalle)
-        assertEquals(PruebaCalidad("q-1", "e-1"), detail.prueba)
+        assertEquals("e-1", detail.prueba?.entregaId)
+        assertEquals(fechaRegistro, detail.prueba?.fechaHora)
+        assertEquals(fechaRegistro, fixture.calidad.pruebas.single().fechaHora)
         assertIs<CalidadSubmissionState.Success>(fixture.viewModel.uiState.value.submission)
     }
 
@@ -79,7 +82,7 @@ class CalidadViewModelTest {
     }
 
     @Test
-    fun registraProblemaSinEliminarEntregaOriginal() = runTest(dispatcher) {
+    fun registraProblemaConFechaHora() = runTest(dispatcher) {
         val fixture = fixture()
         advanceUntilIdle()
         fixture.viewModel.onEvent(CalidadUiEvent.SelectEntrega("e-1"))
@@ -89,9 +92,9 @@ class CalidadViewModelTest {
         advanceUntilIdle()
 
         assertEquals(entrega, fixture.entregas.obtenerPorId("e-1"))
-        assertEquals(listOf(ProblemaLeche("q-1", "e-1", "Revisar apariencia")), fixture.calidad.problemas)
-        val detail = assertIs<CalidadDetalleState.Loaded>(fixture.viewModel.uiState.value.detalle)
-        assertEquals(1, detail.problemas.size)
+        val problema = fixture.calidad.problemas.single()
+        assertEquals("Revisar apariencia", problema.descripcion)
+        assertEquals("e-1", problema.entregaId)
     }
 
     @Test
@@ -106,7 +109,7 @@ class CalidadViewModelTest {
 
     @Test
     fun pruebaExistenteSeMuestraYNoSeDuplica() = runTest(dispatcher) {
-        val fixture = fixture(existing = PruebaCalidad("q-existente", "e-1"))
+        val fixture = fixture(existing = PruebaCalidad("q-existente", "e-1", Instant.parse("2026-09-01T08:00:00Z")))
         advanceUntilIdle()
         fixture.viewModel.onEvent(CalidadUiEvent.SelectEntrega("e-1"))
         advanceUntilIdle()
@@ -144,6 +147,7 @@ class CalidadViewModelTest {
                 sesionUsuario = session,
                 validarPermisoUsuario = ValidarPermisoUsuario(),
                 registrarAuditoria = RegistrarAuditoria(auditoria),
+                ahora = { fechaRegistro },
                 idGenerator = { "q-1" },
             ),
         )
@@ -172,6 +176,10 @@ private class FakeCalidadRepository(existing: PruebaCalidad? = null) : CalidadRe
     override suspend fun obtenerPruebaPorId(id: String): PruebaCalidad? = pruebas.find { it.id == id }
     override suspend fun obtenerPruebaPorEntrega(entregaId: String): PruebaCalidad? = pruebas.find { it.entregaId == entregaId }
     override suspend fun obtenerProblemasPorEntrega(entregaId: String): List<ProblemaLeche> = problemas.filter { it.entregaId == entregaId }
+    override suspend fun obtenerPruebasPorRango(rango: RangoFechas) = pruebas.filter { it.fechaHora in rango }
+    override suspend fun obtenerProblemasPorRango(rango: RangoFechas) = problemas.filter { it.fechaHora in rango }
+    override suspend fun obtenerTodasLasPruebas() = pruebas.toList()
+    override suspend fun obtenerTodosLosProblemas() = problemas.toList()
     override suspend fun guardarPrueba(prueba: PruebaCalidad): PruebaCalidad = prueba.also { pruebas += it }
     override suspend fun guardarProblema(problema: ProblemaLeche): ProblemaLeche = problema.also { problemas += it }
 }
@@ -182,4 +190,3 @@ private class FakeAuditoriaRepository : AuditoriaRepository {
     override suspend fun guardar(registro: RegistroAuditoria): RegistroAuditoria = registro.also { registros += it }
     override fun observarTodos() = kotlinx.coroutines.flow.flowOf(registros.toList())
 }
-

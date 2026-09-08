@@ -114,28 +114,30 @@ private fun EntregaForm(
     ) {
         item {
             SectionTitle(
-                title = "Registrar entrega",
+                title = state.titulo,
                 supportingText = "La fecha, hora y usuario se registrarán automáticamente.",
             )
         }
-        item {
-            SectionTitle(title = "Tipo de entrega")
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = MilkFlowSpacing.Small),
-                horizontalArrangement = Arrangement.spacedBy(MilkFlowSpacing.Small),
-            ) {
-                SecondaryButton(
-                    text = if (state.tipo == TipoEntrega.DIRECTA) "✓ Directa" else "Directa",
-                    onClick = { onEvent(EntregaUiEvent.TipoChanged(TipoEntrega.DIRECTA)) },
-                    modifier = Modifier.weight(1f),
-                )
-                SecondaryButton(
-                    text = if (state.tipo == TipoEntrega.RECOGIDA) "✓ Recogida" else "Recogida",
-                    onClick = { onEvent(EntregaUiEvent.TipoChanged(TipoEntrega.RECOGIDA)) },
-                    modifier = Modifier.weight(1f),
-                )
+        if (state.tiposDisponibles.size > 1) {
+            item {
+                SectionTitle(title = "Tipo de entrega")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = MilkFlowSpacing.Small),
+                    horizontalArrangement = Arrangement.spacedBy(MilkFlowSpacing.Small),
+                ) {
+                    SecondaryButton(
+                        text = if (state.tipo == TipoEntrega.DIRECTA) "✓ Directa" else "Directa",
+                        onClick = { onEvent(EntregaUiEvent.TipoChanged(TipoEntrega.DIRECTA)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    SecondaryButton(
+                        text = if (state.tipo == TipoEntrega.RECOGIDA) "✓ Recogida" else "Recogida",
+                        onClick = { onEvent(EntregaUiEvent.TipoChanged(TipoEntrega.RECOGIDA)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
         item { SectionTitle(title = "Productor") }

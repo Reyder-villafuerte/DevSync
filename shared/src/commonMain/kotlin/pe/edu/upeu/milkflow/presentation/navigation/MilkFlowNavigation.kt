@@ -12,8 +12,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import pe.edu.upeu.milkflow.domain.model.RolUsuario
 import pe.edu.upeu.milkflow.presentation.acopiador.AcopiadoresScreen
 import pe.edu.upeu.milkflow.presentation.acopiador.AcopiadorViewModel
@@ -21,23 +23,33 @@ import pe.edu.upeu.milkflow.presentation.acopiador.RegistrarAcopiadorScreen
 import pe.edu.upeu.milkflow.presentation.auditoria.AuditoriaScreen
 import pe.edu.upeu.milkflow.presentation.auditoria.AuditoriaViewModel
 import pe.edu.upeu.milkflow.presentation.calidad.CalidadScreen
+import pe.edu.upeu.milkflow.presentation.calidad.CalidadUiEvent
 import pe.edu.upeu.milkflow.presentation.calidad.CalidadViewModel
+import pe.edu.upeu.milkflow.presentation.calidad.InspeccionesHoyScreen
+import pe.edu.upeu.milkflow.presentation.calidad.ProblemasCalidadScreen
 import pe.edu.upeu.milkflow.presentation.calidad.RegistrarPruebaCalidadScreen
+import pe.edu.upeu.milkflow.presentation.calidad.SupervisorConsultasCalidadViewModel
+import pe.edu.upeu.milkflow.presentation.calidad.SupervisorConsultasUiEvent
 import pe.edu.upeu.milkflow.presentation.components.MilkFlowBottomBar
 import pe.edu.upeu.milkflow.presentation.components.MilkFlowBottomItem
 import pe.edu.upeu.milkflow.presentation.components.MilkFlowTopBar
+import pe.edu.upeu.milkflow.presentation.components.PlaceholderScreen
 import pe.edu.upeu.milkflow.presentation.consultas.ConsultarEntregasProductorScreen
 import pe.edu.upeu.milkflow.presentation.consultas.ConsultaViewModel
 import pe.edu.upeu.milkflow.presentation.consultas.ResumenViewModel
 import pe.edu.upeu.milkflow.presentation.consultas.ResumenProductorScreen
+import pe.edu.upeu.milkflow.presentation.entrega.EntregaUiEvent
 import pe.edu.upeu.milkflow.presentation.entrega.EntregasScreen
 import pe.edu.upeu.milkflow.presentation.entrega.EntregaViewModel
 import pe.edu.upeu.milkflow.presentation.entrega.RegistrarEntregaScreen
-import org.koin.compose.viewmodel.koinViewModel
 import pe.edu.upeu.milkflow.presentation.inicio.InicioNavigation
 import pe.edu.upeu.milkflow.presentation.inicio.InicioScreen
 import pe.edu.upeu.milkflow.presentation.inicio.InicioUiEvent
 import pe.edu.upeu.milkflow.presentation.inicio.InicioViewModel
+import pe.edu.upeu.milkflow.presentation.inicio.LotesProduccionScreen
+import pe.edu.upeu.milkflow.presentation.inicio.ProduccionUiEvent
+import pe.edu.upeu.milkflow.presentation.inicio.ProduccionViewModel
+import pe.edu.upeu.milkflow.presentation.inicio.RegistrarLoteScreen
 import pe.edu.upeu.milkflow.presentation.login.LoginScreen
 import pe.edu.upeu.milkflow.presentation.login.LoginSubmission
 import pe.edu.upeu.milkflow.presentation.login.LoginViewModel
@@ -47,6 +59,7 @@ import pe.edu.upeu.milkflow.presentation.perfil.PerfilScreen
 import pe.edu.upeu.milkflow.presentation.perfil.PerfilUiEvent
 import pe.edu.upeu.milkflow.presentation.perfil.PerfilViewModel
 import pe.edu.upeu.milkflow.presentation.productor.ActualizarProductorScreen
+import pe.edu.upeu.milkflow.presentation.productor.ProductorUiEvent
 import pe.edu.upeu.milkflow.presentation.productor.ProductoresScreen
 import pe.edu.upeu.milkflow.presentation.productor.ProductorViewModel
 import pe.edu.upeu.milkflow.presentation.reportes.ReportesScreen
@@ -69,21 +82,48 @@ fun MilkFlowNavigation(
         val rol = usuarioSesion?.rol
         listOfNotNull(
             MilkFlowBottomItem(AppDestination.Inicio.route, "Inicio", "⌂"),
-            if (rol != RolUsuario.DESPACHO_QUESO && rol != RolUsuario.SUPERVISOR) {
+            
+            // Entregas/Recolección
+            if (rol == RolUsuario.ADMINISTRADORA || rol == RolUsuario.ACOPIADOR) {
                 MilkFlowBottomItem(AppDestination.Entregas.route, "Entregas", "≡")
             } else null,
+
+            // Producción
+            if (rol == RolUsuario.JEFE_PRODUCCION) {
+                MilkFlowBottomItem(AppDestination.Produccion.route, "Producción", "⚒")
+            } else null,
+
+            // Calidad
+            if (rol == RolUsuario.SUPERVISOR) {
+                MilkFlowBottomItem(AppDestination.Calidad.route, "Calidad", "⌬")
+            } else if (rol == RolUsuario.PRODUCTOR) {
+                MilkFlowBottomItem(AppDestination.Calidad.route, "Mi Calidad", "⌬")
+            } else null,
+
+            // Ventas/Despacho
+            if (rol == RolUsuario.DESPACHO_QUESO) {
+                MilkFlowBottomItem(AppDestination.Ventas.route, "Despacho", "🚚")
+            } else null,
+
+            // Reportes
             if (rol == RolUsuario.ADMINISTRADORA || rol == RolUsuario.JEFE_PRODUCCION) {
                 MilkFlowBottomItem(AppDestination.Reportes.route, "Reportes", "▥")
             } else null,
-            if (rol != RolUsuario.DESPACHO_QUESO) {
+
+            // Sincronización
+            if (rol != RolUsuario.PRODUCTOR && rol != RolUsuario.DESPACHO_QUESO && rol != null) {
                 MilkFlowBottomItem(AppDestination.Sincronizacion.route, "Sincronización", "↻")
             } else null,
+
+            // Mis Entregas (Productor)
+            if (rol == RolUsuario.PRODUCTOR) {
+                MilkFlowBottomItem(AppDestination.MisEntregas.route, "Mis Entregas", "≡")
+            } else null,
+
             MilkFlowBottomItem(AppDestination.Perfil.route, "Perfil", "●"),
         )
     }
 
-    val entregaViewModel = koinViewModel<EntregaViewModel>()
-    val calidadViewModel = koinViewModel<CalidadViewModel>()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val destination = AppDestination.fromRoute(currentRoute)
@@ -176,22 +216,33 @@ fun MilkFlowNavigation(
                 )
             }
             composable(AppDestination.Entregas.route) {
-                val state by entregaViewModel.uiState.collectAsState()
+                val viewModel = koinViewModel<EntregaViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(EntregaUiEvent.Load)
+                }
                 EntregasScreen(
                     state = state,
-                    onEvent = entregaViewModel::onEvent,
+                    onEvent = viewModel::onEvent,
                     onRegistrarEntrega = {
                         navController.navigate(AppDestination.RegistrarEntrega.route)
                     },
                 )
             }
             composable(AppDestination.RegistrarEntrega.route) {
-                val state by entregaViewModel.uiState.collectAsState()
-                RegistrarEntregaScreen(state = state, onEvent = entregaViewModel::onEvent)
+                val viewModel = koinViewModel<EntregaViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(EntregaUiEvent.Load)
+                }
+                RegistrarEntregaScreen(state = state, onEvent = viewModel::onEvent)
             }
             composable(AppDestination.Productores.route) {
                 val viewModel = koinViewModel<ProductorViewModel>()
                 val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(ProductorUiEvent.Load)
+                }
                 ProductoresScreen(
                     state = state,
                     onEvent = viewModel::onEvent,
@@ -221,19 +272,49 @@ fun MilkFlowNavigation(
                 val state by viewModel.uiState.collectAsState()
                 RegistrarAcopiadorScreen(state = state, onEvent = viewModel::onEvent)
             }
-            composable(AppDestination.Calidad.route) {
-                val state by calidadViewModel.uiState.collectAsState()
-                CalidadScreen(
-                    state = state,
-                    onEvent = calidadViewModel::onEvent,
-                    onRegistrarPrueba = {
-                        navController.navigate(AppDestination.RegistrarPruebaCalidad.route)
-                    },
-                )
+            navigation(
+                route = "calidad_graph",
+                startDestination = AppDestination.Calidad.route
+            ) {
+                composable(AppDestination.Calidad.route) {
+                    val viewModel = koinViewModel<CalidadViewModel>(
+                        viewModelStoreOwner = remember(it) { navController.getBackStackEntry("calidad_graph") }
+                    )
+                    val state by viewModel.uiState.collectAsState()
+                    LaunchedEffect(Unit) {
+                        viewModel.onEvent(CalidadUiEvent.Load)
+                    }
+                    CalidadScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent,
+                        onRegistrarPrueba = {
+                            navController.navigate(AppDestination.RegistrarPruebaCalidad.route)
+                        },
+                    )
+                }
+                composable(AppDestination.RegistrarPruebaCalidad.route) {
+                    val viewModel = koinViewModel<CalidadViewModel>(
+                        viewModelStoreOwner = remember(it) { navController.getBackStackEntry("calidad_graph") }
+                    )
+                    val state by viewModel.uiState.collectAsState()
+                    RegistrarPruebaCalidadScreen(state = state, onEvent = viewModel::onEvent)
+                }
             }
-            composable(AppDestination.RegistrarPruebaCalidad.route) {
-                val state by calidadViewModel.uiState.collectAsState()
-                RegistrarPruebaCalidadScreen(state = state, onEvent = calidadViewModel::onEvent)
+            composable(AppDestination.InspeccionesHoy.route) {
+                val viewModel = koinViewModel<SupervisorConsultasCalidadViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(SupervisorConsultasUiEvent.RefreshInspecciones)
+                }
+                InspeccionesHoyScreen(state = state, onEvent = viewModel::onEvent)
+            }
+            composable(AppDestination.ProblemasCalidad.route) {
+                val viewModel = koinViewModel<SupervisorConsultasCalidadViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(SupervisorConsultasUiEvent.RefreshProblemas)
+                }
+                ProblemasCalidadScreen(state = state, onEvent = viewModel::onEvent)
             }
             composable(AppDestination.ConsultarEntregasProductor.route) {
                 val viewModel = koinViewModel<ConsultaViewModel>()
@@ -285,6 +366,60 @@ fun MilkFlowNavigation(
                 }
                 PerfilScreen(state = state, onEvent = viewModel::onEvent)
             }
+
+            // Módulos base Etapa 2
+            composable(AppDestination.Produccion.route) {
+                val viewModel = koinViewModel<ProduccionViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(ProduccionUiEvent.SetSoloHoy(false))
+                }
+                LotesProduccionScreen(
+                    state = state,
+                    onEvent = viewModel::onEvent,
+                    onRegistrarLote = {
+                        navController.navigate(AppDestination.RegistrarLote.route)
+                    }
+                )
+            }
+            composable(AppDestination.ProduccionHoy.route) {
+                val viewModel = koinViewModel<ProduccionViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.onEvent(ProduccionUiEvent.SetSoloHoy(true))
+                }
+                LotesProduccionScreen(
+                    state = state,
+                    onEvent = viewModel::onEvent,
+                    onRegistrarLote = {
+                        navController.navigate(AppDestination.RegistrarLote.route)
+                    },
+                    soloHoy = true
+                )
+            }
+            composable(AppDestination.RegistrarLote.route) {
+                val viewModel = koinViewModel<ProduccionViewModel>()
+                val state by viewModel.uiState.collectAsState()
+                RegistrarLoteScreen(
+                    state = state,
+                    onEvent = viewModel::onEvent
+                )
+            }
+            composable(AppDestination.Ventas.route) {
+                PlaceholderScreen(title = "Despacho y Ventas")
+            }
+            composable(AppDestination.RegistrarVenta.route) {
+                PlaceholderScreen(
+                    title = "Registrar Venta de Queso",
+                    message = "Formulario para registrar salida de stock y ventas."
+                )
+            }
+            composable(AppDestination.MisEntregas.route) {
+                PlaceholderScreen(
+                    title = "Mis Entregas",
+                    message = "Consulta de tus entregas de leche realizadas a la planta."
+                )
+            }
         }
     }
 }
@@ -306,4 +441,14 @@ private fun InicioNavigation.toDestination(): AppDestination = when (this) {
     InicioNavigation.CONSULTAS -> AppDestination.ConsultarEntregasProductor
     InicioNavigation.USUARIOS -> AppDestination.Usuarios
     InicioNavigation.AUDITORIA -> AppDestination.Auditoria
+    InicioNavigation.REGISTRAR_LOTE -> AppDestination.RegistrarLote
+    InicioNavigation.REGISTRAR_VENTA -> AppDestination.RegistrarVenta
+    InicioNavigation.MIS_ENTREGAS -> AppDestination.MisEntregas
+    InicioNavigation.PRODUCCION -> AppDestination.Produccion
+    InicioNavigation.PRODUCCION_HOY -> AppDestination.ProduccionHoy
+    InicioNavigation.VENTAS -> AppDestination.Ventas
+    InicioNavigation.SINCRONIZACION -> AppDestination.Sincronizacion
+    InicioNavigation.CALIDAD_PENDIENTE -> AppDestination.Calidad
+    InicioNavigation.CALIDAD_HOY -> AppDestination.InspeccionesHoy
+    InicioNavigation.CALIDAD_PROBLEMAS -> AppDestination.ProblemasCalidad
 }

@@ -1,5 +1,6 @@
 package pe.edu.upeu.milkflow.presentation.calidad
 
+import kotlin.time.Instant
 import pe.edu.upeu.milkflow.domain.model.EstadoSincronizacion
 import pe.edu.upeu.milkflow.domain.model.ProblemaLeche
 import pe.edu.upeu.milkflow.domain.model.PruebaCalidad
@@ -23,7 +24,7 @@ sealed interface CalidadContentState {
 
 data class CalidadEntregaUi(
     val id: String,
-    val fechaHora: String,
+    val fechaHora: Instant,
     val litros: Double,
     val tipo: TipoEntrega,
     val estadoSincronizacion: EstadoSincronizacion,

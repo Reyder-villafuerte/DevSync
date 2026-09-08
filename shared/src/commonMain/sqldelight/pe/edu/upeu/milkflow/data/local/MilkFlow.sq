@@ -43,13 +43,15 @@ ON entrega_local(fecha_hora_epoch_millis);
 
 CREATE TABLE prueba_calidad_local (
     id TEXT NOT NULL PRIMARY KEY,
-    entrega_id TEXT NOT NULL REFERENCES entrega_local(id)
+    entrega_id TEXT NOT NULL REFERENCES entrega_local(id),
+    fecha_hora_epoch_millis INTEGER NOT NULL
 );
 
 CREATE TABLE problema_leche_local (
     id TEXT NOT NULL PRIMARY KEY,
     entrega_id TEXT NOT NULL REFERENCES entrega_local(id),
-    descripcion TEXT NOT NULL
+    descripcion TEXT NOT NULL,
+    fecha_hora_epoch_millis INTEGER NOT NULL
 );
 
 CREATE INDEX problema_entrega_idx
@@ -68,6 +70,15 @@ CREATE TABLE sincronizacion_local (
     registro_id TEXT NOT NULL,
     estado TEXT NOT NULL CHECK (estado IN ('PENDIENTE', 'ENVIADO', 'ERROR')),
     PRIMARY KEY (tipo_registro, registro_id)
+);
+
+CREATE TABLE lote_produccion_local (
+    id TEXT NOT NULL PRIMARY KEY,
+    fecha_hora_epoch_millis INTEGER NOT NULL,
+    litros_utilizados REAL NOT NULL,
+    moldes_obtenidos INTEGER NOT NULL,
+    tipo_producto TEXT NOT NULL,
+    observaciones TEXT
 );
 
 guardarUsuario:
@@ -196,34 +207,37 @@ SET estado_sincronizacion = ?
 WHERE id = ?;
 
 guardarPruebaCalidad:
-INSERT INTO prueba_calidad_local(id, entrega_id)
-VALUES (?, ?)
-ON CONFLICT(id) DO UPDATE SET entrega_id = excluded.entrega_id;
+INSERT INTO prueba_calidad_local(id, entrega_id, fecha_hora_epoch_millis)
+VALUES (?, ?, ?);
 
 obtenerPruebaPorId:
-SELECT id, entrega_id
-FROM prueba_calidad_local
-WHERE id = ?;
+SELECT * FROM prueba_calidad_local WHERE id = ?;
 
 obtenerPruebaPorEntrega:
-SELECT id, entrega_id
-FROM prueba_calidad_local
-WHERE entrega_id = ?
-ORDER BY id
-LIMIT 1;
+SELECT * FROM prueba_calidad_local WHERE entrega_id = ? ORDER BY id LIMIT 1;
+
+obtenerPruebasPorRango:
+SELECT * FROM prueba_calidad_local
+WHERE fecha_hora_epoch_millis >= ? AND fecha_hora_epoch_millis < ?
+ORDER BY fecha_hora_epoch_millis DESC;
+
+obtenerTodasLasPruebas:
+SELECT * FROM prueba_calidad_local ORDER BY fecha_hora_epoch_millis DESC;
 
 guardarProblemaLeche:
-INSERT INTO problema_leche_local(id, entrega_id, descripcion)
-VALUES (?, ?, ?)
-ON CONFLICT(id) DO UPDATE SET
-    entrega_id = excluded.entrega_id,
-    descripcion = excluded.descripcion;
+INSERT INTO problema_leche_local(id, entrega_id, descripcion, fecha_hora_epoch_millis)
+VALUES (?, ?, ?, ?);
 
 obtenerProblemasPorEntrega:
-SELECT id, entrega_id, descripcion
-FROM problema_leche_local
-WHERE entrega_id = ?
-ORDER BY id;
+SELECT * FROM problema_leche_local WHERE entrega_id = ? ORDER BY id;
+
+obtenerProblemasPorRango:
+SELECT * FROM problema_leche_local
+WHERE fecha_hora_epoch_millis >= ? AND fecha_hora_epoch_millis < ?
+ORDER BY fecha_hora_epoch_millis DESC;
+
+obtenerTodosLosProblemas:
+SELECT * FROM problema_leche_local ORDER BY fecha_hora_epoch_millis DESC;
 
 guardarAuditoria:
 INSERT INTO auditoria_local(
@@ -271,3 +285,24 @@ actualizarEstadoSincronizacion:
 UPDATE sincronizacion_local
 SET estado = ?
 WHERE tipo_registro = ? AND registro_id = ?;
+
+guardarLoteProduccion:
+INSERT INTO lote_produccion_local(id, fecha_hora_epoch_millis, litros_utilizados, moldes_obtenidos, tipo_producto, observaciones)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    fecha_hora_epoch_millis = excluded.fecha_hora_epoch_millis,
+    litros_utilizados = excluded.litros_utilizados,
+    moldes_obtenidos = excluded.moldes_obtenidos,
+    tipo_producto = excluded.tipo_producto,
+    observaciones = excluded.observaciones;
+
+obtenerLotePorId:
+SELECT * FROM lote_produccion_local WHERE id = ?;
+
+obtenerLotesProduccion:
+SELECT * FROM lote_produccion_local ORDER BY fecha_hora_epoch_millis DESC;
+
+obtenerLotesProduccionPorRango:
+SELECT * FROM lote_produccion_local
+WHERE fecha_hora_epoch_millis >= ? AND fecha_hora_epoch_millis < ?
+ORDER BY fecha_hora_epoch_millis DESC;

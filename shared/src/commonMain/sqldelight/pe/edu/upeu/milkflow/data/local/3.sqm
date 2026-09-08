@@ -1,0 +1,12 @@
+-- Migración 3: Soporte de tiempo en calidad y tabla de producción
+ALTER TABLE prueba_calidad_local ADD COLUMN fecha_hora_epoch_millis INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE problema_leche_local ADD COLUMN fecha_hora_epoch_millis INTEGER NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS lote_produccion_local (
+    id TEXT NOT NULL PRIMARY KEY,
+    fecha_hora_epoch_millis INTEGER NOT NULL,
+    litros_utilizados REAL NOT NULL,
+    moldes_obtenidos INTEGER NOT NULL,
+    tipo_producto TEXT NOT NULL,
+    observaciones TEXT
+);

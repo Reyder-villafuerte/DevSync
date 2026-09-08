@@ -49,11 +49,15 @@ class EntregaViewModel(
 
     init {
         cargarDatos()
+        configurarSegunRol()
     }
 
     fun onEvent(event: EntregaUiEvent) {
         when (event) {
-            EntregaUiEvent.Load, EntregaUiEvent.Retry -> cargarDatos()
+            EntregaUiEvent.Load, EntregaUiEvent.Retry -> {
+                cargarDatos()
+                configurarSegunRol()
+            }
             is EntregaUiEvent.SelectProductor -> _uiState.update {
                 it.copy(productorId = event.productorId, submission = EntregaSubmissionState.Idle)
             }
@@ -208,6 +212,26 @@ class EntregaViewModel(
 
     private fun mostrarError(message: String) {
         _uiState.update { it.copy(submission = EntregaSubmissionState.Error(message)) }
+    }
+
+    private fun configurarSegunRol() {
+        val rol = sesionUsuario.usuario.value?.rol ?: return
+        val tipos = when (rol) {
+            pe.edu.upeu.milkflow.domain.model.RolUsuario.ACOPIADOR -> listOf(TipoEntrega.RECOGIDA)
+            pe.edu.upeu.milkflow.domain.model.RolUsuario.ADMINISTRADORA -> listOf(TipoEntrega.DIRECTA, TipoEntrega.RECOGIDA)
+            else -> emptyList()
+        }
+        val titulo = when (rol) {
+            pe.edu.upeu.milkflow.domain.model.RolUsuario.ACOPIADOR -> "Nueva recolección"
+            else -> "Registrar entrega"
+        }
+        _uiState.update { 
+            it.copy(
+                tiposDisponibles = tipos,
+                tipo = tipos.firstOrNull() ?: TipoEntrega.DIRECTA,
+                titulo = titulo
+            ) 
+        }
     }
 }
 

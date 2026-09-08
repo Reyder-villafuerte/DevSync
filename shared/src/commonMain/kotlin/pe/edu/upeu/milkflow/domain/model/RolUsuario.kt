@@ -1,10 +1,11 @@
 package pe.edu.upeu.milkflow.domain.model
 
 enum class RolUsuario {
-    JEFE_PRODUCCION,
-    DESPACHO_QUESO,
     ADMINISTRADORA,
+    JEFE_PRODUCCION,
     ACOPIADOR,
     SUPERVISOR,
+    DESPACHO_QUESO,
+    PRODUCTOR,
     PENDIENTE_ASIGNACION,
 }

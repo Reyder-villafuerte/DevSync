@@ -192,5 +192,6 @@ private fun RolUsuario.nombreVisible(): String = when (this) {
     RolUsuario.DESPACHO_QUESO -> "Personal de despacho de queso"
     RolUsuario.ACOPIADOR -> "Acopiador"
     RolUsuario.SUPERVISOR -> "Supervisor"
+    RolUsuario.PRODUCTOR -> "Productor"
     RolUsuario.PENDIENTE_ASIGNACION -> "Pendiente de asignación"
 }

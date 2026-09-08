@@ -15,12 +15,19 @@ sealed interface InicioContentState {
 data class InicioDashboardData(
     val nombreUsuario: String,
     val rol: String,
-    val totalLitrosHoy: Double,
-    val cantidadEntregasHoy: Int,
+    val kpis: List<InicioKpiUi> = emptyList(),
     val registrosPendientes: Int,
-    val entregasRecientes: List<EntregaRecienteUi>,
+    val entregasRecientes: List<EntregaRecienteUi> = emptyList(),
     val acciones: List<InicioAccionUi> = emptyList(),
-    val mostrarMensajePendiente: Boolean = false,
+    val mostrarMensajeDespacho: Boolean = false,
+    val esProductor: Boolean = false,
+    val emptyStateTitle: String = "Sin registros hoy",
+    val emptyStateMessage: String = "La actividad diaria aparecerá en esta sección.",
+)
+
+data class InicioKpiUi(
+    val titulo: String,
+    val valor: String,
 )
 
 data class InicioAccionUi(
@@ -45,6 +52,16 @@ enum class InicioNavigation {
     CONSULTAS,
     USUARIOS,
     AUDITORIA,
+    REGISTRAR_LOTE,
+    REGISTRAR_VENTA,
+    MIS_ENTREGAS,
+    PRODUCCION,
+    PRODUCCION_HOY,
+    VENTAS,
+    SINCRONIZACION,
+    CALIDAD_PENDIENTE,
+    CALIDAD_HOY,
+    CALIDAD_PROBLEMAS,
 }
 
 sealed interface InicioUiEvent {

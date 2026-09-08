@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +31,7 @@ import pe.edu.upeu.milkflow.presentation.components.StatusChip
 import pe.edu.upeu.milkflow.presentation.components.StatusTone
 import pe.edu.upeu.milkflow.presentation.design.MilkFlowColors
 import pe.edu.upeu.milkflow.presentation.design.MilkFlowSpacing
+import pe.edu.upeu.milkflow.presentation.util.formatFecha
 
 @Composable
 fun CalidadScreen(
@@ -196,7 +199,7 @@ private fun CalidadEntregaCard(
                     color = MilkFlowColors.TextPrimary,
                 )
                 Text(
-                    text = entrega.fechaHora,
+                    text = formatFecha(entrega.fechaHora),
                     style = MaterialTheme.typography.bodySmall,
                     color = MilkFlowColors.TextSecondary,
                 )
@@ -228,6 +231,148 @@ private fun CalidadEntregaCard(
 }
 
 @Composable
+fun InspeccionesHoyScreen(
+    state: SupervisorConsultasUiState,
+    onEvent: (SupervisorConsultasUiEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (val insp = state.inspeccionesHoy) {
+        InspeccionesHoyState.Loading -> LoadingState(modifier = modifier.padding(MilkFlowSpacing.Medium))
+        InspeccionesHoyState.Empty -> EmptyState(
+            title = "Sin inspecciones hoy",
+            message = "Las pruebas de calidad evaluadas hoy aparecerán aquí.",
+            modifier = modifier.padding(MilkFlowSpacing.Medium)
+        )
+        is InspeccionesHoyState.Error -> ErrorState(
+            message = insp.message,
+            onRetry = { onEvent(SupervisorConsultasUiEvent.RefreshInspecciones) },
+            modifier = modifier.padding(MilkFlowSpacing.Medium)
+        )
+        is InspeccionesHoyState.Success -> LazyColumn(
+            modifier = modifier.fillMaxSize().padding(MilkFlowSpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(MilkFlowSpacing.Medium)
+        ) {
+            item {
+                SectionTitle(
+                    title = "Inspecciones de hoy",
+                    supportingText = "Pruebas de calidad registradas durante el día."
+                )
+            }
+            items(insp.inspecciones, key = { it.prueba.id }) { item ->
+                MilkFlowCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MilkFlowSpacing.XSmall)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Prueba de calidad", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                text = "${item.litrosEntrega} L",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MilkFlowColors.Primary
+                            )
+                        }
+                        
+                        Text(
+                            text = formatFecha(item.prueba.fechaHora),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MilkFlowColors.TextSecondary
+                        )
+
+                        Text(
+                            text = "ID: ${item.prueba.id}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MilkFlowColors.TextSecondary,
+                        )
+
+                        Text(
+                            text = "Entrega: ${item.prueba.entregaId}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MilkFlowColors.TextSecondary,
+                            modifier = Modifier.padding(top = MilkFlowSpacing.XSmall)
+                        )
+
+                        if (item.problemas.isNotEmpty()) {
+                            Text(
+                                text = "Observaciones:",
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(top = MilkFlowSpacing.Small)
+                            )
+                            item.problemas.forEach { prob ->
+                                Text(text = "• ${prob.descripcion}", style = MaterialTheme.typography.bodySmall)
+                            }
+                        } else {
+                            Text(
+                                text = "Sin observaciones registradas",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MilkFlowColors.TextSecondary,
+                                modifier = Modifier.padding(top = MilkFlowSpacing.Small)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProblemasCalidadScreen(
+    state: SupervisorConsultasUiState,
+    onEvent: (SupervisorConsultasUiEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (val prob = state.problemasCalidad) {
+        ProblemasCalidadState.Loading -> LoadingState(modifier = modifier.padding(MilkFlowSpacing.Medium))
+        ProblemasCalidadState.Empty -> EmptyState(
+            title = "Sin problemas registrados",
+            message = "No existen observaciones de calidad en el sistema.",
+            modifier = modifier.padding(MilkFlowSpacing.Medium)
+        )
+        is ProblemasCalidadState.Error -> ErrorState(
+            message = prob.message,
+            onRetry = { onEvent(SupervisorConsultasUiEvent.RefreshProblemas) },
+            modifier = modifier.padding(MilkFlowSpacing.Medium)
+        )
+        is ProblemasCalidadState.Success -> LazyColumn(
+            modifier = modifier.fillMaxSize().padding(MilkFlowSpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(MilkFlowSpacing.Medium)
+        ) {
+            item {
+                SectionTitle(
+                    title = "Problemas registrados",
+                    supportingText = "Historial completo de observaciones y problemas de calidad."
+                )
+            }
+            items(prob.problemas, key = { it.id }) { problema ->
+                MilkFlowCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MilkFlowSpacing.XSmall)) {
+                        Text(text = "Entrega", style = MaterialTheme.typography.labelSmall, color = MilkFlowColors.TextSecondary)
+                        Text(text = problema.entregaId, style = MaterialTheme.typography.titleSmall)
+                        
+                        Text(
+                            text = formatFecha(problema.fechaHora),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MilkFlowColors.TextSecondary
+                        )
+                        
+                        Spacer(Modifier.height(MilkFlowSpacing.Small))
+                        
+                        Text(
+                            text = problema.descripcion,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MilkFlowColors.TextPrimary
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun CalidadDetail(state: CalidadUiState) {
     when (val detail = state.detalle) {
         CalidadDetalleState.None -> Unit
@@ -252,7 +397,7 @@ private fun CalidadDetail(state: CalidadUiState) {
                     Text(
                         text = "• ${problema.descripcion}",
                         modifier = Modifier.padding(top = MilkFlowSpacing.Small),
-                        color = MilkFlowColors.Error,
+                        color = MilkFlowColors.TextPrimary,
                     )
                 }
             }

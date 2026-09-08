@@ -153,7 +153,7 @@ class DataRepositoriesTest {
     @Test
     fun guardaPruebaVinculadaAEntrega() = runTest {
         guardarEntregaBase()
-        val prueba = PruebaCalidad("prueba-1", "ent-1")
+        val prueba = PruebaCalidad("prueba-1", "ent-1", Instant.parse("2026-09-01T10:00:00Z"))
 
         calidad.guardarPrueba(prueba)
 
@@ -164,12 +164,45 @@ class DataRepositoriesTest {
     @Test
     fun registrarProblemaMantieneEntregaOriginal() = runTest {
         guardarEntregaBase()
-        val problema = ProblemaLeche("problema-1", "ent-1", "Observación visual")
+        val problema = ProblemaLeche("problema-1", "ent-1", "Observación visual", Instant.parse("2026-09-01T10:00:00Z"))
 
         calidad.guardarProblema(problema)
 
         assertNotNull(entregas.obtenerPorId("ent-1"))
         assertEquals(listOf(problema), calidad.obtenerProblemasPorEntrega("ent-1"))
+    }
+
+    @Test
+    fun guardaYRecuperaPruebaPorRango() = runTest {
+        productores.guardar(productorActivo())
+        entregas.guardar(entregaDirecta())
+        
+        val fecha = Instant.parse("2026-09-07T15:00:00Z")
+        val prueba = PruebaCalidad("q1", "ent-1", fecha)
+        calidad.guardarPrueba(prueba)
+        
+        val rango = RangoFechas(
+            inicio = Instant.parse("2026-09-07T00:00:00Z"),
+            finExclusivo = Instant.parse("2026-09-08T00:00:00Z")
+        )
+        
+        val resultados = calidad.obtenerPruebasPorRango(rango)
+        assertEquals(1, resultados.size)
+        assertEquals(fecha, resultados.first().fechaHora)
+        assertEquals(
+            1788793200000L,
+            database.milkFlowQueries.obtenerPruebaPorId("q1")
+                .executeAsOne()
+                .fecha_hora_epoch_millis,
+        )
+        assertEquals(prueba, calidad.obtenerPruebaPorId("q1"))
+        assertEquals(listOf(prueba), calidad.obtenerTodasLasPruebas())
+
+        val rangoFueraDelDia = RangoFechas(
+            inicio = Instant.parse("2026-09-08T00:00:00Z"),
+            finExclusivo = Instant.parse("2026-09-09T00:00:00Z"),
+        )
+        assertTrue(calidad.obtenerPruebasPorRango(rangoFueraDelDia).isEmpty())
     }
 
     @Test

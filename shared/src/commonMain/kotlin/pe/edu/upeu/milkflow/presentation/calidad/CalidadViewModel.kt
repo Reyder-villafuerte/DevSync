@@ -68,7 +68,7 @@ class CalidadViewModel(
                 val items = entregas.map {
                     CalidadEntregaUi(
                         id = it.id,
-                        fechaHora = it.fechaHora.toString(),
+                        fechaHora = it.fechaHora,
                         litros = it.litros,
                         tipo = it.tipo,
                         estadoSincronizacion = it.estadoSincronizacion,
@@ -139,7 +139,13 @@ class CalidadViewModel(
         viewModelScope.launch {
             try {
                 validarPermisoUsuario.requerir(usuario.rol, AccionUsuario.REGISTRAR_PRUEBA_CALIDAD)
-                val prueba = registrarPruebaCalidad(PruebaCalidad(idGenerator(), entregaId))
+                val prueba = registrarPruebaCalidad(
+                    PruebaCalidad(
+                        id = idGenerator(), 
+                        entregaId = entregaId,
+                        fechaHora = ahora()
+                    )
+                )
                 registrarAuditoria(
                     id = auditIdGenerator(),
                     usuarioId = usuario.id,
@@ -188,7 +194,12 @@ class CalidadViewModel(
             try {
                 validarPermisoUsuario.requerir(usuario.rol, AccionUsuario.REGISTRAR_PROBLEMA_CALIDAD)
                 val problema = registrarProblemaLeche(
-                    ProblemaLeche(idGenerator(), entregaId, descripcion),
+                    ProblemaLeche(
+                        id = idGenerator(), 
+                        entregaId = entregaId, 
+                        descripcion = descripcion,
+                        fechaHora = ahora()
+                    ),
                 )
                 registrarAuditoria(
                     id = auditIdGenerator(),

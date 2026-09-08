@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import pe.edu.upeu.milkflow.presentation.components.EmptyState
@@ -33,6 +34,10 @@ fun InicioScreen(
     onEvent: (InicioUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    LaunchedEffect(Unit) {
+        onEvent(InicioUiEvent.Refresh)
+    }
+
     when (val content = state.content) {
         InicioContentState.Loading -> LoadingState(
             modifier = modifier.padding(MilkFlowSpacing.Medium),
@@ -77,48 +82,50 @@ private fun DashboardContent(
                 supportingText = data.rol,
             )
         }
-        item {
-            MilkFlowCard(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Estado de sincronización",
-                    style = MaterialTheme.typography.labelLarge,
-                )
-                StatusChip(
-                    text = if (data.registrosPendientes == 0) {
-                        "Sin registros pendientes"
-                    } else {
-                        "${data.registrosPendientes} registros pendientes"
-                    },
-                    tone = if (data.registrosPendientes == 0) {
-                        StatusTone.SUCCESS
-                    } else {
-                        StatusTone.WARNING
-                    },
-                    modifier = Modifier.padding(top = MilkFlowSpacing.Small),
-                )
+        
+        if (!data.esProductor && !data.mostrarMensajeDespacho) {
+            item {
+                MilkFlowCard(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Estado de sincronización",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    StatusChip(
+                        text = if (data.registrosPendientes == 0) {
+                            "Sin registros pendientes"
+                        } else {
+                            "${data.registrosPendientes} registros pendientes"
+                        },
+                        tone = if (data.registrosPendientes == 0) {
+                            StatusTone.SUCCESS
+                        } else {
+                            StatusTone.WARNING
+                        },
+                        modifier = Modifier.padding(top = MilkFlowSpacing.Small),
+                    )
+                }
             }
         }
         
-        item { SectionTitle(title = "Resumen del día") }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MilkFlowSpacing.Small),
-            ) {
-                SummaryCard(
-                    title = "Total de litros",
-                    value = "${data.totalLitrosHoy} L",
-                    modifier = Modifier.weight(1f),
-                )
-                SummaryCard(
-                    title = "Entregas",
-                    value = data.cantidadEntregasHoy.toString(),
-                    modifier = Modifier.weight(1f),
-                )
+        if (data.kpis.isNotEmpty()) {
+            item { SectionTitle(title = "Resumen del día") }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MilkFlowSpacing.Small),
+                ) {
+                    data.kpis.forEach { kpi ->
+                        SummaryCard(
+                            title = kpi.titulo,
+                            value = kpi.valor,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
             }
         }
         
-        if (data.mostrarMensajePendiente) {
+        if (data.mostrarMensajeDespacho) {
             item {
                 MilkFlowCard(modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -128,7 +135,7 @@ private fun DashboardContent(
                     )
                     Spacer(Modifier.height(MilkFlowSpacing.Small))
                     Text(
-                        text = "Funciones de despacho pendientes de definición técnica.",
+                        text = "Funciones de despacho bajo revisión comercial.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MilkFlowColors.TextSecondary
                     )
@@ -171,13 +178,13 @@ private fun DashboardContent(
             }
         }
 
-        if (!data.mostrarMensajePendiente) {
+        if (!data.mostrarMensajeDespacho && !data.esProductor) {
             item { SectionTitle(title = "Registros recientes") }
             if (isEmpty || data.entregasRecientes.isEmpty()) {
                 item {
                     EmptyState(
-                        title = "Sin entregas registradas hoy",
-                        message = "Los registros del día aparecerán en esta sección.",
+                        title = data.emptyStateTitle,
+                        message = data.emptyStateMessage,
                     )
                 }
             } else {
@@ -210,6 +217,25 @@ private fun DashboardContent(
                 }
             }
         }
+        
+        if (data.esProductor) {
+            item { SectionTitle(title = "Planta de procesamiento") }
+            item {
+                MilkFlowCard(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Comunicados",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MilkFlowColors.Primary
+                    )
+                    Spacer(Modifier.height(MilkFlowSpacing.Small))
+                    Text(
+                        text = "No hay comunicados oficiales por ahora.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MilkFlowColors.TextSecondary
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -220,7 +246,17 @@ private fun SummaryCard(
     modifier: Modifier,
 ) {
     MilkFlowCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.bodyMedium, color = MilkFlowColors.TextSecondary)
-        Text(value, style = MaterialTheme.typography.headlineSmall, color = MilkFlowColors.Primary)
+        Text(
+            text = title, 
+            style = MaterialTheme.typography.labelSmall, 
+            color = MilkFlowColors.TextSecondary,
+            maxLines = 1
+        )
+        Text(
+            text = value, 
+            style = MaterialTheme.typography.titleMedium, 
+            color = MilkFlowColors.Primary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

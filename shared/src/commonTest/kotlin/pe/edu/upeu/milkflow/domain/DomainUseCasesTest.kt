@@ -125,20 +125,20 @@ class DomainUseCasesTest {
         val entregas = FakeEntregaRepository(entrega)
         val calidad = FakeCalidadRepository()
         val registrar = RegistrarPruebaCalidad(entregas, calidad)
-        val prueba = PruebaCalidad("c-1", "e-1")
+        val prueba = PruebaCalidad("c-1", "e-1", fecha)
 
         assertSame(prueba, registrar(prueba))
         assertSame(prueba, calidad.pruebas.single())
 
         assertFailsWith<EntregaNoEncontradaException> {
-            registrar(PruebaCalidad("c-2", "e-inexistente"))
+            registrar(PruebaCalidad("c-2", "e-inexistente", fecha))
         }
     }
 
     @Test
     fun rechazarPruebaCalidadSinIdentificadorDeEntrega() {
         assertFailsWith<PruebaCalidadInvalidaException> {
-            PruebaCalidad("c-1", "")
+            PruebaCalidad("c-1", "", fecha)
         }
     }
 
@@ -248,6 +248,16 @@ private class FakeCalidadRepository : CalidadRepository {
 
     override suspend fun obtenerProblemasPorEntrega(entregaId: String): List<ProblemaLeche> =
         problemas.filter { it.entregaId == entregaId }
+
+    override suspend fun obtenerPruebasPorRango(rango: RangoFechas) =
+        pruebas.filter { it.fechaHora in rango }
+
+    override suspend fun obtenerProblemasPorRango(rango: RangoFechas) =
+        problemas.filter { it.fechaHora in rango }
+
+    override suspend fun obtenerTodasLasPruebas() = pruebas.toList()
+
+    override suspend fun obtenerTodosLosProblemas() = problemas.toList()
 
     override suspend fun guardarPrueba(prueba: PruebaCalidad): PruebaCalidad =
         prueba.also { pruebas += it }

@@ -10,8 +10,6 @@ class ValidarPermisoUsuario {
         RolUsuario.JEFE_PRODUCCION -> accion in setOf(
             AccionUsuario.REGISTRAR_PRODUCTOR,
             AccionUsuario.ACTUALIZAR_PRODUCTOR,
-            AccionUsuario.REGISTRAR_ENTREGA_DIRECTA,
-            AccionUsuario.REGISTRAR_LECHE_RECOGIDA,
             AccionUsuario.SINCRONIZAR_REGISTROS,
             AccionUsuario.CONSULTAR_AUDITORIA,
         )
@@ -26,7 +24,10 @@ class ValidarPermisoUsuario {
             AccionUsuario.REGISTRAR_ACOPIADOR,
             AccionUsuario.SINCRONIZAR_REGISTROS,
         )
-        RolUsuario.DESPACHO_QUESO -> false // Pendiente definir permisos específicos
+        RolUsuario.DESPACHO_QUESO -> accion in setOf(
+            AccionUsuario.SINCRONIZAR_REGISTROS,
+        )
+        RolUsuario.PRODUCTOR -> false
         RolUsuario.PENDIENTE_ASIGNACION -> false
     }
 

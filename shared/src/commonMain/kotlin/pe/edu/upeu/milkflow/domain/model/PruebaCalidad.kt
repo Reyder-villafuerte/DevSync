@@ -1,5 +1,6 @@
 package pe.edu.upeu.milkflow.domain.model
 
+import kotlin.time.Instant
 import pe.edu.upeu.milkflow.domain.PruebaCalidadInvalidaException
 
 /**
@@ -10,6 +11,7 @@ import pe.edu.upeu.milkflow.domain.PruebaCalidadInvalidaException
 data class PruebaCalidad(
     val id: String,
     val entregaId: String,
+    val fechaHora: Instant,
 ) {
     init {
         require(id.isNotBlank()) { "El identificador de la prueba es obligatorio." }
@@ -25,6 +27,7 @@ data class ProblemaLeche(
     val id: String,
     val entregaId: String,
     val descripcion: String,
+    val fechaHora: Instant,
 ) {
     init {
         require(id.isNotBlank()) { "El identificador del problema es obligatorio." }

@@ -4,6 +4,7 @@ import kotlin.time.Instant
 import pe.edu.upeu.milkflow.domain.model.Acopiador
 import pe.edu.upeu.milkflow.domain.model.Entrega
 import pe.edu.upeu.milkflow.domain.model.EstadoSincronizacion
+import pe.edu.upeu.milkflow.domain.model.LoteProduccion
 import pe.edu.upeu.milkflow.domain.model.ProblemaLeche
 import pe.edu.upeu.milkflow.domain.model.Productor
 import pe.edu.upeu.milkflow.domain.model.PruebaCalidad
@@ -11,6 +12,7 @@ import pe.edu.upeu.milkflow.domain.model.RegistroAuditoria
 import pe.edu.upeu.milkflow.domain.model.RegistroSincronizable
 import pe.edu.upeu.milkflow.domain.model.RolUsuario
 import pe.edu.upeu.milkflow.domain.model.TipoEntrega
+import pe.edu.upeu.milkflow.domain.model.TipoProducto
 import pe.edu.upeu.milkflow.domain.model.Usuario
 
 internal fun mapUsuario(
@@ -25,7 +27,7 @@ internal fun mapUsuario(
         "ENCARGADO_PLANTA" -> RolUsuario.JEFE_PRODUCCION
         "ENCARGADO_CALIDAD" -> RolUsuario.SUPERVISOR
         "COORDINADOR_ACOPIO" -> RolUsuario.SUPERVISOR
-        "PRODUCTOR" -> RolUsuario.PENDIENTE_ASIGNACION
+        "PRODUCTOR" -> RolUsuario.PRODUCTOR
         else -> try {
             RolUsuario.valueOf(rol)
         } catch (_: Exception) {
@@ -62,11 +64,27 @@ internal fun mapEntrega(
     sector = sector,
 )
 
-internal fun mapPruebaCalidad(id: String, entregaId: String): PruebaCalidad =
-    PruebaCalidad(id, entregaId)
+internal fun mapPruebaCalidad(
+    id: String,
+    entregaId: String,
+    fechaHoraEpochMillis: Long,
+): PruebaCalidad = PruebaCalidad(
+    id = id,
+    entregaId = entregaId,
+    fechaHora = Instant.fromEpochMilliseconds(fechaHoraEpochMillis),
+)
 
-internal fun mapProblemaLeche(id: String, entregaId: String, descripcion: String): ProblemaLeche =
-    ProblemaLeche(id, entregaId, descripcion)
+internal fun mapProblemaLeche(
+    id: String,
+    entregaId: String,
+    descripcion: String,
+    fechaHoraEpochMillis: Long,
+): ProblemaLeche = ProblemaLeche(
+    id = id,
+    entregaId = entregaId,
+    descripcion = descripcion,
+    fechaHora = Instant.fromEpochMilliseconds(fechaHoraEpochMillis),
+)
 
 internal fun mapAuditoria(
     id: String,
@@ -90,6 +108,22 @@ internal fun mapRegistroSincronizable(
     registroId = registroId,
     tipoRegistro = tipoRegistro,
     estado = EstadoSincronizacion.valueOf(estado),
+)
+
+internal fun mapLoteProduccion(
+    id: String,
+    fechaHoraEpochMillis: Long,
+    litrosUtilizados: Double,
+    moldesObtenidos: Long,
+    tipoProducto: String,
+    observaciones: String?,
+): LoteProduccion = LoteProduccion(
+    id = id,
+    fechaHora = Instant.fromEpochMilliseconds(fechaHoraEpochMillis),
+    litrosLecheUtilizados = litrosUtilizados,
+    moldesObtenidos = moldesObtenidos.toInt(),
+    tipoProducto = TipoProducto.valueOf(tipoProducto),
+    observaciones = observaciones,
 )
 
 internal fun Boolean.toSqlLong(): Long = if (this) 1L else 0L

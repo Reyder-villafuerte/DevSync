@@ -42,8 +42,8 @@ class ProductorViewModel(
     fun onEvent(event: ProductorUiEvent) {
         when (event) {
             ProductorUiEvent.Load, ProductorUiEvent.Retry -> {
-                cargarProductores()
                 verificarPermisos()
+                cargarProductores()
             }
             is ProductorUiEvent.Select -> seleccionar(event.productorId)
             is ProductorUiEvent.NombreChanged -> _uiState.update {

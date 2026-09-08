@@ -19,7 +19,10 @@ class NavigationStructureTest {
             .map(AppDestination::route)
 
         assertEquals(
-            listOf("inicio", "entregas", "reportes", "sincronizacion", "perfil"),
+            listOf(
+                "inicio", "entregas", "reportes", "sincronizacion", "perfil",
+                "produccion", "ventas", "mis-entregas"
+            ),
             bottomRoutes,
         )
         assertFalse(AppDestination.Login.isBottomDestination)

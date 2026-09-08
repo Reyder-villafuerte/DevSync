@@ -97,6 +97,34 @@ class ProductorViewModelTest {
     }
 
     @Test
+    fun verificarPermisosAdministradora() = runTest(dispatcher) {
+        val viewModel = createViewModel(FakeProductorPresentationRepository())
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.puedeRegistrar)
+    }
+
+    @Test
+    fun verificarPermisosAcopiador() = runTest(dispatcher) {
+        val repository = FakeProductorPresentationRepository()
+        val auditoria = FakeAuditoriaRepository()
+        val session = SesionUsuario().apply {
+            iniciar(
+                Usuario("u-2", "acopiador", "Luis", RolUsuario.ACOPIADOR, true)
+            )
+        }
+        val viewModel = ProductorViewModel(
+            productorRepository = repository,
+            actualizarProductor = ActualizarProductor(repository),
+            registrarProductor = RegistrarProductor(repository),
+            sesionUsuario = session,
+            validarPermisoUsuario = ValidarPermisoUsuario(),
+            registrarAuditoria = RegistrarAuditoria(auditoria),
+        )
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.puedeRegistrar)
+    }
+
+    @Test
     fun identificarProductorActivo() = runTest(dispatcher) {
         val viewModel = createViewModel(
             FakeProductorPresentationRepository(Productor("p-1", "Ana", true)),

@@ -17,6 +17,8 @@ sealed class AppDestination(
     data object Calidad : AppDestination("calidad", "Control de calidad")
     data object RegistrarPruebaCalidad :
         AppDestination("calidad/registrar", "Registrar prueba de calidad")
+    data object InspeccionesHoy : AppDestination("calidad/hoy", "Inspecciones de hoy")
+    data object ProblemasCalidad : AppDestination("calidad/problemas", "Problemas de calidad")
     data object ConsultarEntregasProductor :
         AppDestination("consultas/entregas-productor", "Consultar entregas del productor")
     data object ResumenProductor :
@@ -26,6 +28,14 @@ sealed class AppDestination(
     data object Usuarios : AppDestination("usuarios", "Usuarios y permisos")
     data object Auditoria : AppDestination("auditoria", "Auditoría")
     data object Perfil : AppDestination("perfil", "Perfil", true)
+
+    // Nuevos destinos Etapa 1 Corrección
+    data object Produccion : AppDestination("produccion", "Producción", true)
+    data object ProduccionHoy : AppDestination("produccion/hoy", "Producción de hoy")
+    data object RegistrarLote : AppDestination("produccion/registrar-lote", "Registrar Lote")
+    data object Ventas : AppDestination("ventas", "Ventas", true)
+    data object RegistrarVenta : AppDestination("ventas/registrar", "Registrar Venta")
+    data object MisEntregas : AppDestination("mis-entregas", "Mis Entregas", true)
 
     companion object {
         val all: List<AppDestination> by lazy {
@@ -41,6 +51,8 @@ sealed class AppDestination(
                 RegistrarAcopiador,
                 Calidad,
                 RegistrarPruebaCalidad,
+                InspeccionesHoy,
+                ProblemasCalidad,
                 ConsultarEntregasProductor,
                 ResumenProductor,
                 Reportes,
@@ -48,6 +60,12 @@ sealed class AppDestination(
                 Usuarios,
                 Auditoria,
                 Perfil,
+                Produccion,
+                ProduccionHoy,
+                RegistrarLote,
+                Ventas,
+                RegistrarVenta,
+                MisEntregas,
             )
         }
 

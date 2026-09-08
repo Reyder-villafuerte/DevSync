@@ -206,6 +206,35 @@ class EntregaViewModelTest {
         assertEquals("Sur", item.sector)
     }
 
+    @Test
+    fun acopiadorTieneTipoRecogidaFijoYTituloCorrecto() = runTest(dispatcher) {
+        val productores = FakeEntregaProductorRepository(Productor("p-1", "Ana", true))
+        val acopiadores = FakeEntregaAcopiadorRepository(Acopiador("a-1", "Luis"))
+        val entregas = FakeEntregaPresentationRepository()
+        val session = SesionUsuario().apply {
+            iniciar(Usuario("u-2", "acop", "Juan", RolUsuario.ACOPIADOR, true))
+        }
+        val viewModel = EntregaViewModel(
+            obtenerEntregas = ObtenerEntregas(entregas),
+            productorRepository = productores,
+            acopiadorRepository = acopiadores,
+            registrarEntregaDirecta = RegistrarEntregaDirecta(productores, entregas),
+            registrarLecheRecogida = RegistrarLecheRecogida(productores, acopiadores, entregas),
+            sesionUsuario = session,
+            validarPermisoUsuario = ValidarPermisoUsuario(),
+            registrarAuditoria = RegistrarAuditoria(FakeAuditoriaRepository()),
+            ahora = { fecha },
+            idGenerator = { "e-1" }
+        )
+        
+        advanceUntilIdle()
+        
+        val state = viewModel.uiState.value
+        assertEquals(listOf(TipoEntrega.RECOGIDA), state.tiposDisponibles)
+        assertEquals(TipoEntrega.RECOGIDA, state.tipo)
+        assertEquals("Nueva recolección", state.titulo)
+    }
+
     private fun fixture(
         fallarAlGuardar: Boolean = false,
         entregasIniciales: Array<Entrega> = emptyArray(),
@@ -226,7 +255,7 @@ class EntregaViewModelTest {
                     id = "u-1",
                     nombreUsuario = "operador",
                     nombre = "María",
-                    rol = RolUsuario.JEFE_PRODUCCION,
+                    rol = RolUsuario.ADMINISTRADORA,
                     activo = true,
                 ),
             )
