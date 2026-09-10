@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Silueta simple de un tarro de leche, centrada en la zona segura del icono adaptativo. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M45,30 h18 v6 l6,10 v30 a4,4 0 0 1 -4,4 h-28 a4,4 0 0 1 -4,-4 v-30 l6,-10 z" />
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M41,58 h26 v18 h-26 z" />
+</vector>

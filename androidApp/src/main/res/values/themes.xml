@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Tema base sólo para el arranque de la Activity (splash implícito). La UI real
+      es Compose + Material 3; se usa un tema del framework para no depender de
+      Material Components (librería fuera de Compose/M3).
+    -->
+    <style name="Theme.MilkFlow" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#0D47A1</item>
+        <item name="android:windowBackground">#F8FAFC</item>
+    </style>
+</resources>

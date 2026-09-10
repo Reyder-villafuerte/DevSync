@@ -1,0 +1,572 @@
+-- =====================================================================
+-- MilkFlow · esquema local SQLDelight
+-- Espejo de PostgreSQL. Convenciones:
+--   id            TEXT  UUID generado en cliente
+--   updated_at    INTEGER  epoch millis (sello del servidor; local hasta confirmar)
+--   version       INTEGER  versión del servidor (0 = nace local)
+--   deleted       INTEGER  0/1 borrado lógico
+--   sync_estado   TEXT  PENDIENTE | SINCRONIZADO | CONFLICTO  (solo local)
+--   sync_intentos INTEGER
+--   sync_error    TEXT
+-- Fechas de negocio (fecha, vigencia) se guardan como TEXT ISO (yyyy-MM-dd).
+-- =====================================================================
+
+-- ---------- Catálogos (bajada, gana el servidor) ----------
+
+CREATE TABLE rutas (
+    id          TEXT NOT NULL PRIMARY KEY,
+    nombre      TEXT NOT NULL,
+    codigo      TEXT,
+    activa      INTEGER NOT NULL DEFAULT 1,
+    updated_at  INTEGER NOT NULL,
+    version     INTEGER NOT NULL DEFAULT 0,
+    deleted     INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE zonas (
+    id          TEXT NOT NULL PRIMARY KEY,
+    nombre      TEXT NOT NULL,
+    codigo      TEXT,
+    ruta_id     TEXT NOT NULL,
+    activa      INTEGER NOT NULL DEFAULT 1,
+    updated_at  INTEGER NOT NULL,
+    version     INTEGER NOT NULL DEFAULT 0,
+    deleted     INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX zonas_ruta ON zonas(ruta_id);
+
+CREATE TABLE usuarios (
+    id          TEXT NOT NULL PRIMARY KEY,
+    nombres     TEXT NOT NULL,
+    apellidos   TEXT NOT NULL,
+    dni         TEXT NOT NULL,
+    rol         TEXT NOT NULL,
+    activo      INTEGER NOT NULL DEFAULT 1,
+    updated_at  INTEGER NOT NULL,
+    version     INTEGER NOT NULL DEFAULT 0,
+    deleted     INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE productores (
+    id             TEXT NOT NULL PRIMARY KEY,
+    codigo_padron  TEXT NOT NULL,
+    nombres        TEXT NOT NULL,
+    apellidos      TEXT NOT NULL,
+    dni            TEXT NOT NULL,
+    zona_id        TEXT NOT NULL,
+    telefono       TEXT,
+    estado         TEXT NOT NULL,
+    fecha_ingreso  TEXT NOT NULL,
+    updated_at     INTEGER NOT NULL,
+    version        INTEGER NOT NULL DEFAULT 0,
+    deleted        INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX productores_zona ON productores(zona_id);
+
+CREATE TABLE precios (
+    id            TEXT NOT NULL PRIMARY KEY,
+    concepto      TEXT NOT NULL,           -- VENTA | COMPRA_LECHE
+    producto_id   TEXT,
+    tipo_cliente  TEXT,
+    valor         REAL NOT NULL,
+    valor_minimo  REAL,
+    vigente_desde TEXT NOT NULL,
+    vigente_hasta TEXT,
+    updated_at    INTEGER NOT NULL,
+    version       INTEGER NOT NULL DEFAULT 0,
+    deleted       INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE liquidaciones (
+    id                    TEXT NOT NULL PRIMARY KEY,
+    semana_pago_id        TEXT NOT NULL,
+    productor_id          TEXT NOT NULL,
+    litros_totales        REAL NOT NULL,
+    precio_litro_aplicado REAL NOT NULL,
+    tarifa_degradada      INTEGER NOT NULL DEFAULT 0,
+    monto_bruto           REAL NOT NULL,
+    total_descuentos      REAL NOT NULL,
+    monto_neto            REAL NOT NULL,
+    estado                TEXT NOT NULL,
+    updated_at            INTEGER NOT NULL,
+    version               INTEGER NOT NULL DEFAULT 0,
+    deleted               INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX liquidaciones_productor ON liquidaciones(productor_id);
+
+CREATE TABLE sanciones (
+    id                     TEXT NOT NULL PRIMARY KEY,
+    productor_id           TEXT NOT NULL,
+    inspeccion_id          TEXT NOT NULL,
+    semana_pago_id         TEXT,
+    tipo                   TEXT NOT NULL,
+    porcentaje_descuento   REAL,
+    monto_descuento        REAL,
+    tarifa_degradada_litro REAL,
+    retira_del_padron      INTEGER NOT NULL DEFAULT 0,
+    expulsa                INTEGER NOT NULL DEFAULT 0,
+    estado                 TEXT NOT NULL,
+    updated_at             INTEGER NOT NULL,
+    version                INTEGER NOT NULL DEFAULT 0,
+    deleted                INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX sanciones_productor ON sanciones(productor_id);
+
+CREATE TABLE avisos (
+    id                TEXT NOT NULL PRIMARY KEY,
+    titulo            TEXT NOT NULL,
+    contenido         TEXT NOT NULL,
+    imagen_url        TEXT,
+    obligatorio       INTEGER NOT NULL DEFAULT 0,
+    fecha_publicacion INTEGER NOT NULL,
+    fecha_expiracion  INTEGER,
+    visto_localmente  INTEGER NOT NULL DEFAULT 0,
+    updated_at        INTEGER NOT NULL,
+    version           INTEGER NOT NULL DEFAULT 0,
+    deleted           INTEGER NOT NULL DEFAULT 0
+);
+
+-- ---------- Hechos generados en el móvil (suben por outbox) ----------
+
+CREATE TABLE jornadas (
+    id                TEXT NOT NULL PRIMARY KEY,
+    acopiador_id      TEXT NOT NULL,
+    ruta_id           TEXT NOT NULL,
+    dispositivo_id    TEXT,
+    fecha             TEXT NOT NULL,
+    hora_inicio       INTEGER NOT NULL,
+    hora_cierre       INTEGER,
+    litros_declarados REAL NOT NULL DEFAULT 0,
+    estado            TEXT NOT NULL,
+    updated_at        INTEGER NOT NULL,
+    version           INTEGER NOT NULL DEFAULT 0,
+    deleted           INTEGER NOT NULL DEFAULT 0,
+    sync_estado       TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos     INTEGER NOT NULL DEFAULT 0,
+    sync_error        TEXT
+);
+CREATE INDEX jornadas_acopiador ON jornadas(acopiador_id, fecha);
+
+CREATE TABLE recolecciones (
+    id                    TEXT NOT NULL PRIMARY KEY,
+    jornada_id            TEXT NOT NULL,
+    productor_id          TEXT NOT NULL,
+    litros                REAL NOT NULL,
+    hora_registro         INTEGER NOT NULL,
+    observacion           TEXT,
+    sospecha_adulteracion INTEGER NOT NULL DEFAULT 0,
+    updated_at            INTEGER NOT NULL,
+    version               INTEGER NOT NULL DEFAULT 0,
+    deleted               INTEGER NOT NULL DEFAULT 0,
+    sync_estado           TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos         INTEGER NOT NULL DEFAULT 0,
+    sync_error            TEXT,
+    -- Verificación de recepción en planta. La escribe el jefe de producción en
+    -- el backend y llega al móvil por la bajada. Van al final para que el orden
+    -- de columnas coincida con el de la migración 1.sqm (ALTER TABLE ADD COLUMN).
+    estado_recepcion      TEXT NOT NULL DEFAULT 'pendiente',
+    litros_recibidos      REAL,
+    litros_faltantes      REAL NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX recolecciones_jornada_productor ON recolecciones(jornada_id, productor_id);
+
+CREATE TABLE recepciones (
+    id                 TEXT NOT NULL PRIMARY KEY,
+    jornada_id         TEXT NOT NULL,
+    tina               TEXT,
+    litros_descargados REAL NOT NULL,
+    hora_descarga      INTEGER NOT NULL,
+    recibido_por       TEXT,
+    updated_at         INTEGER NOT NULL,
+    version            INTEGER NOT NULL DEFAULT 0,
+    deleted            INTEGER NOT NULL DEFAULT 0,
+    sync_estado        TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos      INTEGER NOT NULL DEFAULT 0,
+    sync_error         TEXT
+);
+CREATE UNIQUE INDEX recepciones_jornada ON recepciones(jornada_id);
+
+CREATE TABLE inspecciones (
+    id               TEXT NOT NULL PRIMARY KEY,
+    productor_id     TEXT NOT NULL,
+    supervisor_id    TEXT NOT NULL,
+    jornada_id       TEXT,
+    recoleccion_id   TEXT,
+    tomado_en        INTEGER NOT NULL,
+    agua_pct         REAL,
+    ph               REAL,
+    densidad         REAL,
+    grasa_pct        REAL,
+    solidos_ng_pct   REAL,
+    temperatura      REAL,
+    dictamen         TEXT NOT NULL,
+    dictamen_detalle TEXT NOT NULL,
+    es_reincidencia  INTEGER NOT NULL DEFAULT 0,
+    updated_at       INTEGER NOT NULL,
+    version          INTEGER NOT NULL DEFAULT 0,
+    deleted          INTEGER NOT NULL DEFAULT 0,
+    sync_estado      TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos    INTEGER NOT NULL DEFAULT 0,
+    sync_error       TEXT
+);
+CREATE INDEX inspecciones_productor ON inspecciones(productor_id, tomado_en);
+
+CREATE TABLE solicitudes_ruta (
+    id                     TEXT NOT NULL PRIMARY KEY,
+    productor_id           TEXT NOT NULL,
+    zona_actual_id         TEXT NOT NULL,
+    zona_solicitada_id     TEXT NOT NULL,
+    motivo                 TEXT NOT NULL,
+    estado                 TEXT NOT NULL,
+    resuelto_en            INTEGER,
+    comentario_resolucion  TEXT,
+    updated_at             INTEGER NOT NULL,
+    version                INTEGER NOT NULL DEFAULT 0,
+    deleted                INTEGER NOT NULL DEFAULT 0,
+    sync_estado            TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos          INTEGER NOT NULL DEFAULT 0,
+    sync_error             TEXT
+);
+CREATE INDEX solicitudes_ruta_productor ON solicitudes_ruta(productor_id);
+
+CREATE TABLE avisos_vistos (
+    id           TEXT NOT NULL PRIMARY KEY,
+    aviso_id     TEXT NOT NULL,
+    productor_id TEXT NOT NULL,
+    visto_en     INTEGER NOT NULL,
+    updated_at   INTEGER NOT NULL,
+    version      INTEGER NOT NULL DEFAULT 0,
+    deleted      INTEGER NOT NULL DEFAULT 0,
+    sync_estado  TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos INTEGER NOT NULL DEFAULT 0,
+    sync_error   TEXT
+);
+CREATE UNIQUE INDEX avisos_vistos_par ON avisos_vistos(aviso_id, productor_id);
+
+CREATE TABLE movimientos_stock (
+    id            TEXT NOT NULL PRIMARY KEY,
+    producto_id   TEXT NOT NULL,
+    tipo          TEXT NOT NULL,
+    cantidad      REAL NOT NULL,
+    origen_tipo   TEXT,
+    origen_id     TEXT,
+    registrado_por TEXT NOT NULL,
+    ocurrido_en   INTEGER NOT NULL,
+    motivo        TEXT,
+    updated_at    INTEGER NOT NULL,
+    version       INTEGER NOT NULL DEFAULT 0,
+    deleted       INTEGER NOT NULL DEFAULT 0,
+    sync_estado   TEXT NOT NULL DEFAULT 'PENDIENTE',
+    sync_intentos INTEGER NOT NULL DEFAULT 0,
+    sync_error    TEXT
+);
+
+-- ---------- Infraestructura de sincronización (solo local) ----------
+
+CREATE TABLE outbox (
+    id_local     INTEGER PRIMARY KEY AUTOINCREMENT,
+    operacion    TEXT NOT NULL,            -- INSERTAR | ACTUALIZAR | ELIMINAR
+    tabla        TEXT NOT NULL,            -- entidad de sincronización (backend)
+    id_registro  TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    version_base INTEGER NOT NULL DEFAULT 0,
+    intentos     INTEGER NOT NULL DEFAULT 0,
+    ultimo_error TEXT,
+    servidor_json TEXT,                                -- estado del servidor en un conflicto
+    estado       TEXT NOT NULL DEFAULT 'PENDIENTE',   -- PENDIENTE | CONFLICTO
+    creado_en    INTEGER NOT NULL
+);
+CREATE INDEX outbox_pendientes ON outbox(estado, creado_en);
+CREATE UNIQUE INDEX outbox_registro ON outbox(tabla, id_registro);
+
+CREATE TABLE cursores_sync (
+    ambito TEXT NOT NULL PRIMARY KEY,      -- "ruta:01", "global", ...
+    cursor TEXT NOT NULL
+);
+
+CREATE TABLE estado_sync (
+    clave TEXT NOT NULL PRIMARY KEY,       -- "ultimo_exito", "sincronizando"
+    valor TEXT
+);
+
+CREATE TABLE sesion (
+    id             INTEGER PRIMARY KEY CHECK (id = 1),
+    usuario_id     TEXT NOT NULL,
+    nombre         TEXT NOT NULL,
+    rol            TEXT NOT NULL,
+    ambito         TEXT NOT NULL,
+    dispositivo_id TEXT NOT NULL
+);
+
+-- =====================================================================
+-- QUERIES
+-- =====================================================================
+
+-- ---- rutas / zonas / productores ----
+rutasTodas:
+SELECT * FROM rutas WHERE deleted = 0 ORDER BY nombre;
+
+rutaPorId:
+SELECT * FROM rutas WHERE id = ?;
+
+upsertRuta:
+INSERT OR REPLACE INTO rutas(id, nombre, codigo, activa, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+zonasTodas:
+SELECT * FROM zonas WHERE deleted = 0 ORDER BY nombre;
+
+zonaPorId:
+SELECT * FROM zonas WHERE id = ?;
+
+upsertZona:
+INSERT OR REPLACE INTO zonas(id, nombre, codigo, ruta_id, activa, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+productoresPorZona:
+SELECT * FROM productores WHERE deleted = 0 AND zona_id = ? ORDER BY apellidos, nombres;
+
+productoresPadron:
+SELECT * FROM productores WHERE deleted = 0 AND estado IN ('activo','suspendido') ORDER BY apellidos, nombres;
+
+productorPorId:
+SELECT * FROM productores WHERE id = ?;
+
+upsertProductor:
+INSERT OR REPLACE INTO productores(id, codigo_padron, nombres, apellidos, dni, zona_id, telefono, estado, fecha_ingreso, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- ---- precios / liquidaciones / sanciones ----
+preciosVigentes:
+SELECT * FROM precios WHERE deleted = 0 AND (vigente_hasta IS NULL OR vigente_hasta >= :hoy) ORDER BY vigente_desde DESC;
+
+tarifaCompraVigente:
+SELECT * FROM precios WHERE deleted = 0 AND concepto = 'COMPRA_LECHE'
+  AND vigente_desde <= :hoy AND (vigente_hasta IS NULL OR vigente_hasta >= :hoy)
+ORDER BY vigente_desde DESC LIMIT 1;
+
+upsertPrecio:
+INSERT OR REPLACE INTO precios(id, concepto, producto_id, tipo_cliente, valor, valor_minimo, vigente_desde, vigente_hasta, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+liquidacionesPorProductor:
+SELECT * FROM liquidaciones WHERE deleted = 0 AND productor_id = ? ORDER BY updated_at DESC;
+
+upsertLiquidacion:
+INSERT OR REPLACE INTO liquidaciones(id, semana_pago_id, productor_id, litros_totales, precio_litro_aplicado, tarifa_degradada, monto_bruto, total_descuentos, monto_neto, estado, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+sancionesPorProductor:
+SELECT * FROM sanciones WHERE deleted = 0 AND productor_id = ? ORDER BY updated_at DESC;
+
+tieneSancionAguaVigente:
+SELECT COUNT(*) FROM sanciones
+WHERE deleted = 0 AND productor_id = ? AND estado != 'anulada'
+  AND tipo IN ('advertencia_descuento','descuento_y_retiro','expulsion_tarifa_minima');
+
+upsertSancion:
+INSERT OR REPLACE INTO sanciones(id, productor_id, inspeccion_id, semana_pago_id, tipo, porcentaje_descuento, monto_descuento, tarifa_degradada_litro, retira_del_padron, expulsa, estado, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- ---- avisos ----
+avisosActivos:
+SELECT * FROM avisos WHERE deleted = 0 ORDER BY obligatorio DESC, fecha_publicacion DESC;
+
+avisoPorId:
+SELECT * FROM avisos WHERE id = ?;
+
+-- No pisa visto_localmente: si el productor ya confirmó el aviso, la bajada no
+-- debe "des-verlo".
+upsertAviso:
+INSERT INTO avisos(id, titulo, contenido, imagen_url, obligatorio, fecha_publicacion, fecha_expiracion, visto_localmente, updated_at, version, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+ON CONFLICT(id) DO UPDATE SET
+    titulo = excluded.titulo,
+    contenido = excluded.contenido,
+    imagen_url = excluded.imagen_url,
+    obligatorio = excluded.obligatorio,
+    fecha_publicacion = excluded.fecha_publicacion,
+    fecha_expiracion = excluded.fecha_expiracion,
+    updated_at = excluded.updated_at,
+    version = excluded.version,
+    deleted = excluded.deleted;
+
+marcarAvisoVistoLocal:
+UPDATE avisos SET visto_localmente = 1 WHERE id = ?;
+
+insertAvisoVisto:
+INSERT OR IGNORE INTO avisos_vistos(id, aviso_id, productor_id, visto_en, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, 0, 0, 'PENDIENTE', 0, NULL);
+
+-- ---- jornadas ----
+-- La BD local es de un solo acopiador (visibilidad de sync = `propio`): no se
+-- filtra por acopiador_id porque el móvil no conoce su fila en `acopiadores`
+-- (el servidor la fija desde el token al subir la jornada).
+jornadaActiva:
+SELECT * FROM jornadas WHERE deleted = 0 AND estado IN ('en_curso','cerrada')
+ORDER BY hora_inicio DESC LIMIT 1;
+
+jornadaPorId:
+SELECT * FROM jornadas WHERE id = ?;
+
+insertJornada:
+INSERT INTO jornadas(id, acopiador_id, ruta_id, dispositivo_id, fecha, hora_inicio, hora_cierre, litros_declarados, estado, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+actualizarJornada:
+UPDATE jornadas SET hora_cierre = ?, litros_declarados = ?, estado = ?, updated_at = ?, version = ?, deleted = ?, sync_estado = ? WHERE id = ?;
+
+upsertJornadaRemota:
+INSERT OR REPLACE INTO jornadas(id, acopiador_id, ruta_id, dispositivo_id, fecha, hora_inicio, hora_cierre, litros_declarados, estado, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SINCRONIZADO', 0, NULL);
+
+-- ---- recolecciones ----
+recoleccionesPorJornada:
+SELECT * FROM recolecciones WHERE deleted = 0 AND jornada_id = ? ORDER BY hora_registro;
+
+recoleccionesTodas:
+SELECT * FROM recolecciones WHERE deleted = 0 ORDER BY hora_registro;
+
+recoleccionesPorProductor:
+SELECT * FROM recolecciones WHERE deleted = 0 AND productor_id = ? ORDER BY hora_registro DESC;
+
+recoleccionExiste:
+SELECT COUNT(*) FROM recolecciones WHERE deleted = 0 AND jornada_id = ? AND productor_id = ?;
+
+totalLitrosJornada:
+SELECT COALESCE(SUM(litros), 0.0) FROM recolecciones WHERE deleted = 0 AND jornada_id = ?;
+
+insertRecoleccion:
+INSERT INTO recolecciones(id, jornada_id, productor_id, litros, hora_registro, observacion, sospecha_adulteracion, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+upsertRecoleccionRemota:
+INSERT OR REPLACE INTO recolecciones(id, jornada_id, productor_id, litros, hora_registro, observacion, sospecha_adulteracion, updated_at, version, deleted, sync_estado, sync_intentos, sync_error, estado_recepcion, litros_recibidos, litros_faltantes)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SINCRONIZADO', 0, NULL, ?, ?, ?);
+
+-- ---- recepciones ----
+recepcionPorJornada:
+SELECT * FROM recepciones WHERE deleted = 0 AND jornada_id = ?;
+
+insertRecepcion:
+INSERT INTO recepciones(id, jornada_id, tina, litros_descargados, hora_descarga, recibido_por, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- ---- inspecciones ----
+inspeccionesPorProductor:
+SELECT * FROM inspecciones WHERE deleted = 0 AND productor_id = ? ORDER BY tomado_en DESC;
+
+insertInspeccion:
+INSERT INTO inspecciones(id, productor_id, supervisor_id, jornada_id, recoleccion_id, tomado_en, agua_pct, ph, densidad, grasa_pct, solidos_ng_pct, temperatura, dictamen, dictamen_detalle, es_reincidencia, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- ---- solicitudes de ruta ----
+solicitudesPorProductor:
+SELECT * FROM solicitudes_ruta WHERE deleted = 0 AND productor_id = ? ORDER BY updated_at DESC;
+
+insertSolicitudRuta:
+INSERT INTO solicitudes_ruta(id, productor_id, zona_actual_id, zona_solicitada_id, motivo, estado, resuelto_en, comentario_resolucion, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+upsertSolicitudRutaRemota:
+INSERT OR REPLACE INTO solicitudes_ruta(id, productor_id, zona_actual_id, zona_solicitada_id, motivo, estado, resuelto_en, comentario_resolucion, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SINCRONIZADO', 0, NULL);
+
+-- ---- movimientos de stock ----
+upsertMovimientoStockRemoto:
+INSERT OR REPLACE INTO movimientos_stock(id, producto_id, tipo, cantidad, origen_tipo, origen_id, registrado_por, ocurrido_en, motivo, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SINCRONIZADO', 0, NULL);
+
+-- ---- marcado genérico de estado de sync sobre las tablas de hechos ----
+marcarRecoleccionSync:
+UPDATE recolecciones SET sync_estado = ?, sync_intentos = ?, sync_error = ?, version = ? WHERE id = ?;
+
+marcarInspeccionSync:
+UPDATE inspecciones SET sync_estado = ?, sync_intentos = ?, sync_error = ?, version = ? WHERE id = ?;
+
+-- =====================================================================
+-- OUTBOX
+-- =====================================================================
+
+encolar:
+INSERT INTO outbox(operacion, tabla, id_registro, payload_json, version_base, intentos, ultimo_error, servidor_json, estado, creado_en)
+VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, 'PENDIENTE', ?)
+ON CONFLICT(tabla, id_registro) DO UPDATE SET
+    operacion = excluded.operacion,
+    payload_json = excluded.payload_json,
+    version_base = excluded.version_base,
+    estado = 'PENDIENTE',
+    ultimo_error = NULL,
+    servidor_json = NULL;
+
+lotePendiente:
+SELECT * FROM outbox WHERE estado = 'PENDIENTE' ORDER BY creado_en, id_local LIMIT ?;
+
+contarPendientes:
+SELECT COUNT(*) FROM outbox WHERE estado = 'PENDIENTE';
+
+conflictos:
+SELECT * FROM outbox WHERE estado = 'CONFLICTO' ORDER BY creado_en;
+
+marcarIntento:
+UPDATE outbox SET intentos = intentos + 1, ultimo_error = ? WHERE id_local = ?;
+
+marcarConflictoOutbox:
+UPDATE outbox SET estado = 'CONFLICTO', ultimo_error = ?, servidor_json = ? WHERE id_local = ?;
+
+eliminarOutbox:
+DELETE FROM outbox WHERE id_local = ?;
+
+eliminarOutboxPorRegistro:
+DELETE FROM outbox WHERE tabla = ? AND id_registro = ?;
+
+-- =====================================================================
+-- CURSOR / ESTADO / SESIÓN
+-- =====================================================================
+
+cursorPorAmbito:
+SELECT cursor FROM cursores_sync WHERE ambito = ?;
+
+guardarCursor:
+INSERT OR REPLACE INTO cursores_sync(ambito, cursor) VALUES (?, ?);
+
+estadoValor:
+SELECT valor FROM estado_sync WHERE clave = ?;
+
+guardarEstado:
+INSERT OR REPLACE INTO estado_sync(clave, valor) VALUES (?, ?);
+
+sesionActual:
+SELECT * FROM sesion WHERE id = 1;
+
+guardarSesion:
+INSERT OR REPLACE INTO sesion(id, usuario_id, nombre, rol, ambito, dispositivo_id)
+VALUES (1, ?, ?, ?, ?, ?);
+
+borrarSesion:
+DELETE FROM sesion;
+
+-- Vacía toda la caché local de sincronización (catálogos, hechos, outbox,
+-- cursores y estado). NO toca `sesion`. Se ejecuta al iniciar sesión con un
+-- usuario distinto y al cerrar sesión: la BD local es de un solo usuario y
+-- arrastrar filas/cursores de otro rol corrompe la siguiente sesión.
+limpiarCacheLocal {
+    DELETE FROM rutas;
+    DELETE FROM zonas;
+    DELETE FROM usuarios;
+    DELETE FROM productores;
+    DELETE FROM precios;
+    DELETE FROM liquidaciones;
+    DELETE FROM sanciones;
+    DELETE FROM avisos;
+    DELETE FROM jornadas;
+    DELETE FROM recolecciones;
+    DELETE FROM recepciones;
+    DELETE FROM inspecciones;
+    DELETE FROM solicitudes_ruta;
+    DELETE FROM avisos_vistos;
+    DELETE FROM movimientos_stock;
+    DELETE FROM outbox;
+    DELETE FROM cursores_sync;
+    DELETE FROM estado_sync;
+}

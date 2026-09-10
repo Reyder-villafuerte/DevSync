@@ -1,1 +1,0 @@
-ALTER TABLE usuario_local ADD COLUMN clave TEXT;

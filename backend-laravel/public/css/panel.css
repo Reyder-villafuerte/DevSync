@@ -1,0 +1,230 @@
+/*
+ * MilkFlow — panel de escritorio. Hoja de estilos propia (sin framework CSS).
+ * Paleta del prototipo validado.
+ */
+:root {
+    --azul-marino: #1565C0;
+    --azul-marino-oscuro: #0D47A1;
+    --fondo: #f4f6f8;
+    --superficie: #ffffff;
+    --borde: #dfe3e8;
+    --tinta: #1f2933;
+    --tinta-suave: #62707d;
+    --verde: #2e7d32;   /* conforme */
+    --verde-fondo: #e6f4ea;
+    --rojo: #c62828;    /* sanción / alerta */
+    --rojo-fondo: #fdecea;
+    --naranja: #ef6c00; /* acción principal */
+    --naranja-fondo: #fff3e0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font: 14px/1.55 "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--tinta);
+    background: var(--fondo);
+}
+
+a { color: var(--azul-marino); }
+
+/* --- Estructura: sidebar + contenido --- */
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+.barra-lateral {
+    width: 232px;
+    flex-shrink: 0;
+    background: var(--azul-marino-oscuro);
+    color: #eaf1fb;
+    display: flex;
+    flex-direction: column;
+}
+
+.barra-lateral .marca {
+    padding: 1.1rem 1.25rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.barra-lateral nav { padding: .6rem 0; flex: 1; }
+
+.barra-lateral nav a {
+    display: block;
+    padding: .6rem 1.25rem;
+    color: #cdddf3;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+.barra-lateral nav a:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+
+.barra-lateral nav a.activo {
+    background: rgba(255, 255, 255, .14);
+    border-left-color: var(--naranja);
+    color: #fff;
+    font-weight: 600;
+}
+
+.barra-lateral .pie {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    font-size: .85rem;
+}
+
+.barra-lateral .pie button {
+    margin-top: .5rem;
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .4);
+    color: #fff;
+}
+
+.contenido {
+    flex: 1;
+    min-width: 0;
+    padding: 1.6rem 2rem;
+    max-width: 1180px;
+}
+
+/* --- Tipografía --- */
+h1 { font-size: 1.4rem; margin: 0 0 1rem; }
+h2 { font-size: 1.1rem; margin: 1.8rem 0 .6rem; }
+h3 { font-size: .98rem; margin: 1.2rem 0 .5rem; }
+
+/* --- Tarjetas --- */
+.tarjeta {
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    margin: 0 0 1.1rem;
+}
+
+.tarjeta > h2:first-child, .tarjeta > h3:first-child { margin-top: 0; }
+
+.rejilla { display: grid; gap: 1.1rem; }
+@media (min-width: 900px) { .rejilla.dos { grid-template-columns: 1fr 1fr; } }
+
+/* --- Tablas --- */
+table { width: 100%; border-collapse: collapse; background: var(--superficie); }
+th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--borde); }
+th { background: #eef2f6; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .3px; }
+tbody tr:hover { background: #f8fafc; }
+tfoot th, tfoot td { background: #eef2f6; font-weight: 700; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* --- Formularios --- */
+label { display: block; font-weight: 600; margin-bottom: .25rem; font-size: .88rem; }
+input, select, textarea {
+    font: inherit;
+    width: 100%;
+    padding: .45rem .55rem;
+    border: 1px solid #c3ccd6;
+    border-radius: 6px;
+    background: #fff;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--azul-marino); outline-offset: 0; }
+.campo { margin-bottom: .9rem; }
+.campo-fila { display: flex; gap: 1rem; flex-wrap: wrap; }
+.campo-fila > .campo { flex: 1; min-width: 160px; }
+
+button, .boton {
+    font: inherit;
+    font-weight: 600;
+    padding: .5rem .95rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--azul-marino);
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+button:hover, .boton:hover { background: var(--azul-marino-oscuro); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+button.principal, .boton.principal { background: var(--naranja); }
+button.principal:hover, .boton.principal:hover { background: #d35f00; }
+button.suave, .boton.suave { background: #e7ebef; color: var(--tinta); }
+button.peligro, .boton.peligro { background: var(--rojo); }
+
+/* --- Estados / chips --- */
+.chip {
+    display: inline-block;
+    padding: .15rem .55rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+}
+.chip.verde { background: var(--verde-fondo); color: var(--verde); }
+.chip.rojo { background: var(--rojo-fondo); color: var(--rojo); }
+.chip.naranja { background: var(--naranja-fondo); color: var(--naranja); }
+.chip.gris { background: #eceff2; color: var(--tinta-suave); }
+
+.alerta { color: var(--rojo); font-weight: 600; }
+.ok { color: var(--verde); font-weight: 600; }
+.tenue { color: var(--tinta-suave); }
+
+/* --- Semáforo RN-08 --- */
+.semaforo { display: flex; align-items: center; gap: .8rem; font-size: 1.05rem; }
+.semaforo .luz { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+.semaforo.dentro .luz { background: var(--verde); }
+.semaforo.bajo .luz { background: var(--rojo); }
+.semaforo.sobre .luz { background: var(--naranja); }
+.semaforo.sin_datos .luz { background: #c3ccd6; }
+
+/* --- Mensajes --- */
+.flash { border-radius: 8px; padding: .65rem 1rem; margin-bottom: 1rem; }
+.flash.ok { background: var(--verde-fondo); border: 1px solid #b7dfc0; color: var(--verde); }
+.flash.error { background: var(--rojo-fondo); border: 1px solid #f3c2bd; color: var(--rojo); }
+.error-campo { color: var(--rojo); font-size: .84rem; display: block; margin-top: .2rem; }
+
+/* --- Pestañas (panel de administración) --- */
+.pestanas { display: flex; flex-wrap: wrap; gap: .3rem; border-bottom: 2px solid var(--borde); margin-bottom: 1.2rem; }
+.pestanas button {
+    background: transparent;
+    color: var(--tinta-suave);
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    padding: .55rem .9rem;
+    margin-bottom: -2px;
+}
+.pestanas button:hover { background: #eef2f6; }
+.pestanas button.activo { color: var(--azul-marino); border-bottom-color: var(--azul-marino); }
+
+/* --- Comparativa volumétrica --- */
+.comparativa { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.comparativa .celda { background: #f8fafc; border: 1px solid var(--borde); border-radius: 8px; padding: .8rem; text-align: center; }
+.comparativa .celda .valor { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.comparativa .celda .rotulo { font-size: .8rem; color: var(--tinta-suave); }
+.comparativa .celda.mal { border-color: var(--rojo); background: var(--rojo-fondo); }
+.comparativa .celda.bien { border-color: var(--verde); background: var(--verde-fondo); }
+
+/* --- Paginación de Laravel (aquí no hay Tailwind) --- */
+.pagination { list-style: none; display: flex; gap: .25rem; padding: 0; margin: 1rem 0; flex-wrap: wrap; }
+.pagination li { display: inline-block; }
+.pagination a, .pagination span {
+    display: inline-block; padding: .35rem .6rem; border: 1px solid var(--borde);
+    border-radius: 6px; text-decoration: none; color: var(--azul-marino); background: #fff;
+}
+.pagination .active span { background: var(--azul-marino); color: #fff; border-color: var(--azul-marino); }
+.pagination .disabled span { color: #b0b8c1; }
+
+/* --- Comprobante imprimible --- */
+.comprobante { max-width: 420px; margin: 1rem auto; border: 1px solid var(--borde); padding: 1.4rem; background: #fff; }
+.comprobante h2 { text-align: center; margin: 0 0 .3rem; }
+.comprobante .numero { text-align: center; font-size: 1.2rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 1rem; }
+.comprobante table th { text-transform: none; background: none; }
+.comprobante .total { text-align: right; font-size: 1.15rem; font-weight: 700; margin-top: .8rem; }
+
+@media print {
+    .barra-lateral, .no-imprimir, .flash { display: none !important; }
+    .app, .contenido { display: block; padding: 0; max-width: none; }
+    .comprobante { border: 0; margin: 0; }
+}

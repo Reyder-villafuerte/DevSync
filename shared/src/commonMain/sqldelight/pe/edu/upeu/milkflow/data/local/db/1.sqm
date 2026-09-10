@@ -1,0 +1,7 @@
+-- v1 -> v2: verificación de recepción por entrega.
+-- El jefe de producción confirma en planta cuántos litros recibió de cada
+-- entrega; el resultado viaja al móvil por la bajada de sync (solo lectura).
+-- El orden de estos ALTER debe coincidir con el final del CREATE TABLE en el .sq.
+ALTER TABLE recolecciones ADD COLUMN estado_recepcion TEXT NOT NULL DEFAULT 'pendiente';
+ALTER TABLE recolecciones ADD COLUMN litros_recibidos REAL;
+ALTER TABLE recolecciones ADD COLUMN litros_faltantes REAL NOT NULL DEFAULT 0;
