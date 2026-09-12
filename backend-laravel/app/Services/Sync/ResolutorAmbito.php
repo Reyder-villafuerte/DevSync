@@ -108,7 +108,7 @@ class ResolutorAmbito
             'zonas' => $this->whereInOVacio($q, 'id', $zonaIds),
             'productores' => $this->whereInOVacio($q, 'zona_id', $zonaIds),
             'rutas_acopio' => $rutaId ? $q->where('ruta_id', $rutaId) : $q->whereRaw('1 = 0'),
-            'registros_acopio', 'descargas_tina' => $rutaId
+            'registros_acopio' => $rutaId
                 ? $q->whereHas('rutaAcopio', fn (Builder $b) => $b->where('ruta_id', $rutaId))
                 : $q->whereRaw('1 = 0'),
             'controles_calidad', 'sanciones' => $this->whereHasInOVacio($q, 'productor', 'zona_id', $zonaIds),
@@ -127,7 +127,6 @@ class ResolutorAmbito
             'zonas' => $this->whereIdOVacio($q, 'id', $usuario->productor?->zona_id),
             'liquidaciones', 'sanciones', 'solicitudes_cambio_zona' => $this->whereIdOVacio($q, 'productor_id', $productorId),
             'rutas_acopio' => $q->whereHas('acopiador', fn (Builder $b) => $b->where('usuario_id', $usuario->id)),
-            'descargas_tina' => $q->whereHas('rutaAcopio.acopiador', fn (Builder $b) => $b->where('usuario_id', $usuario->id)),
             'registros_acopio' => $esProductor
                 ? $this->whereIdOVacio($q, 'productor_id', $productorId)
                 : $q->whereHas('rutaAcopio.acopiador', fn (Builder $b) => $b->where('usuario_id', $usuario->id)),

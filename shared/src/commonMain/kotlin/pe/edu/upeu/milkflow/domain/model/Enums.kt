@@ -86,7 +86,6 @@ enum class EstadoRecepcion(val clave: String) {
 enum class EstadoJornada(val clave: String) {
     EN_CURSO("en_curso"),
     CERRADA("cerrada"),
-    DESCARGADA("descargada"),
     CONCILIADA("conciliada");
 
     companion object {

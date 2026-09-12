@@ -21,11 +21,6 @@ class CerrarJornadaRequest extends FormRequest
             'registros.*.atributos.litros' => ['required', 'numeric', 'gt:0'],
             'registros.*.atributos.horaRegistro' => ['required', 'date'],
 
-            'descarga' => ['nullable', 'array'],
-            'descarga.id' => ['required_with:descarga', 'uuid'],
-            'descarga.atributos.litrosDescargados' => ['required_with:descarga', 'numeric', 'gt:0'],
-            'descarga.atributos.horaDescarga' => ['required_with:descarga', 'date'],
-
             'controlesCalidad' => ['array'],
             'controlesCalidad.*.id' => ['required', 'uuid'],
             'controlesCalidad.*.atributos.productorId' => ['required', 'uuid'],

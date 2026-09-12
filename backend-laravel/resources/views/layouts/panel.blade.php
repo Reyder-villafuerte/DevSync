@@ -16,6 +16,15 @@
             <nav>
                 <a href="{{ route('panel.inicio') }}" @class(['activo' => request()->routeIs('panel.inicio')])>Inicio</a>
 
+                @can('panel-jefatura-planta')
+                    <a href="{{ route('panel.stock') }}" @class(['activo' => request()->routeIs('panel.stock')])>Stock</a>
+                    <a href="{{ route('panel.recepcion') }}" @class(['activo' => request()->routeIs('panel.recepcion')])>Jefatura de planta</a>
+                @endcan
+
+                @can('panel-despacho')
+                    <a href="{{ route('panel.despacho') }}" @class(['activo' => request()->routeIs('panel.despacho')])>Despacho y ventas</a>
+                @endcan
+
                 @can('panel-administracion')
                     <a href="{{ route('panel.administracion', ['tab' => 'tarifas']) }}" @class(['activo' => request()->routeIs('panel.administracion') && request('tab', 'tarifas') === 'tarifas'])>Tarifas</a>
                     <a href="{{ route('panel.administracion', ['tab' => 'liquidacion']) }}" @class(['activo' => request()->routeIs('panel.administracion') && request('tab') === 'liquidacion'])>Liquidación del viernes</a>

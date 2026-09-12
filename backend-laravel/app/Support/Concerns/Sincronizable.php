@@ -19,6 +19,24 @@ trait Sincronizable
 {
     use UsaUuid;
 
+    /**
+     * Formato de escritura de fechas CON offset explícito. Se sobreescribe el
+     * método (y no la propiedad `$dateFormat`) porque PHP no admite que un
+     * trait redeclare una propiedad que el modelo base ya define.
+     *
+     * Sin la `P` final, Eloquent escribe el reloj de pared del Carbon sin zona
+     * ("2026-09-10 20:09:56") y PostgreSQL lo interpreta en la zona de la
+     * sesión. Una hora que llegó del móvil en UTC se guardaba entonces como
+     * hora local: +5 h por cada viaje, y el error se acumulaba en cada
+     * re-sincronización (una jornada abierta a las 16:09 acababa marcando
+     * 21:09, y al siguiente push 02:09). Con el offset explícito no hay nada
+     * que adivinar, venga el dato del móvil (UTC) o del panel (America/Lima).
+     */
+    public function getDateFormat(): string
+    {
+        return 'Y-m-d H:i:sP';
+    }
+
     public static function bootSincronizable(): void
     {
         // Incremento de versión en cada guardado. Al venir de sincronización,

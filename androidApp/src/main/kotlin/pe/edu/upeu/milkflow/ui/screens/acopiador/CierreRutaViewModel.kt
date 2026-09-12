@@ -33,9 +33,6 @@ data class CierreUiState(
     val litros: Double = 0.0,
     val socios: Int = 0,
     val paradasPendientes: Int = 0,
-    val tina: String = "",
-    val litrosDescargados: String = "",
-    val recibidoPor: String = "",
     val cerrando: Boolean = false,
     val error: String? = null,
     /** id de la jornada ya cerrada -> la pantalla navega al comprobante. */
@@ -56,10 +53,8 @@ class CierreRutaViewModel(
     private val acopiadorId = sesion.usuarioId
     private val rutaCodigo = (sesion.ambito as? Ambito.Ruta)?.codigo
 
-    private data class Form(val tina: String = "", val litros: String = "", val recibido: String = "")
     private data class Proceso(val cerrando: Boolean = false, val error: String? = null, val cerrada: String? = null)
 
-    private val form = MutableStateFlow(Form())
     private val proceso = MutableStateFlow(Proceso())
 
     private val jornada: Flow<JornadaRuta?> = jornadas.observarJornadaActiva(acopiadorId)
@@ -93,7 +88,7 @@ class CierreRutaViewModel(
     }
 
     val estado: StateFlow<CierreUiState> =
-        combine(resumen, form, proceso) { r, f, p ->
+        combine(resumen, proceso) { r, p ->
             CierreUiState(
                 cargando = false,
                 hayJornada = r.hayJornada,
@@ -101,32 +96,17 @@ class CierreRutaViewModel(
                 litros = r.litros,
                 socios = r.socios,
                 paradasPendientes = r.pendientes,
-                tina = f.tina,
-                litrosDescargados = f.litros,
-                recibidoPor = f.recibido,
                 cerrando = p.cerrando,
                 error = p.error,
                 cerrada = p.cerrada,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CierreUiState())
 
-    fun onTina(v: String) = form.update { it.copy(tina = v) }
-    fun onLitrosDescargados(v: String) = form.update { it.copy(litros = v.filter { c -> c.isDigit() || c == '.' }) }
-    fun onRecibidoPor(v: String) = form.update { it.copy(recibido = v) }
-
     fun confirmarCierre() {
         val id = estado.value.jornadaId ?: return
-        val f = form.value
         proceso.update { it.copy(cerrando = true, error = null) }
         viewModelScope.launch {
-            val r = cerrarJornada(
-                CerrarJornadaUseCase.Entrada(
-                    jornadaId = id,
-                    tina = f.tina.ifBlank { null },
-                    litrosDescargados = f.litros.toDoubleOrNull(),
-                    recibidoPor = f.recibido.ifBlank { null },
-                ),
-            )
+            val r = cerrarJornada(CerrarJornadaUseCase.Entrada(jornadaId = id))
             when (r) {
                 is Resultado.Exito -> proceso.update { it.copy(cerrando = false, cerrada = r.valor.id) }
                 is Resultado.Fallo -> proceso.update { it.copy(cerrando = false, error = r.error.mensajeUi()) }

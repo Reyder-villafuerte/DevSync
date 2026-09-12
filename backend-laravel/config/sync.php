@@ -2,7 +2,6 @@
 
 use App\Models\Aviso;
 use App\Models\ControlCalidad;
-use App\Models\DescargaTina;
 use App\Models\Liquidacion;
 use App\Models\MovimientoStock;
 use App\Models\PrecioCompraLeche;
@@ -30,6 +29,13 @@ return [
     'margen_reloj_segundos' => (int) env('SYNC_MARGEN_RELOJ', 2),
 
     'lote_push_max' => (int) env('SYNC_LOTE_PUSH_MAX', 500),
+
+    // Una jornada (rutas_acopio) por acopiador y día. DESACTIVADO durante la
+    // fase de pruebas para poder repetir el ciclo abrir/cerrar ruta el mismo
+    // día; el índice único de la tabla se retiró en la migración
+    // 2026_09_10_000000_quitar_unico_jornada_por_dia. Volver a poner en true
+    // exige restaurar también ese índice (ver el `down` de la migración).
+    'jornada_unica_por_dia' => (bool) env('MILKFLOW_JORNADA_UNICA_POR_DIA', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -151,16 +157,6 @@ return [
             ],
         ],
 
-        'descargas_tina' => [
-            'modelo' => DescargaTina::class,
-            'direccion' => 'ambas',
-            'conflicto' => 'solo_insercion',
-            'visibilidad' => [
-                'acopiador' => 'propio', 'supervisor_calidad' => 'ninguno', 'productor' => 'ninguno',
-                'jefe_produccion' => 'todos', 'despacho_ventas' => 'ninguno', 'administracion' => 'todos',
-            ],
-        ],
-
         'controles_calidad' => [
             'modelo' => ControlCalidad::class,
             'direccion' => 'ambas',
@@ -219,7 +215,7 @@ return [
     'orden_pull' => [
         'rutas', 'zonas', 'productos', 'productores',
         'precios_compra_leche', 'precios_venta', 'avisos',
-        'rutas_acopio', 'registros_acopio', 'descargas_tina', 'controles_calidad',
+        'rutas_acopio', 'registros_acopio', 'controles_calidad',
         'movimientos_stock', 'sanciones', 'liquidaciones', 'solicitudes_cambio_zona',
     ],
 ];

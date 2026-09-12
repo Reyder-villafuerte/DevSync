@@ -11,7 +11,6 @@ import pe.edu.upeu.milkflow.domain.model.Ambito
 import pe.edu.upeu.milkflow.domain.model.EstadoJornada
 import pe.edu.upeu.milkflow.domain.model.JornadaRuta
 import pe.edu.upeu.milkflow.domain.model.Productor
-import pe.edu.upeu.milkflow.domain.model.Recepcion
 import pe.edu.upeu.milkflow.domain.model.Recoleccion
 import pe.edu.upeu.milkflow.domain.repository.JornadaRepository
 import pe.edu.upeu.milkflow.domain.repository.ProductorRepository
@@ -170,10 +169,12 @@ class RecoleccionRepositoryFake : RecoleccionRepository {
         Litros.sumar(registradas.filter { it.jornadaId == jornadaId }.map { it.litros })
 }
 
-class JornadaRepositoryFake(var activa: JornadaRuta? = null) : JornadaRepository {
+class JornadaRepositoryFake(var activa: JornadaRuta? = null, var deHoy: JornadaRuta? = null) : JornadaRepository {
     override fun observarJornadaActiva(acopiadorId: String) = MutableStateFlow(activa)
     override suspend fun jornadaActiva(acopiadorId: String): JornadaRuta? = activa
     override suspend fun porId(id: String): JornadaRuta? = activa?.takeIf { it.id == id }
+    override suspend fun jornadaDeHoy(): JornadaRuta? = activa ?: deHoy
+    override fun observarTodas() = MutableStateFlow(listOfNotNull(activa))
     override suspend fun iniciar(acopiadorId: String, rutaId: String): Resultado<JornadaRuta> {
         val j = JornadaRuta("j1", acopiadorId, rutaId, null, kotlinx.datetime.LocalDate(2026, 9, 9),
             Instant.parse("2026-09-09T05:00:00Z"), null, Litros.CERO, EstadoJornada.EN_CURSO,
@@ -181,7 +182,7 @@ class JornadaRepositoryFake(var activa: JornadaRuta? = null) : JornadaRepository
         activa = j
         return Resultado.Exito(j)
     }
-    override suspend fun cerrar(jornada: JornadaRuta, recepcion: Recepcion?): Resultado<JornadaRuta> {
+    override suspend fun cerrar(jornada: JornadaRuta): Resultado<JornadaRuta> {
         activa = jornada; return Resultado.Exito(jornada)
     }
 }

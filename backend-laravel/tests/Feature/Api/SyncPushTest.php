@@ -98,6 +98,85 @@ class SyncPushTest extends ApiTestCase
         $this->assertSame('en_curso', $j->fresh()->estado);
     }
 
+    /**
+     * `rutas_acopio` tiene UNIQUE(acopiador_id, fecha). Un móvil que perdió su
+     * caché abre una jornada nueva para un día que el servidor ya tiene: debe
+     * volver como conflicto con la jornada buena, no como un error de
+     * integridad que el acopiador no puede interpretar.
+     */
+    public function test_segunda_jornada_del_mismo_dia_es_conflicto_con_la_del_servidor(): void
+    {
+        config(['sync.jornada_unica_por_dia' => true]);
+        [, $headers, $j] = $this->escenarioAcopio();
+        $j->forceFill(['estado' => 'conciliada'])->save();
+
+        $idNuevo = (string) Str::uuid();
+        $resp = $this->postJson('/api/sync/push', ['operaciones' => [[
+            'entidad' => 'rutas_acopio',
+            'id' => $idNuevo,
+            'atributos' => [
+                'rutaId' => $j->ruta_id,
+                'fecha' => $j->fecha->toDateString(),
+                'horaInicio' => now()->toISOString(),
+                'estado' => 'en_curso',
+            ],
+        ]]], $headers)->assertStatus(207);
+
+        $resp->assertJsonPath('conflictos.0.motivo', 'jornada_del_dia_ya_existe');
+        $resp->assertJsonPath('conflictos.0.servidor.id', $j->id);
+        $this->assertNull(RutaAcopio::find($idNuevo));
+        $this->assertSame(1, RutaAcopio::count());
+    }
+
+    /** Fase de pruebas: con la regla apagada el mismo día admite varias rutas. */
+    public function test_con_la_regla_apagada_se_acepta_otra_jornada_del_mismo_dia(): void
+    {
+        config(['sync.jornada_unica_por_dia' => false]);
+        [, $headers, $j] = $this->escenarioAcopio();
+
+        $idNuevo = (string) Str::uuid();
+        $this->postJson('/api/sync/push', ['operaciones' => [[
+            'entidad' => 'rutas_acopio',
+            'id' => $idNuevo,
+            'atributos' => [
+                'rutaId' => $j->ruta_id,
+                'fecha' => $j->fecha->toDateString(),
+                'horaInicio' => now()->toISOString(),
+                'estado' => 'en_curso',
+            ],
+        ]]], $headers)->assertOk()->assertJsonPath('aceptadas.0.resultado', 'insertado');
+
+        $this->assertSame(2, RutaAcopio::count());
+    }
+
+    /**
+     * Una hora enviada en UTC debe guardarse como ese mismo instante. Antes se
+     * escribía el reloj de pared sin zona y PostgreSQL lo leía como hora local:
+     * +5 h en cada subida, acumulándose en cada re-sincronización.
+     */
+    public function test_la_hora_enviada_en_utc_no_se_desplaza(): void
+    {
+        [, $headers, $j, $p] = $this->escenarioAcopio();
+        $instante = now()->setTimezone('UTC')->startOfSecond();
+
+        $this->postJson('/api/sync/push', ['operaciones' => [[
+            'entidad' => 'registros_acopio',
+            'id' => (string) Str::uuid(),
+            'atributos' => [
+                'rutaAcopioId' => $j->id,
+                'productorId' => $p->id,
+                'litros' => 10,
+                'horaRegistro' => $instante->toIso8601String(),
+            ],
+        ]]], $headers)->assertOk();
+
+        $guardada = RegistroAcopio::query()->latest('created_at')->first()->hora_registro;
+        $this->assertTrue(
+            $instante->equalTo($guardada),
+            "Se esperaba {$instante->toIso8601String()} y se guardó {$guardada->toIso8601String()}",
+        );
+    }
+
     public function test_movimientos_de_stock_son_conmutativos_e_idempotentes(): void
     {
         $producto = Producto::factory()->create();

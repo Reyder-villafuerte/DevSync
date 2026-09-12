@@ -44,11 +44,6 @@ class RutaAcopio extends Model
         return $this->hasMany(RegistroAcopio::class, 'ruta_acopio_id');
     }
 
-    public function descarga(): HasOne
-    {
-        return $this->hasOne(DescargaTina::class, 'ruta_acopio_id');
-    }
-
     public function conciliacion(): HasOne
     {
         return $this->hasOne(Conciliacion::class, 'ruta_acopio_id');

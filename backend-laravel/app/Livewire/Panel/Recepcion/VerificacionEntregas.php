@@ -41,7 +41,7 @@ class VerificacionEntregas extends Component
                 'registros as entregas_count' => fn ($q) => $q->where('deleted', false),
                 'registros as pendientes_count' => fn ($q) => $q->where('deleted', false)->pendientesDeRecepcion(),
             ])
-            ->whereIn('estado', ['cerrada', 'descargada', 'conciliada'])
+            ->whereIn('estado', ['cerrada', 'conciliada'])
             ->whereHas('registros', fn ($q) => $q->where('deleted', false))
             ->orderByDesc('fecha')
             ->limit(40)

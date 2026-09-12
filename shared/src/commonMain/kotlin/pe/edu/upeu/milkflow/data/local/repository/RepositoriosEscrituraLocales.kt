@@ -22,13 +22,11 @@ import pe.edu.upeu.milkflow.data.local.db.MilkFlowDatabase
 import pe.edu.upeu.milkflow.domain.model.EstadoJornada
 import pe.edu.upeu.milkflow.domain.model.Inspeccion
 import pe.edu.upeu.milkflow.domain.model.JornadaRuta
-import pe.edu.upeu.milkflow.domain.model.Recepcion
 import pe.edu.upeu.milkflow.domain.model.Recoleccion
 import pe.edu.upeu.milkflow.domain.model.SolicitudRuta
 import pe.edu.upeu.milkflow.domain.repository.AvisoRepository
 import pe.edu.upeu.milkflow.domain.repository.InspeccionRepository
 import pe.edu.upeu.milkflow.domain.repository.JornadaRepository
-import pe.edu.upeu.milkflow.domain.repository.RecepcionRepository
 import pe.edu.upeu.milkflow.domain.repository.RecoleccionRepository
 import pe.edu.upeu.milkflow.domain.repository.SolicitudRutaRepository
 import pe.edu.upeu.milkflow.domain.sync.Entidades
@@ -47,6 +45,9 @@ import pe.edu.upeu.milkflow.domain.model.Aviso
 
 private const val OP_INSERTAR = "INSERTAR"
 private const val OP_ACTUALIZAR = "ACTUALIZAR"
+
+private val LIMA = TimeZone.of("America/Lima")
+private fun hoyLima() = Clock.System.todayIn(LIMA)
 
 class RecoleccionRepositoryLocal(
     private val db: MilkFlowDatabase,
@@ -93,37 +94,9 @@ class RecoleccionRepositoryLocal(
     }
 }
 
-class RecepcionRepositoryLocal(
-    private val db: MilkFlowDatabase,
-    private val io: CoroutineDispatcher,
-) : RecepcionRepository {
-    private val q get() = db.milkFlowQueries
-
-    override fun observarPorJornada(jornadaId: String): Flow<Recepcion?> =
-        q.recepcionPorJornada(jornadaId).asFlow().mapToOneOrNull(io).map { it?.aDominio() }
-
-    override suspend fun registrar(recepcion: Recepcion): Resultado<Recepcion> = withContext(io) {
-        runCatching {
-            db.transaction {
-                q.insertRecepcion(
-                    recepcion.id, recepcion.jornadaId, recepcion.tina, recepcion.litrosDescargados.valor,
-                    recepcion.horaDescarga.aMillis(), recepcion.recibidoPor,
-                    recepcion.updatedAt.aMillis(), recepcion.version, recepcion.deleted.aLong(),
-                    "PENDIENTE", 0L, null,
-                )
-                q.encolar(
-                    OP_INSERTAR, Entidades.RECEPCION, recepcion.id,
-                    ConstructorPayload.recepcion(recepcion), recepcion.version, recepcion.updatedAt.aMillis(),
-                )
-            }
-        }.fold({ Resultado.Exito(recepcion) }, { Resultado.Fallo(ErrorApp.ErrorLocal(it)) })
-    }
-}
-
 class JornadaRepositoryLocal(
     private val db: MilkFlowDatabase,
     private val io: CoroutineDispatcher,
-    private val recepciones: RecepcionRepository,
     private val generadorId: GeneradorId,
     private val reloj: Reloj,
 ) : JornadaRepository {
@@ -142,6 +115,13 @@ class JornadaRepositoryLocal(
         q.jornadaPorId(id).executeAsOneOrNull()?.aDominio()
     }
 
+    override suspend fun jornadaDeHoy(): JornadaRuta? = withContext(io) {
+        q.jornadaDelDia(hoyLima().toString()).executeAsOneOrNull()?.aDominio()
+    }
+
+    override fun observarTodas(): Flow<List<JornadaRuta>> =
+        q.jornadasTodas().asFlow().mapToList(io).map { l -> l.map { it.aDominio() } }
+
     override suspend fun iniciar(acopiadorId: String, rutaId: String): Resultado<JornadaRuta> = withContext(io) {
         val ahora = reloj.ahora()
         val jornada = JornadaRuta(
@@ -149,7 +129,7 @@ class JornadaRepositoryLocal(
             acopiadorId = acopiadorId,
             rutaId = rutaId,
             dispositivoId = null,
-            fecha = Clock.System.todayIn(TimeZone.of("America/Lima")),
+            fecha = hoyLima(),
             horaInicio = ahora,
             horaCierre = null,
             litrosDeclarados = Litros.CERO,
@@ -174,7 +154,7 @@ class JornadaRepositoryLocal(
         }.fold({ Resultado.Exito(jornada) }, { Resultado.Fallo(ErrorApp.ErrorLocal(it)) })
     }
 
-    override suspend fun cerrar(jornada: JornadaRuta, recepcion: Recepcion?): Resultado<JornadaRuta> = withContext(io) {
+    override suspend fun cerrar(jornada: JornadaRuta): Resultado<JornadaRuta> = withContext(io) {
         runCatching {
             db.transaction {
                 q.actualizarJornada(
@@ -186,18 +166,6 @@ class JornadaRepositoryLocal(
                     OP_ACTUALIZAR, Entidades.JORNADA, jornada.id,
                     ConstructorPayload.jornada(jornada), jornada.version, jornada.updatedAt.aMillis(),
                 )
-                if (recepcion != null) {
-                    q.insertRecepcion(
-                        recepcion.id, recepcion.jornadaId, recepcion.tina, recepcion.litrosDescargados.valor,
-                        recepcion.horaDescarga.aMillis(), recepcion.recibidoPor,
-                        recepcion.updatedAt.aMillis(), recepcion.version, recepcion.deleted.aLong(),
-                        "PENDIENTE", 0L, null,
-                    )
-                    q.encolar(
-                        OP_INSERTAR, Entidades.RECEPCION, recepcion.id,
-                        ConstructorPayload.recepcion(recepcion), recepcion.version, recepcion.updatedAt.aMillis(),
-                    )
-                }
             }
         }.fold({ Resultado.Exito(jornada) }, { Resultado.Fallo(ErrorApp.ErrorLocal(it)) })
     }

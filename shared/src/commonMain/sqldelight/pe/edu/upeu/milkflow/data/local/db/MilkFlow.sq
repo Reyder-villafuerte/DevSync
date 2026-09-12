@@ -170,22 +170,6 @@ CREATE TABLE recolecciones (
 );
 CREATE UNIQUE INDEX recolecciones_jornada_productor ON recolecciones(jornada_id, productor_id);
 
-CREATE TABLE recepciones (
-    id                 TEXT NOT NULL PRIMARY KEY,
-    jornada_id         TEXT NOT NULL,
-    tina               TEXT,
-    litros_descargados REAL NOT NULL,
-    hora_descarga      INTEGER NOT NULL,
-    recibido_por       TEXT,
-    updated_at         INTEGER NOT NULL,
-    version            INTEGER NOT NULL DEFAULT 0,
-    deleted            INTEGER NOT NULL DEFAULT 0,
-    sync_estado        TEXT NOT NULL DEFAULT 'PENDIENTE',
-    sync_intentos      INTEGER NOT NULL DEFAULT 0,
-    sync_error         TEXT
-);
-CREATE UNIQUE INDEX recepciones_jornada ON recepciones(jornada_id);
-
 CREATE TABLE inspecciones (
     id               TEXT NOT NULL PRIMARY KEY,
     productor_id     TEXT NOT NULL,
@@ -402,9 +386,26 @@ VALUES (?, ?, ?, ?, ?, 0, 0, 'PENDIENTE', 0, NULL);
 -- La BD local es de un solo acopiador (visibilidad de sync = `propio`): no se
 -- filtra por acopiador_id porque el móvil no conoce su fila en `acopiadores`
 -- (el servidor la fija desde el token al subir la jornada).
+-- Solo `en_curso`: una jornada ya cerrada no admite más recolecciones y no
+-- debe impedir abrir la siguiente (antes incluía 'cerrada' y, sin filtro de
+-- fecha, una ruta cerrada bloqueaba el botón "Iniciar ruta" días después).
 jornadaActiva:
-SELECT * FROM jornadas WHERE deleted = 0 AND estado IN ('en_curso','cerrada')
+SELECT * FROM jornadas WHERE deleted = 0 AND estado = 'en_curso'
 ORDER BY hora_inicio DESC LIMIT 1;
+
+-- La jornada de una fecha en CUALQUIER estado (incluida `conciliada`). El
+-- servidor tiene UNIQUE(acopiador_id, fecha): abrir una segunda jornada el
+-- mismo día se rechaza como violación de integridad, así que hay que mirar
+-- aquí antes de crearla, no solo las que siguen activas.
+jornadaDelDia:
+SELECT * FROM jornadas WHERE deleted = 0 AND fecha = ?
+ORDER BY hora_inicio DESC LIMIT 1;
+
+-- Todas las rutas del dispositivo, de la más reciente a la más antigua. El
+-- reporte del acopiador las lista una por una: con varias rutas el mismo día,
+-- un total agregado esconde de cuál salió cada litro.
+jornadasTodas:
+SELECT * FROM jornadas WHERE deleted = 0 ORDER BY hora_inicio DESC;
 
 jornadaPorId:
 SELECT * FROM jornadas WHERE id = ?;
@@ -444,14 +445,6 @@ upsertRecoleccionRemota:
 INSERT OR REPLACE INTO recolecciones(id, jornada_id, productor_id, litros, hora_registro, observacion, sospecha_adulteracion, updated_at, version, deleted, sync_estado, sync_intentos, sync_error, estado_recepcion, litros_recibidos, litros_faltantes)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SINCRONIZADO', 0, NULL, ?, ?, ?);
 
--- ---- recepciones ----
-recepcionPorJornada:
-SELECT * FROM recepciones WHERE deleted = 0 AND jornada_id = ?;
-
-insertRecepcion:
-INSERT INTO recepciones(id, jornada_id, tina, litros_descargados, hora_descarga, recibido_por, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-
 -- ---- inspecciones ----
 inspeccionesPorProductor:
 SELECT * FROM inspecciones WHERE deleted = 0 AND productor_id = ? ORDER BY tomado_en DESC;
@@ -459,6 +452,13 @@ SELECT * FROM inspecciones WHERE deleted = 0 AND productor_id = ? ORDER BY tomad
 insertInspeccion:
 INSERT INTO inspecciones(id, productor_id, supervisor_id, jornada_id, recoleccion_id, tomado_en, agua_pct, ph, densidad, grasa_pct, solidos_ng_pct, temperatura, dictamen, dictamen_detalle, es_reincidencia, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Bajada de inspecciones: el productor ve su historial de calidad y el
+-- acopiador las inspecciones tomadas en su ruta. El dictamen NO se recalcula
+-- en el móvil: viaja tal como lo emitió el servidor.
+upsertInspeccionRemota:
+INSERT OR REPLACE INTO inspecciones(id, productor_id, supervisor_id, jornada_id, recoleccion_id, tomado_en, agua_pct, ph, densidad, grasa_pct, solidos_ng_pct, temperatura, dictamen, dictamen_detalle, es_reincidencia, updated_at, version, deleted, sync_estado, sync_intentos, sync_error)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SINCRONIZADO', 0, NULL);
 
 -- ---- solicitudes de ruta ----
 solicitudesPorProductor:
@@ -561,7 +561,6 @@ limpiarCacheLocal {
     DELETE FROM avisos;
     DELETE FROM jornadas;
     DELETE FROM recolecciones;
-    DELETE FROM recepciones;
     DELETE FROM inspecciones;
     DELETE FROM solicitudes_ruta;
     DELETE FROM avisos_vistos;

@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\DespachoController;
 use App\Http\Controllers\Web\LiquidacionController;
 use App\Http\Controllers\Web\PanelController;
 use App\Http\Controllers\Web\RecepcionController;
+use App\Http\Controllers\Web\StockController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('panel.inicio'));
@@ -22,6 +23,7 @@ Route::middleware('auth:web')->group(function () {
     // `can:` aborta con 403 (no redirige) si el rol no tiene la capacidad.
     Route::middleware('can:panel-jefatura-planta')->group(function () {
         Route::get('recepcion', [RecepcionController::class, 'index'])->name('panel.recepcion');
+        Route::get('stock', [StockController::class, 'index'])->name('panel.stock');
     });
 
     // --- Panel 2: Despacho y Ventas ---

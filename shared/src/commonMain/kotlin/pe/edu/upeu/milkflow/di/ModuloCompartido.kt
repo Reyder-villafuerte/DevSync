@@ -19,7 +19,6 @@ import pe.edu.upeu.milkflow.data.local.repository.JornadaRepositoryLocal
 import pe.edu.upeu.milkflow.data.local.repository.LiquidacionRepositoryLocal
 import pe.edu.upeu.milkflow.data.local.repository.PrecioRepositoryLocal
 import pe.edu.upeu.milkflow.data.local.repository.ProductorRepositoryLocal
-import pe.edu.upeu.milkflow.data.local.repository.RecepcionRepositoryLocal
 import pe.edu.upeu.milkflow.data.local.repository.RecoleccionRepositoryLocal
 import pe.edu.upeu.milkflow.data.local.repository.RutaRepositoryLocal
 import pe.edu.upeu.milkflow.data.local.repository.SancionRepositoryLocal
@@ -38,7 +37,6 @@ import pe.edu.upeu.milkflow.domain.repository.JornadaRepository
 import pe.edu.upeu.milkflow.domain.repository.LiquidacionRepository
 import pe.edu.upeu.milkflow.domain.repository.PrecioRepository
 import pe.edu.upeu.milkflow.domain.repository.ProductorRepository
-import pe.edu.upeu.milkflow.domain.repository.RecepcionRepository
 import pe.edu.upeu.milkflow.domain.repository.RecoleccionRepository
 import pe.edu.upeu.milkflow.domain.repository.RutaRepository
 import pe.edu.upeu.milkflow.domain.repository.SancionRepository
@@ -112,11 +110,10 @@ fun moduloCompartido(config: ConfiguracionMilkFlow): Module = module {
     single<SancionRepository> { SancionRepositoryLocal(get(), get(IO)) }
     single<PrecioRepository> { PrecioRepositoryLocal(get(), get(IO)) }
     single<LiquidacionRepository> { LiquidacionRepositoryLocal(get(), get(IO)) }
-    single<RecepcionRepository> { RecepcionRepositoryLocal(get(), get(IO)) }
     single<RecoleccionRepository> { RecoleccionRepositoryLocal(get(), get(IO)) }
     single<InspeccionRepository> { InspeccionRepositoryLocal(get(), get(IO)) }
     single<SolicitudRutaRepository> { SolicitudRutaRepositoryLocal(get(), get(IO)) }
-    single<JornadaRepository> { JornadaRepositoryLocal(get(), get(IO), get(), get(), get()) }
+    single<JornadaRepository> { JornadaRepositoryLocal(get(), get(IO), get(), get()) }
     single<AvisoRepository> {
         AvisoRepositoryLocal(get(), get(IO), get(), get()) {
             get<SesionRepository>().sesionActual()?.usuarioId
@@ -138,13 +135,17 @@ fun moduloCompartido(config: ConfiguracionMilkFlow): Module = module {
 
     // --- Use cases ---
     factory { RegistrarRecoleccionUseCase(get(), get(), get(), get(), get()) }
-    factory { CerrarJornadaUseCase(get(), get(), get(), get()) }
+    factory { CerrarJornadaUseCase(get(), get(), get()) }
     factory { EvaluarCalidadUseCase(get(), get(), get(), get(), get(), get()) }
     factory { ObtenerAvisoActivoUseCase(get(), get()) }
     factory { SolicitarCambioRutaUseCase(get(), get(), get(), get()) }
     factory { ObtenerReporteAcopioUseCase(get()) }
     factory { IniciarJornadaUseCase(get()) }
-    factory { IniciarSesionUseCase(get()) }
+    factory {
+        // La primera bajada la dispara el propio login (ver IniciarSesionUseCase).
+        val syncManager = get<SyncManager>()
+        IniciarSesionUseCase(get()) { syncManager.sincronizarEnSegundoPlano() }
+    }
     factory { SincronizarAhoraUseCase(get()) }
     factory { ObtenerEstadoSincronizacionUseCase(get()) }
 }

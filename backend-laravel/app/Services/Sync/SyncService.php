@@ -299,11 +299,48 @@ class SyncService
 
     private function insertar(string $clase, string $id, array $atributos, string $entidad, ResultadoPush $res): void
     {
+        // Choques de unicidad ANTES de tocar la BD: si se dejan estallar salen
+        // como 'violacion_integridad', un motivo que el acopiador no puede
+        // interpretar ni resolver desde el móvil.
+        $duplicado = $this->filaQueOcupaLaClaveUnica($clase, $id, $entidad, $atributos);
+        if ($duplicado) {
+            $res->conflicto($id, $entidad, 'jornada_del_dia_ya_existe', $this->aCamel($duplicado->attributesToArray()));
+
+            return;
+        }
+
         /** @var Model $modelo */
         $modelo = new $clase;
         $modelo->forceFill(array_merge($atributos, [$modelo->getKeyName() => $id]))->save();
         $this->posproceso($entidad, $modelo);
         $res->aceptar($id, $entidad, (int) $modelo->version, 'insertado');
+    }
+
+    /**
+     * Fila distinta que ya ocupa la clave única de negocio de la entidad.
+     *
+     * Solo aplica si `sync.jornada_unica_por_dia` está activo (en la fase de
+     * pruebas no lo está y se admiten varias jornadas por día).
+     *
+     * Hoy solo `rutas_acopio`, con UNIQUE(acopiador_id, fecha): un móvil
+     * que perdió su caché local abre una jornada nueva para un día que el
+     * servidor ya tiene y su id nunca podrá insertarse. Devolverla como
+     * conflicto le entrega al cliente la jornada buena del servidor.
+     */
+    private function filaQueOcupaLaClaveUnica(string $clase, string $id, string $entidad, array $atributos): ?Model
+    {
+        if ($entidad !== 'rutas_acopio' || ! config('sync.jornada_unica_por_dia')) {
+            return null;
+        }
+        if (! isset($atributos['acopiador_id'], $atributos['fecha'])) {
+            return null;
+        }
+
+        return $clase::query()
+            ->where('acopiador_id', $atributos['acopiador_id'])
+            ->whereDate('fecha', $atributos['fecha'])
+            ->whereKeyNot($id)
+            ->first();
     }
 
     /** Reglas de dominio disparadas tras aceptar ciertos registros. */

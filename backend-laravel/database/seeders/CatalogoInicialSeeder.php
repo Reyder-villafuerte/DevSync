@@ -66,6 +66,8 @@ class CatalogoInicialSeeder extends Seeder
             ['71000002', 'P-0002', 'Marcos', 'Mamani Flores', $zonaManazo?->id],
             ['71000003', 'P-0003', 'Juana', 'Tito Canaza', $zonaAcora?->id],
             ['71000004', 'P-0004', 'Tomas', 'Huanca Coila', $zonaChucuito?->id],
+            ['71000005', 'P-0005', 'Elena', 'Quispe Apaza', $zonaAcora?->id],
+            ['71000006', 'P-0006', 'Fermin', 'Condori Larico', $zonaChucuito?->id],
         ];
 
         foreach ($otrosProductores as [$dni, $codigo, $nombres, $apellidos, $zonaId]) {
@@ -73,6 +75,9 @@ class CatalogoInicialSeeder extends Seeder
                 Productor::updateOrCreate(
                     ['dni' => $dni],
                     [
+                        // Si existe un usuario con el mismo DNI, el socio entra a
+                        // la app; si no, queda solo en el padrón (usuario_id null).
+                        'usuario_id' => Usuario::where('dni', $dni)->value('id'),
                         'codigo_padron' => $codigo,
                         'nombres' => $nombres,
                         'apellidos' => $apellidos,

@@ -73,7 +73,7 @@ erDiagram
         uuid ruta_id FK
         uuid dispositivo_id FK
         date fecha
-        string estado "en_curso|cerrada|descargada|conciliada"
+        string estado "en_curso|cerrada|conciliada"
     }
     registros_acopio {
         uuid id PK
@@ -81,11 +81,6 @@ erDiagram
         uuid productor_id FK
         decimal litros
         timestamptz hora_registro
-    }
-    descargas_tina {
-        uuid id PK
-        uuid ruta_acopio_id FK "UK"
-        decimal litros_descargados
     }
     conciliaciones {
         uuid id PK
@@ -246,7 +241,6 @@ erDiagram
     dispositivos ||--o{ rutas_acopio : "registra desde"
     rutas_acopio ||--o{ registros_acopio : "detalla"
     productores ||--o{ registros_acopio : "entrega"
-    rutas_acopio ||--o| descargas_tina : "cierra con"
     rutas_acopio ||--o| conciliaciones : "se concilia en"
     usuarios ||--o{ conciliaciones : "registra"
     productores ||--o{ controles_calidad : "evaluado en"

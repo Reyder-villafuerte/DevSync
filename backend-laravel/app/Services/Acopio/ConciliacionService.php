@@ -23,10 +23,11 @@ class ConciliacionService
         float $litrosCaudalimetro,
         Usuario $registrador,
         ?float $toleranciaPct = null,
+        ?string $observacion = null,
     ): Conciliacion {
         $tolerancia = $toleranciaPct ?? (float) config('milkflow.conciliacion.tolerancia_pct');
 
-        return DB::transaction(function () use ($rutaAcopio, $litrosCaudalimetro, $registrador, $tolerancia) {
+        return DB::transaction(function () use ($rutaAcopio, $litrosCaudalimetro, $registrador, $tolerancia, $observacion) {
             // Litros del acopiador = suma real de sus registros por productor.
             $litrosAcopiador = (float) $rutaAcopio->registros()->where('deleted', false)->sum('litros');
 
@@ -51,9 +52,11 @@ class ConciliacionService
                     'diferencia_porcentaje' => $porcentaje,
                     'tolerancia_aplicada_pct' => $tolerancia,
                     'tiene_alerta' => $tieneAlerta,
-                    'observacion' => $tieneAlerta
-                        ? "Diferencia {$porcentaje}% supera la tolerancia {$tolerancia}%."
-                        : null,
+                    // Lo que escribe el operador manda; si no escribió nada y
+                    // hay alerta, queda al menos el motivo automático.
+                    'observacion' => trim((string) $observacion) !== ''
+                        ? trim((string) $observacion)
+                        : ($tieneAlerta ? "Diferencia {$porcentaje}% supera la tolerancia {$tolerancia}%." : null),
                     'conciliado_en' => now(),
                 ],
             );

@@ -77,7 +77,7 @@ grafo de login sin navegación manual.
 - **Reportes**: `ObtenerReporteAcopioUseCase` (ya agrega por día/semana/mes);
   selector de periodo, totales y detalle por `TotalPeriodo`.
 - **Cierre de ruta** (pantalla aparte): resumen de litros, socios y paradas
-  pendientes; opción de descarga en tina; `CerrarJornadaUseCase` →
+  pendientes; `CerrarJornadaUseCase` →
   **Comprobante** con folio, detalle, estado de sincronización (`IndicadorSync`)
   y botón **Imprimir** (`android.print.PrintManager`).
 
@@ -163,8 +163,7 @@ Android SDK 37 · minSdk 24. `androidApp` **no** aplica `org.jetbrains.kotlin.an
 - **Acopiador · Sheet de recolección**: hoja inferior con el nombre del
   productor, campo decimal de litros y botón naranja «Confirmar recolección».
 - **Acopiador · Cierre**: tres KPI (Litros / Socios / Pendientes), aviso naranja
-  si quedan paradas, campos opcionales de tina/litros/recibido, botón naranja
-  «Confirmar cierre de ruta».
+  si quedan paradas, botón naranja «Confirmar cierre de ruta».
 - **Acopiador · Comprobante**: `IndicadorSync` arriba, tarjeta «Folio ABCD1234»
   con fecha, líneas productor→litros, total en negrita, botón naranja «Imprimir
   comprobante» que abre el diálogo de impresión del sistema.

@@ -3,8 +3,10 @@
  * Paleta del prototipo validado.
  */
 :root {
-    --azul-marino: #1565C0;
-    --azul-marino-oscuro: #0D47A1;
+    /* Azul marino de marca, el mismo de la app móvil. */
+    --azul-marino: #1B3A6B;
+    --azul-marino-oscuro: #122A4E;
+    --azul-pastel: #E8EEFB;
     --fondo: #f4f6f8;
     --superficie: #ffffff;
     --borde: #dfe3e8;
@@ -110,6 +112,8 @@ h3 { font-size: .98rem; margin: 1.2rem 0 .5rem; }
 
 .rejilla { display: grid; gap: 1.1rem; }
 @media (min-width: 900px) { .rejilla.dos { grid-template-columns: 1fr 1fr; } }
+/* Desigual: el semáforo necesita poco ancho, la conciliación mucho. */
+@media (min-width: 900px) { .rejilla.dos.desigual { grid-template-columns: minmax(230px, 1fr) 2.2fr; } }
 
 /* --- Tablas --- */
 table { width: 100%; border-collapse: collapse; background: var(--superficie); }
@@ -227,4 +231,78 @@ button.peligro, .boton.peligro { background: var(--rojo); }
     .barra-lateral, .no-imprimir, .flash { display: none !important; }
     .app, .contenido { display: block; padding: 0; max-width: none; }
     .comprobante { border: 0; margin: 0; }
+}
+
+/* --- Tarjetas de dato (conciliación de ruta, stock) --- */
+.datos-conciliacion {
+    display: grid;
+    /* 2x2 fijo, como el prototipo: declarado / medido arriba, las dos
+       diferencias debajo. Una sola columna cuando no cabe. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+@media (max-width: 620px) { .datos-conciliacion { grid-template-columns: 1fr; } }
+.datos-conciliacion .dato {
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: .9rem 1rem;
+    background: #fff;
+}
+.datos-conciliacion .dato .rotulo {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--tinta-suave);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    display: block;
+    margin-bottom: .35rem;
+}
+.datos-conciliacion .dato .cifra {
+    font-size: 1.9rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+.datos-conciliacion .dato.azul { background: var(--azul-pastel); border-color: #c9d8f5; }
+.datos-conciliacion .dato.azul .cifra { color: var(--azul-marino); }
+.datos-conciliacion .dato.verde { background: var(--verde-fondo); border-color: #b7dfc0; }
+.datos-conciliacion .dato.verde .cifra { color: var(--verde); }
+.datos-conciliacion .dato.rojo { background: var(--rojo-fondo); border-color: #f3c2bd; }
+.datos-conciliacion .dato.rojo .cifra { color: var(--rojo); }
+.datos-conciliacion .dato.neutro { background: #f8fafc; }
+/* El caudalímetro es el único campo editable del bloque: se ve como cifra. */
+.datos-conciliacion .cifra-editable {
+    width: 100%;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: .3rem .5rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--verde);
+    background: #fff;
+}
+
+/* --- Cierre de la conciliación: estado + observación + acción --- */
+.cierre-conciliacion {
+    display: grid;
+    /* Dos columnas: a la izquierda el estado y la observación, a la derecha la
+       acción. Con tres columnas el textarea se quedaba sin ancho útil. */
+    grid-template-columns: 1fr minmax(230px, 280px);
+    gap: 1rem;
+    align-items: end;
+    border-top: 1px solid var(--borde);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+.cierre-conciliacion .izquierda { display: flex; flex-direction: column; gap: .7rem; }
+.cierre-conciliacion .estado-conciliacion .rotulo {
+    font-size: .82rem; color: var(--tinta-suave); display: block; margin-bottom: .4rem;
+}
+.cierre-conciliacion .campo { margin-bottom: 0; }
+.cierre-conciliacion textarea { width: 100%; }
+button.principal.grande { padding: .9rem 1rem; width: 100%; font-size: 1rem; }
+@media (max-width: 900px) {
+    .cierre-conciliacion { grid-template-columns: 1fr; align-items: stretch; }
 }

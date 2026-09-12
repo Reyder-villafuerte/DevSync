@@ -24,11 +24,12 @@ data class ConflictoItem(
 
 /**
  * Conflictos de sincronización expuestos al usuario (NO silenciados): son las
- * operaciones del outbox en estado CONFLICTO. La única acción es reintentar la
- * sincronización; la resolución fina la hace administración desde el panel web.
+ * operaciones del outbox en estado CONFLICTO. Se puede reintentar (útil solo si
+ * la causa ya se corrigió en el servidor) o descartar el envío; la resolución
+ * fina de los datos la hace administración desde el panel web.
  */
 class ConflictosViewModel(
-    sincronizacion: SincronizacionRepository,
+    private val sincronizacion: SincronizacionRepository,
     private val sincronizarAhora: SincronizarAhoraUseCase,
 ) : ViewModel() {
 
@@ -55,6 +56,17 @@ class ConflictosViewModel(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), EstadoUi.Cargando)
 
     val reintentandoFlow: StateFlow<Boolean> = reintentando
+
+    /**
+     * Saca la operación del outbox. Es la única salida para un rechazo
+     * permanente (una recolección que el servidor nunca va a aceptar): sin
+     * esto la fila se queda en la pantalla para siempre, porque "reintentar"
+     * solo recorre las operaciones PENDIENTES. El dato local no se borra: lo
+     * que se descarta es el intento de subirlo.
+     */
+    fun descartar(idLocal: Long) {
+        viewModelScope.launch { sincronizacion.descartar(idLocal) }
+    }
 
     fun reintentar() {
         reintentando.value = true

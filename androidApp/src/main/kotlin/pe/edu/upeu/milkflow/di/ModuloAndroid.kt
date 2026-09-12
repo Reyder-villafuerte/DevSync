@@ -26,7 +26,7 @@ val moduloAndroid = module {
 
     viewModelOf(::SyncViewModel)
     viewModelOf(::SesionGateViewModel)
-    viewModelOf(::ReportesViewModel)
+    viewModel { ReportesViewModel(get(), get(), get()) }
     viewModelOf(::HistorialViewModel)
     viewModelOf(::ConflictosViewModel)
 

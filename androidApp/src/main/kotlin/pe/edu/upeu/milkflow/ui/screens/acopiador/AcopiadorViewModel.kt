@@ -27,6 +27,7 @@ import pe.edu.upeu.milkflow.domain.repository.RecoleccionRepository
 import pe.edu.upeu.milkflow.domain.usecase.IniciarJornadaUseCase
 import pe.edu.upeu.milkflow.domain.usecase.RegistrarRecoleccionUseCase
 import pe.edu.upeu.milkflow.ui.util.coincideSinAcentos
+import pe.edu.upeu.milkflow.ui.util.horaLima
 import pe.edu.upeu.milkflow.ui.util.mensajeUi
 
 enum class FiltroParada { TODOS, PENDIENTE, COMPLETO }
@@ -55,9 +56,14 @@ data class AcopiadorUiState(
     val rutaNombre: String = "—",
     val hayJornada: Boolean = false,
     val iniciandoJornada: Boolean = false,
+    // false mientras la ruta del ámbito no exista en la BD local (catálogo aún
+    // no bajado): sin ella no hay padrón que mostrar ni jornada que abrir.
+    val puedeIniciarRuta: Boolean = false,
     val kpiLitros: Double = 0.0,
     val kpiSocios: Int = 0,
     val totalParadas: Int = 0,
+    /** Hora local de apertura de la jornada, para la cabecera de la ruta. */
+    val abiertaDesde: String? = null,
     val paradas: List<ParadaUi> = emptyList(),
     val filtro: FiltroParada = FiltroParada.TODOS,
     val busqueda: String = "",
@@ -83,7 +89,10 @@ class AcopiadorViewModel(
     private val filtro = MutableStateFlow(FiltroParada.TODOS)
     private val busqueda = MutableStateFlow("")
     private val sheet = MutableStateFlow<SheetRecoleccion?>(null)
-    private val iniciando = MutableStateFlow(false)
+
+    /** Estado del botón "Iniciar ruta" y el motivo si el intento no prosperó. */
+    private data class AccionInicio(val enCurso: Boolean = false, val aviso: String? = null)
+    private val inicio = MutableStateFlow(AccionInicio())
 
     // Ruta asignada (por código de ámbito) -> id + nombre.
     private val ruta = rutas.observarTodas().map { lista ->
@@ -121,7 +130,7 @@ class AcopiadorViewModel(
     ) { r, padron, jornada, recos -> DatosRuta(r, padron, jornada, recos) }
 
     val estado: StateFlow<AcopiadorUiState> =
-        combine(datosRuta, filtro, busqueda, sheet, iniciando) { d, f, q, sh, ini ->
+        combine(datosRuta, filtro, busqueda, sheet, inicio) { d, f, q, sh, ini ->
             val r = d.ruta
             val padron = d.padron
             val jornada = d.jornada
@@ -158,14 +167,28 @@ class AcopiadorViewModel(
                 cargando = false,
                 rutaNombre = r?.nombre ?: "Ruta ${rutaCodigo ?: "?"}",
                 hayJornada = jornada != null,
-                iniciandoJornada = ini,
+                iniciandoJornada = ini.enCurso,
+                puedeIniciarRuta = r != null,
                 kpiLitros = recos.sumOf { it.litros.valor },
                 kpiSocios = recos.map { it.productorId }.distinct().size,
                 totalParadas = paradas.size,
+                abiertaDesde = jornada?.horaInicio?.horaLima(),
                 paradas = filtradas,
                 filtro = f,
                 busqueda = q,
                 sheet = sh,
+                // Un padrón vacío en pantalla casi siempre significa "todavía no
+                // bajó el catálogo", no "no hay proveedores": hay que decirlo.
+                avisoJornada = when {
+                    ini.aviso != null -> ini.aviso
+                    rutaCodigo == null ->
+                        "Su usuario no tiene una ruta asignada. Comuníquese con la cooperativa."
+                    r == null ->
+                        "Aún no se ha descargado su ruta. Pulse «Sincronizar» y vuelva a intentarlo."
+                    padron.isEmpty() ->
+                        "Su ruta no tiene proveedores descargados. Pulse «Sincronizar» y vuelva a intentarlo."
+                    else -> null
+                },
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AcopiadorUiState())
 
@@ -174,13 +197,18 @@ class AcopiadorViewModel(
 
     fun iniciarRuta() {
         viewModelScope.launch {
-            iniciando.value = true
+            inicio.value = AccionInicio(enCurso = true)
+            var aviso: String? = null
             try {
+                // Si la ruta no está en la BD local no hay nada que abrir; el
+                // aviso derivado del estado ya explica que falta sincronizar.
                 val r = ruta.first()
-                if (r == null) return@launch
-                iniciarJornada(acopiadorId, r.id)
+                if (r != null) {
+                    val res = iniciarJornada(acopiadorId, r.id)
+                    if (res is Resultado.Fallo) aviso = res.error.mensajeUi()
+                }
             } finally {
-                iniciando.value = false
+                inicio.value = AccionInicio(enCurso = false, aviso = aviso)
             }
         }
     }

@@ -16,4 +16,8 @@ object Dimens {
     val EspacioXl = 32.dp
     val RadioTarjeta = 16.dp
     val FormaTarjeta = RoundedCornerShape(16.dp)
+    val FormaPildora = RoundedCornerShape(999.dp)
+    val Borde = 1.dp
+    val AlturaBarraProgreso = 8.dp
+    val Avatar = 44.dp
 }

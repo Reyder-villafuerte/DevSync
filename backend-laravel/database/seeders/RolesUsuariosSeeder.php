@@ -20,15 +20,20 @@ class RolesUsuariosSeeder extends Seeder
             [RolUsuario::JEFE_PRODUCCION, '70000004', 'Elena', 'Ramos Ticona'],
             [RolUsuario::DESPACHO_VENTAS, '70000005', 'Percy', 'Flores Choque'],
             [RolUsuario::ADMINISTRACION, '70000006', 'Ana', 'Vilca Sucari'],
+            // Socios de la Ruta Sur con acceso a la app. El correo va explícito:
+            // Elena Ramos (jefa de producción) ya ocupa elena@milkflow.pe.
+            [RolUsuario::PRODUCTOR, '71000005', 'Elena', 'Quispe Apaza', 'elena.quispe@milkflow.pe'],
+            [RolUsuario::PRODUCTOR, '71000006', 'Fermin', 'Condori Larico', 'fermin.condori@milkflow.pe'],
         ];
 
-        foreach ($base as [$rol, $dni, $nombres, $apellidos]) {
+        foreach ($base as $fila) {
+            [$rol, $dni, $nombres, $apellidos] = $fila;
             Usuario::updateOrCreate(
                 ['dni' => $dni],
                 [
                     'nombres' => $nombres,
                     'apellidos' => $apellidos,
-                    'email' => strtolower(explode(' ', $nombres)[0]).'@milkflow.pe',
+                    'email' => $fila[4] ?? strtolower(explode(' ', $nombres)[0]).'@milkflow.pe',
                     'telefono' => '95'.substr($dni, 2),
                     'password' => 'milkflow2026',
                     'rol' => $rol->value,

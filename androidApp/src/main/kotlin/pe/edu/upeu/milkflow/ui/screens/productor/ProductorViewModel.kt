@@ -23,6 +23,7 @@ import pe.edu.upeu.milkflow.core.Resultado
 import pe.edu.upeu.milkflow.domain.model.Ambito
 import pe.edu.upeu.milkflow.domain.model.Aviso
 import pe.edu.upeu.milkflow.domain.model.ConceptoPrecio
+import pe.edu.upeu.milkflow.domain.model.DictamenCalidad
 import pe.edu.upeu.milkflow.domain.model.EstadoSolicitud
 import pe.edu.upeu.milkflow.domain.repository.AvisoRepository
 import pe.edu.upeu.milkflow.domain.repository.InspeccionRepository
@@ -46,6 +47,37 @@ import pe.edu.upeu.milkflow.ui.util.mensajeUi
 
 data class ZonaOpcion(val id: String, val nombre: String)
 
+/** Ficha del socio en el padrón (un Triple ya no daba para tanto campo). */
+private data class DatosPadron(
+    val nombre: String,
+    val codigoPadron: String,
+    val dni: String,
+    val telefono: String?,
+    val estadoPadron: String,
+    val fechaIngreso: String,
+    val zonaNombre: String,
+    val ruta: String,
+    val zonaActualId: String?,
+    val zonas: List<ZonaOpcion>,
+)
+
+/** Corte del reporte de acopio del socio. */
+enum class PeriodoProductor(val etiqueta: String) { DIA("Día"), SEMANA("Semana"), MES("Mes") }
+
+/** Una liquidación semanal vista por el socio. */
+data class PagoResumen(
+    val etiqueta: String,
+    val litros: Double,
+    val precioLitro: Double,
+    val tarifaDegradada: Boolean,
+    val descuentos: Double,
+    val neto: Double,
+    val estado: String,
+)
+
+/** Fila del reporte: un día, una semana o un mes. */
+data class FilaReporte(val etiqueta: String, val litros: Double, val entregas: Int)
+
 /** Una entrega del productor y cómo la recibió el jefe de producción en planta. */
 data class EntregaResumen(
     val fecha: String,
@@ -61,9 +93,16 @@ data class SolicitudSheet(
     val error: String? = null,
 )
 
+/** Cuántas inspecciones del socio terminaron en cada dictamen. */
+data class ConteoDictamen(val dictamen: DictamenCalidad, val cantidad: Int)
+
 data class ProductorUiState(
     val cargando: Boolean = true,
     val nombre: String = "",
+    /** Código de padrón: es el "ID de proveedor" con el que lo llama la planta. */
+    val codigoPadron: String = "",
+    val entregasCiclo: Int = 0,
+    val calidad: List<ConteoDictamen> = emptyList(),
     val litrosHoy: Double = 0.0,
     val estadoCalidad: String = "Sin inspecciones",
     val calidadRechaza: Boolean = false,
@@ -77,6 +116,22 @@ data class ProductorUiState(
     val estadoUltimaSolicitud: EstadoSolicitud? = null,
     val entregas: List<EntregaResumen> = emptyList(),
     val litrosFaltantesCiclo: Double = 0.0,
+    // --- Pagos ---
+    val pagos: List<PagoResumen> = emptyList(),
+    val totalPendiente: Double = 0.0,
+    val ultimoPagoEtiqueta: String? = null,
+    // --- Reportes ---
+    val periodo: PeriodoProductor = PeriodoProductor.SEMANA,
+    val filasReporte: List<FilaReporte> = emptyList(),
+    val litrosPeriodo: Double = 0.0,
+    val entregasPeriodo: Int = 0,
+    val promedioDiario: Double = 0.0,
+    // --- Perfil ---
+    val dni: String = "",
+    val telefono: String? = null,
+    val estadoPadron: String = "",
+    val fechaIngreso: String = "",
+    val zonaNombre: String = "—",
     // Aviso obligatorio (pop-up)
     val aviso: Aviso? = null,
     val avisoImagen: ImageBitmap? = null,
@@ -106,6 +161,10 @@ class ProductorViewModel(
     private val avisoFlow = MutableStateFlow<Aviso?>(null)
     private val avisoImagen = MutableStateFlow<ImageBitmap?>(null)
     private val sheet = MutableStateFlow<SolicitudSheet?>(null)
+    private val periodo = MutableStateFlow(PeriodoProductor.SEMANA)
+
+    /** El aviso y su imagen viajan juntos: el combine de estado admite 5 flujos. */
+    private val avisoConImagen = combine(avisoFlow, avisoImagen) { a, i -> a to i }
 
     init {
         // El aviso obligatorio se observa y, si trae imagen, se descarga sin librería.
@@ -117,17 +176,23 @@ class ProductorViewModel(
             .launchIn(viewModelScope)
     }
 
+    private val ordenPorGravedad = listOf(
+        DictamenCalidad.APROBADO,
+        DictamenCalidad.ADVERTENCIA_AGUA,
+        DictamenCalidad.DESCUENTO_RETIRO_AGUA,
+        DictamenCalidad.RECHAZADO_ACIDEZ,
+        DictamenCalidad.EXPULSION_AGUA,
+    )
+
     private data class Nucleo(
-        val nombre: String,
+        val padron: DatosPadron,
+        val repartoCalidad: List<ConteoDictamen>,
         val litrosHoy: Double,
         val litrosCiclo: Double,
         val tarifa: Double,
         val calidad: String,
         val calidadRechaza: Boolean,
         val liquidacionNeto: Double?,
-        val ruta: String,
-        val zonaActualId: String?,
-        val zonas: List<ZonaOpcion>,
         val ultimaSolicitud: EstadoSolicitud?,
     )
 
@@ -139,7 +204,18 @@ class ProductorViewModel(
             val p = padron.firstOrNull { it.id == productorId }
             val zona = zs.firstOrNull { it.id == p?.zonaId }
             val ruta = rs.firstOrNull { it.id == zona?.rutaId }
-            Triple(p?.nombreCompleto ?: "", (ruta?.nombre ?: "—") to p?.zonaId, zs.map { ZonaOpcion(it.id, it.nombre) })
+            DatosPadron(
+                nombre = p?.nombreCompleto ?: "",
+                codigoPadron = p?.codigoPadron ?: "",
+                dni = p?.dni?.valor ?: "",
+                telefono = p?.telefono,
+                estadoPadron = p?.estado?.clave ?: "",
+                fechaIngreso = p?.fechaIngreso?.toString() ?: "",
+                zonaNombre = zona?.nombre ?: "—",
+                ruta = ruta?.nombre ?: "—",
+                zonaActualId = p?.zonaId,
+                zonas = zs.map { ZonaOpcion(it.id, it.nombre) },
+            )
         },
         combine(liquidaciones.observarPorProductor(productorId), solicitudes.observarMisSolicitudes(productorId)) { liqs, sols ->
             liqs.maxByOrNull { it.updatedAt }?.montoNeto?.valor to sols.maxByOrNull { it.updatedAt }?.estado
@@ -161,21 +237,23 @@ class ProductorViewModel(
         val calidad = ultimaInspeccion?.dictamen?.clave ?: "Sin inspecciones"
         val rechaza = ultimaInspeccion?.dictamen?.rechazaLote == true
 
-        val (nombre, rutaZona, listaZonas) = datosRuta
-        val (rutaNombre, zonaActualId) = rutaZona
         val (liqNeto, ultimaSol) = liqYSol
 
+        // Reparto de dictámenes para la dona de calidad: de mejor a peor (el
+        // orden del enum no es el de gravedad) y sin lo que no ocurrió.
+        val reparto = ordenPorGravedad
+            .map { d -> ConteoDictamen(d, inspeccionesLista.count { it.dictamen == d }) }
+            .filter { it.cantidad > 0 }
+
         Nucleo(
-            nombre = nombre,
+            padron = datosRuta,
+            repartoCalidad = reparto,
             litrosHoy = litrosHoy,
             litrosCiclo = litrosCiclo,
             tarifa = tarifa,
             calidad = calidad,
             calidadRechaza = rechaza,
             liquidacionNeto = liqNeto,
-            ruta = rutaNombre,
-            zonaActualId = zonaActualId,
-            zonas = listaZonas,
             ultimaSolicitud = ultimaSol,
         )
     }
@@ -183,17 +261,78 @@ class ProductorViewModel(
     // Entregas del productor con el veredicto de recepción de planta.
     private val entregasFlow = recolecciones.observarPorProductor(productorId)
 
+    private data class Extras(
+        val pagos: List<PagoResumen>,
+        val totalPendiente: Double,
+        val ultimoPagoEtiqueta: String?,
+        val periodo: PeriodoProductor,
+        val filas: List<FilaReporte>,
+    )
+
+    /** Pagos y reporte por periodo: alimentan las pestañas Pagos y Reportes. */
+    private val extras = combine(
+        liquidaciones.observarPorProductor(productorId),
+        obtenerReporte(productorId),
+        periodo,
+    ) { liqs, reporte, p ->
+        val ordenadas = liqs.sortedByDescending { it.updatedAt }
+        val pagos = ordenadas.map { l ->
+            PagoResumen(
+                etiqueta = l.semanaPagoId.take(8),
+                litros = l.litrosTotales.valor,
+                precioLitro = l.precioLitroAplicado,
+                tarifaDegradada = l.tarifaDegradada,
+                descuentos = l.totalDescuentos.valor,
+                neto = l.montoNeto.valor,
+                estado = l.estado,
+            )
+        }
+        val filas = when (p) {
+            PeriodoProductor.DIA -> reporte.porDia
+            PeriodoProductor.SEMANA -> reporte.porSemana
+            PeriodoProductor.MES -> reporte.porMes
+        }.sortedByDescending { it.etiqueta }
+            .map { FilaReporte(it.etiqueta, it.litros.valor, it.recolecciones) }
+
+        Extras(
+            pagos = pagos,
+            // "Pendiente" = liquidada pero todavía no pagada por la cooperativa.
+            totalPendiente = ordenadas.filter { it.estado != "pagada" }.sumOf { it.montoNeto.valor },
+            ultimoPagoEtiqueta = ordenadas.firstOrNull { it.estado == "pagada" }?.semanaPagoId?.take(8),
+            periodo = p,
+            filas = filas,
+        )
+    }
+
     val estado: StateFlow<ProductorUiState> =
-        combine(nucleo, avisoFlow, avisoImagen, sheet, entregasFlow) { n, aviso, imagen, sh, entregas ->
+        combine(nucleo, extras, avisoConImagen, sheet, entregasFlow) { n, x, avisoYImagen, sh, entregas ->
+            val (aviso, imagen) = avisoYImagen
             val hoy = Clock.System.now().toLocalDateTime(ZonaLima).date
             val inicioCiclo = hoy.previousOrSame(DayOfWeek.THURSDAY)
             val finCiclo = inicioCiclo.plus(6, DateTimeUnit.DAY)
             val enCiclo = entregas.filter { e ->
                 e.horaRegistro.toLocalDateTime(ZonaLima).date.let { it in inicioCiclo..finCiclo }
             }
+            val diasConEntrega = x.filas.size.coerceAtLeast(1)
             ProductorUiState(
                 cargando = false,
-                nombre = n.nombre,
+                nombre = n.padron.nombre,
+                codigoPadron = n.padron.codigoPadron,
+                dni = n.padron.dni,
+                telefono = n.padron.telefono,
+                estadoPadron = n.padron.estadoPadron,
+                fechaIngreso = n.padron.fechaIngreso,
+                zonaNombre = n.padron.zonaNombre,
+                pagos = x.pagos,
+                totalPendiente = x.totalPendiente,
+                ultimoPagoEtiqueta = x.ultimoPagoEtiqueta,
+                periodo = x.periodo,
+                filasReporte = x.filas,
+                litrosPeriodo = x.filas.sumOf { it.litros },
+                entregasPeriodo = x.filas.sumOf { it.entregas },
+                promedioDiario = x.filas.sumOf { it.litros } / diasConEntrega,
+                entregasCiclo = enCiclo.size,
+                calidad = n.repartoCalidad,
                 litrosHoy = n.litrosHoy,
                 estadoCalidad = n.calidad,
                 calidadRechaza = n.calidadRechaza,
@@ -201,11 +340,11 @@ class ProductorViewModel(
                 tarifaLitro = n.tarifa,
                 pagoProyectado = n.litrosCiclo * n.tarifa,
                 ultimaLiquidacionNeto = n.liquidacionNeto,
-                rutaAsignada = n.ruta,
-                zonaActualId = n.zonaActualId,
-                zonas = n.zonas,
+                rutaAsignada = n.padron.ruta,
+                zonaActualId = n.padron.zonaActualId,
+                zonas = n.padron.zonas,
                 estadoUltimaSolicitud = n.ultimaSolicitud,
-                entregas = entregas.take(8).map { e ->
+                entregas = entregas.map { e ->
                     EntregaResumen(
                         fecha = e.horaRegistro.toLocalDateTime(ZonaLima).date.toString(),
                         litros = e.litros.valor,
@@ -224,6 +363,8 @@ class ProductorViewModel(
         val id = avisoFlow.value?.id ?: return
         viewModelScope.launch { avisos.marcarVisto(id) }  // el Flow lo saca solo del pop-up
     }
+
+    fun onPeriodo(p: PeriodoProductor) { periodo.value = p }
 
     fun abrirSolicitud() { sheet.value = SolicitudSheet() }
     fun cerrarSolicitud() { sheet.value = null }

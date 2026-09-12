@@ -7,7 +7,6 @@ import pe.edu.upeu.milkflow.data.local.db.Liquidaciones
 import pe.edu.upeu.milkflow.data.local.db.Outbox
 import pe.edu.upeu.milkflow.data.local.db.Precios
 import pe.edu.upeu.milkflow.data.local.db.Productores
-import pe.edu.upeu.milkflow.data.local.db.Recepciones
 import pe.edu.upeu.milkflow.data.local.db.Recolecciones
 import pe.edu.upeu.milkflow.data.local.db.Rutas
 import pe.edu.upeu.milkflow.data.local.db.Sanciones
@@ -25,7 +24,6 @@ import pe.edu.upeu.milkflow.domain.model.JornadaRuta
 import pe.edu.upeu.milkflow.domain.model.Liquidacion
 import pe.edu.upeu.milkflow.domain.model.Precio
 import pe.edu.upeu.milkflow.domain.model.Productor
-import pe.edu.upeu.milkflow.domain.model.Recepcion
 import pe.edu.upeu.milkflow.domain.model.Recoleccion
 import pe.edu.upeu.milkflow.domain.model.Ruta
 import pe.edu.upeu.milkflow.domain.model.Sancion
@@ -92,18 +90,6 @@ internal fun Recolecciones.aDominio() = Recoleccion(
     estadoRecepcion = EstadoRecepcion.desde(estado_recepcion),
     litrosRecibidos = litros_recibidos?.let { Litros.confiar(it) },
     litrosFaltantes = Litros.confiar(litros_faltantes),
-)
-
-internal fun Recepciones.aDominio() = Recepcion(
-    id = id,
-    jornadaId = jornada_id,
-    tina = tina,
-    litrosDescargados = Litros.confiar(litros_descargados),
-    horaDescarga = hora_descarga.aInstant(),
-    recibidoPor = recibido_por,
-    updatedAt = updated_at.aInstant(),
-    version = version,
-    deleted = deleted.aBoolean(),
 )
 
 internal fun Inspecciones.aDominio() = Inspeccion(

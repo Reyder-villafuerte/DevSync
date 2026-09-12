@@ -18,7 +18,6 @@ import pe.edu.upeu.milkflow.domain.model.JornadaRuta
 import pe.edu.upeu.milkflow.domain.model.Liquidacion
 import pe.edu.upeu.milkflow.domain.model.Precio
 import pe.edu.upeu.milkflow.domain.model.Productor
-import pe.edu.upeu.milkflow.domain.model.Recepcion
 import pe.edu.upeu.milkflow.domain.model.Recoleccion
 import pe.edu.upeu.milkflow.domain.model.RolUsuario
 import pe.edu.upeu.milkflow.domain.model.Ruta
@@ -31,7 +30,6 @@ import pe.edu.upeu.milkflow.domain.repository.JornadaRepository
 import pe.edu.upeu.milkflow.domain.repository.LiquidacionRepository
 import pe.edu.upeu.milkflow.domain.repository.PrecioRepository
 import pe.edu.upeu.milkflow.domain.repository.ProductorRepository
-import pe.edu.upeu.milkflow.domain.repository.RecepcionRepository
 import pe.edu.upeu.milkflow.domain.repository.RecoleccionRepository
 import pe.edu.upeu.milkflow.domain.repository.RutaRepository
 import pe.edu.upeu.milkflow.domain.repository.SancionRepository
@@ -146,15 +144,19 @@ class FakeProductorRepository(productores: List<Productor>) : ProductorRepositor
 
 class FakeJornadaRepository(inicial: JornadaRuta? = null) : JornadaRepository {
     val flujo = MutableStateFlow(inicial)
+    /** Jornada de hoy ya cerrada/conciliada, para probar el bloqueo de duplicados. */
+    var deHoy: JornadaRuta? = null
     override fun observarJornadaActiva(acopiadorId: String): Flow<JornadaRuta?> = flujo
     override suspend fun jornadaActiva(acopiadorId: String): JornadaRuta? = flujo.value
     override suspend fun porId(id: String): JornadaRuta? = flujo.value?.takeIf { it.id == id }
+    override suspend fun jornadaDeHoy(): JornadaRuta? = flujo.value ?: deHoy
+    override fun observarTodas(): Flow<List<JornadaRuta>> = flujo.map { listOfNotNull(it) }
     override suspend fun iniciar(acopiadorId: String, rutaId: String): Resultado<JornadaRuta> {
         val j = jornada("j-new", acopiadorId, rutaId)
         flujo.value = j
         return Resultado.Exito(j)
     }
-    override suspend fun cerrar(jornada: JornadaRuta, recepcion: Recepcion?): Resultado<JornadaRuta> {
+    override suspend fun cerrar(jornada: JornadaRuta): Resultado<JornadaRuta> {
         flujo.value = jornada
         return Resultado.Exito(jornada)
     }

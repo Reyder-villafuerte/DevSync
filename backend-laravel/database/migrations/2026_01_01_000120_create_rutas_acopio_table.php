@@ -11,7 +11,7 @@ return new class extends Migration
     {
         // Cabecera de un recorrido de madrugada: acopiador + ruta + fecha.
         // Se crea OFFLINE en el móvil (subida = true). Su ciclo de estados:
-        // en_curso -> cerrada (cierra ruta) -> descargada (en tina) ->
+        // en_curso -> cerrada (cierra ruta) ->
         // conciliada (comparada contra caudalímetro en planta).
         Schema::create('rutas_acopio', function (Blueprint $table) {
             $table->idUuid();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->index(['ruta_id', 'fecha']);
         });
 
-        DB::statement("ALTER TABLE rutas_acopio ADD CONSTRAINT rutas_acopio_estado_chk CHECK (estado IN ('en_curso','cerrada','descargada','conciliada'))");
+        DB::statement("ALTER TABLE rutas_acopio ADD CONSTRAINT rutas_acopio_estado_chk CHECK (estado IN ('en_curso','cerrada','conciliada'))");
         DB::statement('ALTER TABLE rutas_acopio ADD CONSTRAINT rutas_acopio_litros_no_negativos_chk CHECK (litros_declarados >= 0)');
     }
 

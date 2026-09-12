@@ -11,7 +11,7 @@ enum class TipoOperacion { INSERTAR, ACTUALIZAR, ELIMINAR }
  * un conflicto sobre una operación subida.
  */
 enum class EstrategiaConflicto {
-    /** Recolecciones, inspecciones, recepciones: el móvil solo inserta. */
+    /** Recolecciones, inspecciones: el móvil solo inserta. */
     SOLO_INSERCION,
 
     /** Movimientos de stock: conmutativos; un id ya presente = no-op. */
@@ -33,7 +33,6 @@ enum class EstrategiaConflicto {
         private val PORTABLA = mapOf(
             "registros_acopio" to SOLO_INSERCION,
             "controles_calidad" to SOLO_INSERCION,
-            "descargas_tina" to SOLO_INSERCION,
             "asistencias" to SOLO_INSERCION,
             "avisos_vistos" to SOLO_INSERCION,
             "movimientos_stock" to CONMUTATIVO,
@@ -49,7 +48,6 @@ enum class EstrategiaConflicto {
 object Entidades {
     const val JORNADA = "rutas_acopio"
     const val RECOLECCION = "registros_acopio"
-    const val RECEPCION = "descargas_tina"
     const val INSPECCION = "controles_calidad"
     const val SOLICITUD_RUTA = "solicitudes_cambio_zona"
     const val MOVIMIENTO_STOCK = "movimientos_stock"

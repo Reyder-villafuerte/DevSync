@@ -8,7 +8,6 @@ import pe.edu.upeu.milkflow.domain.model.JornadaRuta
 import pe.edu.upeu.milkflow.domain.model.Liquidacion
 import pe.edu.upeu.milkflow.domain.model.Precio
 import pe.edu.upeu.milkflow.domain.model.Productor
-import pe.edu.upeu.milkflow.domain.model.Recepcion
 import pe.edu.upeu.milkflow.domain.model.Recoleccion
 import pe.edu.upeu.milkflow.domain.model.Ruta
 import pe.edu.upeu.milkflow.domain.model.Sancion
@@ -47,11 +46,20 @@ interface JornadaRepository {
     suspend fun jornadaActiva(acopiadorId: String): JornadaRuta?
     suspend fun porId(id: String): JornadaRuta?
 
+    /**
+     * La jornada de hoy en CUALQUIER estado (también cerrada o conciliada).
+     * El servidor solo admite una por acopiador y día.
+     */
+    suspend fun jornadaDeHoy(): JornadaRuta?
+
+    /** Historial completo de rutas del dispositivo, de la más reciente atrás. */
+    fun observarTodas(): Flow<List<JornadaRuta>>
+
     /** Crea la cabecera (local + outbox). */
     suspend fun iniciar(acopiadorId: String, rutaId: String): Resultado<JornadaRuta>
 
-    /** Marca la jornada como cerrada/descargada (local + outbox). */
-    suspend fun cerrar(jornada: JornadaRuta, recepcion: Recepcion?): Resultado<JornadaRuta>
+    /** Marca la jornada como cerrada (local + outbox). */
+    suspend fun cerrar(jornada: JornadaRuta): Resultado<JornadaRuta>
 }
 
 interface RecoleccionRepository {
@@ -68,11 +76,6 @@ interface RecoleccionRepository {
 
     /** Suma de litros de todas las recolecciones vivas de la jornada. */
     suspend fun totalLitros(jornadaId: String): Litros
-}
-
-interface RecepcionRepository {
-    suspend fun registrar(recepcion: Recepcion): Resultado<Recepcion>
-    fun observarPorJornada(jornadaId: String): Flow<Recepcion?>
 }
 
 interface InspeccionRepository {

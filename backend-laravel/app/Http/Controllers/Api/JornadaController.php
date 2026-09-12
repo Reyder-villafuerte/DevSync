@@ -20,7 +20,7 @@ class JornadaController extends ApiController
 
         $resultado = $this->cierre->cerrar(
             jornada: $jornada,
-            lote: $request->only(['registros', 'descarga', 'controlesCalidad']),
+            lote: $request->only(['registros', 'controlesCalidad']),
             usuario: $request->user(),
             dispositivo: $this->dispositivoActual($request),
         );

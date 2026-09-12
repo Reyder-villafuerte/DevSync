@@ -10,10 +10,18 @@ import androidx.compose.ui.graphics.Color
 private val EsquemaClaro = lightColorScheme(
     primary = AzulMarino,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFD6E4FF),
+    primaryContainer = AzulPastel,
     onPrimaryContainer = AzulMarinoOscuro,
     secondary = AzulMarinoOscuro,
     onSecondary = Color.White,
+    // Sin esto, los componentes que tiran de `secondaryContainer` (el chip
+    // seleccionado, por ejemplo) se pintan con el lila por defecto de M3.
+    secondaryContainer = AzulPastel,
+    onSecondaryContainer = AzulMarinoOscuro,
+    tertiary = AzulMarino,
+    onTertiary = Color.White,
+    tertiaryContainer = AzulPastel,
+    onTertiaryContainer = AzulMarinoOscuro,
     background = FondoGrisClaro,
     onBackground = Color(0xFF1F2933),
     surface = Superficie,

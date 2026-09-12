@@ -6,7 +6,7 @@ import pe.edu.upeu.milkflow.domain.vo.Litros
 
 /**
  * Cabecera del recorrido de un acopiador en un día. Se crea offline al iniciar
- * ruta y se "cierra" al descargar en tina.
+ * ruta y se "cierra" al terminar el recorrido.
  */
 data class JornadaRuta(
     override val id: String,
@@ -43,19 +43,4 @@ data class Recoleccion(
     val estadoRecepcion: EstadoRecepcion = EstadoRecepcion.PENDIENTE,
     val litrosRecibidos: Litros? = null,
     val litrosFaltantes: Litros = Litros.CERO,
-) : RegistroSincronizable
-
-/**
- * Descarga en tina de planta al cerrar la ruta (equivale a `descargas_tina`).
- */
-data class Recepcion(
-    override val id: String,
-    val jornadaId: String,
-    val tina: String?,
-    val litrosDescargados: Litros,
-    val horaDescarga: Instant,
-    val recibidoPor: String?,
-    override val updatedAt: Instant,
-    override val version: Long,
-    override val deleted: Boolean = false,
 ) : RegistroSincronizable

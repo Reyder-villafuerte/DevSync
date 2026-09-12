@@ -36,9 +36,9 @@ class AcopiadorViewModelTest : VmTestBase() {
         ),
     )
 
-    private fun vm() = AcopiadorViewModel(
+    private fun vm(rutas: FakeRutaRepository = FakeRutaRepository(listOf(ruta("r1", "01")))) = AcopiadorViewModel(
         sesion = sesion(RolUsuario.ACOPIADOR, Ambito.Ruta("01"), usuarioId = "acop1"),
-        rutas = FakeRutaRepository(listOf(ruta("r1", "01"))),
+        rutas = rutas,
         zonas = FakeZonaRepository(listOf(zona("z1", "r1"))),
         productores = productores,
         jornadas = jornadas,
@@ -76,6 +76,23 @@ class AcopiadorViewModelTest : VmTestBase() {
             cancelAndIgnoreRemainingEvents()
         }
         assertEquals(1, recolecciones.flujo.value.size)
+    }
+
+    /** Sin catálogo bajado no hay ruta local: el botón no puede quedar "muerto". */
+    @Test
+    fun sin_ruta_en_la_bd_local_se_avisa_y_no_se_puede_iniciar() = runTest(dispatcher) {
+        val vm = vm(rutas = FakeRutaRepository(emptyList()))
+        vm.estado.test {
+            var s = awaitItem()
+            while (s.cargando) s = awaitItem()
+            assertEquals(false, s.puedeIniciarRuta)
+            assertEquals(0, s.totalParadas)
+            assertTrue(s.avisoJornada!!.contains("Sincronizar"))
+
+            vm.iniciarRuta()   // no debe abrir jornada ni reventar
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(null, jornadas.flujo.value)
     }
 
     @Test

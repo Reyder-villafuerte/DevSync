@@ -97,6 +97,14 @@ class AplicadorCambios(
                 o.str("motivo"), o.str("estado"), o.millisOrNull("resueltoEn"), o.strOrNull("comentarioResolucion"),
                 o.millis("updatedAt"), o.long("version"), o.boolLong("deleted"),
             )
+            "controlesCalidad" -> q.upsertInspeccionRemota(
+                o.str("id"), o.str("productorId"), o.str("supervisorId"),
+                o.strOrNull("rutaAcopioId"), o.strOrNull("registroAcopioId"), o.millis("tomadoEn"),
+                o.dblOrNull("aguaAnadidaPorcentaje"), o.dblOrNull("ph"), o.dblOrNull("densidad"),
+                o.dblOrNull("grasaPorcentaje"), o.dblOrNull("solidosNoGrasosPorcentaje"),
+                o.dblOrNull("temperatura"), o.str("dictamen"), o.strOrNull("dictamenDetalle") ?: "",
+                o.boolLong("esReincidencia"), o.millis("updatedAt"), o.long("version"), o.boolLong("deleted"),
+            )
             "movimientosStock" -> q.upsertMovimientoStockRemoto(
                 o.str("id"), o.str("productoId"), o.str("tipoMovimiento"), o.dbl("cantidad"),
                 o.strOrNull("origenTipo"), o.strOrNull("origenId"), o.str("registradoPor"),
@@ -117,6 +125,7 @@ class AplicadorCambios(
         "registrosAcopio" -> "registros_acopio"
         "solicitudesCambioZona" -> "solicitudes_cambio_zona"
         "movimientosStock" -> "movimientos_stock"
+        "controlesCalidad" -> "controles_calidad"
         else -> entidadCamel
     }
 }

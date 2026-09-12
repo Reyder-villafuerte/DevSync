@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import pe.edu.upeu.milkflow.domain.sync.EstadoSincronizacion
+import pe.edu.upeu.milkflow.ui.theme.Dimens
 import pe.edu.upeu.milkflow.ui.theme.LocalColoresMilkFlow
 
 /**
@@ -49,7 +51,7 @@ fun IndicadorSyncContenido(
 ) {
     val c = LocalColoresMilkFlow.current
     Row(
-        modifier = modifier.padding(horizontal = 4.dp),
+        modifier = modifier.padding(start = Dimens.EspacioM, end = Dimens.EspacioS),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -82,8 +84,11 @@ fun IndicadorSyncContenido(
             }
         }
 
+        // El botón se ancla a la derecha: el estado se lee de izquierda a
+        // derecha y la acción queda siempre en el mismo sitio.
+        Spacer(Modifier.weight(1f))
         TextButton(onClick = onSincronizar, modifier = Modifier.objetivoTactil()) {
-            Text("Sincronizar")
+            Text("Sincronizar", style = MaterialTheme.typography.labelLarge)
         }
     }
 }

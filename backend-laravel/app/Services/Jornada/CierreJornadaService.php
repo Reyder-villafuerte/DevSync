@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\DB;
  * Use Case: cierre de la jornada (ruta de acopio) del día.
  *
  * El acopiador termina el recorrido sin cobertura; al llegar a un punto con
- * señal sube TODO el lote del día (registros por productor, descarga en tina y
- * controles de calidad tomados) y cierra la ruta.
+ * señal sube TODO el lote del día (registros por productor y controles de
+ * calidad tomados) y cierra la ruta.
  *
  * Reutiliza el motor de subida (SyncService::push) para el lote — misma
  * idempotencia y mismas reglas de conflicto — y añade el cambio de estado de
@@ -26,7 +26,7 @@ class CierreJornadaService
     public function __construct(private readonly SyncService $sync) {}
 
     /**
-     * @param  array{registros?: array, descarga?: array, controlesCalidad?: array}  $lote
+     * @param  array{registros?: array, controlesCalidad?: array}  $lote
      * @return array{resultado: ResultadoPush, jornada: RutaAcopio}
      */
     public function cerrar(RutaAcopio $jornada, array $lote, Usuario $usuario, Dispositivo $dispositivo): array
@@ -41,9 +41,6 @@ class CierreJornadaService
         foreach ($lote['registros'] ?? [] as $fila) {
             $operaciones[] = $this->operacion('registros_acopio', $fila, ['rutaAcopioId' => $jornada->id]);
         }
-        if (! empty($lote['descarga'])) {
-            $operaciones[] = $this->operacion('descargas_tina', $lote['descarga'], ['rutaAcopioId' => $jornada->id]);
-        }
         foreach ($lote['controlesCalidad'] ?? [] as $fila) {
             $operaciones[] = $this->operacion('controles_calidad', $fila, ['rutaAcopioId' => $jornada->id]);
         }
@@ -52,17 +49,17 @@ class CierreJornadaService
 
         // Estado de la cabecera: en su propia transacción. Solo se cierra si el
         // lote no dejó conflictos que impidan una conciliación fiable.
-        DB::transaction(function () use ($jornada, $lote) {
+        DB::transaction(function () use ($jornada) {
             $litros = (float) $jornada->registros()->where('deleted', false)->sum('litros');
 
             $jornada->forceFill([
                 'litros_declarados' => $litros,
                 'hora_cierre' => now(),
-                'estado' => ! empty($lote['descarga']) ? 'descargada' : 'cerrada',
+                'estado' => 'cerrada',
             ])->save();
         });
 
-        return ['resultado' => $resultado, 'jornada' => $jornada->fresh(['registros', 'descarga'])];
+        return ['resultado' => $resultado, 'jornada' => $jornada->fresh(['registros'])];
     }
 
     private function operacion(string $entidad, array $fila, array $forzar): array

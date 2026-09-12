@@ -4,7 +4,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import pe.edu.upeu.milkflow.domain.model.Inspeccion
 import pe.edu.upeu.milkflow.domain.model.JornadaRuta
-import pe.edu.upeu.milkflow.domain.model.Recepcion
 import pe.edu.upeu.milkflow.domain.model.Recoleccion
 import pe.edu.upeu.milkflow.domain.model.SolicitudRuta
 
@@ -22,14 +21,6 @@ internal object ConstructorPayload {
         put("horaRegistro", r.horaRegistro.toString())
         r.observacion?.let { put("observacion", it) }
         put("sospechaAdulteracion", r.sospechaAdulteracion)
-    }.toString()
-
-    fun recepcion(r: Recepcion): String = buildJsonObject {
-        put("rutaAcopioId", r.jornadaId)
-        r.tina?.let { put("tina", it) }
-        put("litrosDescargados", r.litrosDescargados.valor)
-        put("horaDescarga", r.horaDescarga.toString())
-        r.recibidoPor?.let { put("recibidoPor", it) }
     }.toString()
 
     fun jornada(j: JornadaRuta): String = buildJsonObject {

@@ -23,6 +23,9 @@ class RecepcionDia extends Component
     #[Validate('required|numeric|min:0')]
     public $litrosCaudalimetro = null;
 
+    #[Validate('nullable|string|max:255')]
+    public string $observacion = '';
+
     public ?array $ultimoResultado = null;
 
     /** Tolerancia volumétrica (en %). */
@@ -30,6 +33,15 @@ class RecepcionDia extends Component
     public function tolerancia(): float
     {
         return (float) config('milkflow.conciliacion.tolerancia_pct');
+    }
+
+    /** Cabecera de la ruta elegida, para rotular la conciliación. */
+    #[Computed]
+    public function rutaElegida(): ?RutaAcopio
+    {
+        return $this->rutaAcopioId
+            ? RutaAcopio::with(['ruta', 'acopiador.usuario'])->find($this->rutaAcopioId)
+            : null;
     }
 
     #[Computed]
@@ -77,6 +89,7 @@ class RecepcionDia extends Component
                 rutaAcopio: $ruta,
                 litrosCaudalimetro: (float) $this->litrosCaudalimetro,
                 registrador: auth()->user(),
+                observacion: $this->observacion,
             );
         } catch (ReglaNegocioException $e) {
             $this->addError('litrosCaudalimetro', $e->getMessage());
@@ -92,7 +105,7 @@ class RecepcionDia extends Component
             'porcentaje' => $conciliacion->diferencia_porcentaje,
             'alerta' => $conciliacion->tiene_alerta,
         ];
-        $this->reset(['rutaAcopioId', 'litrosCaudalimetro']);
+        $this->reset(['rutaAcopioId', 'litrosCaudalimetro', 'observacion']);
         session()->flash('ok', 'Conciliación registrada.');
     }
 
@@ -101,7 +114,10 @@ class RecepcionDia extends Component
         return view('livewire.panel.recepcion.recepcion-dia', [
             'pendientes' => RutaAcopio::query()
                 ->with(['acopiador.usuario', 'ruta'])
-                ->whereIn('estado', ['cerrada', 'descargada'])
+                // Litros declarados de cada ruta: se muestran ya en el selector
+                // para no tener que elegir a ciegas.
+                ->withSum(['registros as litros_declarados' => fn ($q) => $q->where('deleted', false)], 'litros')
+                ->whereIn('estado', ['cerrada'])
                 ->whereDoesntHave('conciliacion')
                 ->orderBy('fecha')
                 ->get(),

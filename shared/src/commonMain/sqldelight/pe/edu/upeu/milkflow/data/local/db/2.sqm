@@ -1,0 +1,4 @@
+-- v2 -> v3: se elimina la descarga en tina del cierre de ruta.
+-- La cabecera de jornada ya no pasa por el estado 'descargada'; el cierre solo
+-- actualiza estado + hora de cierre + litros declarados.
+DROP TABLE IF EXISTS recepciones;
