@@ -14,8 +14,10 @@ class RendimientoServiceTest extends TestCase
 {
     private function sesion(float $litros, int $unidades): SesionProduccion
     {
-        $producto = new Producto(['rendimiento_min_por_100l' => 11, 'rendimiento_max_por_100l' => 12]);
-        $sesion = new SesionProduccion(['litros_procesados' => $litros, 'unidades_producidas' => $unidades]);
+        // Los casts decimales de Eloquent reciben strings, igual que al leerlos
+        // desde MySQL; evita depender de la conversión float de brick/math.
+        $producto = new Producto(['rendimiento_min_por_100l' => '11', 'rendimiento_max_por_100l' => '12']);
+        $sesion = new SesionProduccion(['litros_procesados' => (string) $litros, 'unidades_producidas' => $unidades]);
         $sesion->setRelation('producto', $producto);
 
         return $sesion;

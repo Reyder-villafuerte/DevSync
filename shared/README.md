@@ -37,7 +37,7 @@ shared/src/
 └── commonTest/…         Fakes + tests (RN-05/06, use case, outbox, conflictos)
 ```
 
-## Flujo de una recolección: del tap del acopiador a PostgreSQL
+## Flujo de una recolección: del tap del acopiador a MySQL
 
 1. **Tap.** El acopiador pulsa "Registrar" en `androidApp`. El ViewModel llama
    a `RegistrarRecoleccionUseCase(acopiadorId, productorId, litros)`.
@@ -80,7 +80,7 @@ shared/src/
      `marcarConflicto`.
 7. **En el backend** (`SincronizacionController@push` → `SyncService`): una
    transacción por tabla + savepoint por operación; para `registros_acopio` la
-   regla es solo-inserción; la fila entra en PostgreSQL con su `version` y
+   regla es solo-inserción; la fila entra en MySQL con su `version` y
    `updated_at` definitivos. El `EvaluacionCalidadService` corre para las
    inspecciones.
 8. **Bajada (`SyncManager.bajarDeltas`).** Inmediatamente después,

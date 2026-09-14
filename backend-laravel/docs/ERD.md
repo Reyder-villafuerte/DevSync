@@ -16,7 +16,7 @@ erDiagram
         uuid id PK
         uuid usuario_id FK
         string identificador UK
-        timestamptz ultima_sincronizacion_en
+        timestamp ultima_sincronizacion_en
     }
     rutas {
         uuid id PK
@@ -80,7 +80,7 @@ erDiagram
         uuid ruta_acopio_id FK
         uuid productor_id FK
         decimal litros
-        timestamptz hora_registro
+        timestamp hora_registro
     }
     conciliaciones {
         uuid id PK
@@ -160,7 +160,7 @@ erDiagram
         uuid origen_id
     }
     stock_actual {
-        uuid producto_id PK "MATERIALIZED VIEW"
+        uuid producto_id PK "MYSQL VIEW"
         decimal cantidad_actual "SUM(movimientos)"
     }
     correlativos {

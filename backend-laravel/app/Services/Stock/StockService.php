@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\DB;
  * Use Case: escritura en el LIBRO DE EVENTOS de stock (requisito técnico 3).
  *
  * - El stock NUNCA es un contador: cada cambio es un movimiento con cantidad
- *   con signo. La cantidad "actual" se lee de la vista materializada
+ *   con signo. La cantidad "actual" se lee de la vista normal
  *   stock_actual (o de la suma del libro).
  * - Toda escritura de stock va en transacción (restricción del enunciado).
- * - El REFRESH de la vista materializada CONCURRENTLY no puede correr dentro
- *   de una transacción, así que se difiere con DB::afterCommit().
+ * - La vista de MySQL se calcula al leer y no necesita refresco manual.
  */
 class StockService
 {
@@ -43,7 +42,7 @@ class StockService
             if ($tipo->signo() < 0 && ! config('milkflow.stock.permitir_negativo')) {
                 // Se serializa contra egresos concurrentes del MISMO producto
                 // bloqueando su fila de catálogo (no se puede hacer FOR UPDATE
-                // sobre un SUM en PostgreSQL).
+                // sobre una agregación SUM).
                 Producto::query()->whereKey($producto->id)->lockForUpdate()->first();
                 $this->asegurarDisponibilidad($producto, abs($cantidad));
             }
@@ -58,8 +57,6 @@ class StockService
                 'ocurrido_en' => now(),
                 'motivo' => $motivo,
             ]);
-
-            DB::afterCommit(fn () => $this->refrescarVistaStock());
 
             return $movimiento;
         });
@@ -94,17 +91,12 @@ class StockService
             ->sum('cantidad');
     }
 
-    /** Refresco de la vista materializada. CONCURRENTLY para no bloquear lecturas. */
+    /**
+     * Compatibilidad con llamadas existentes. La vista normal de MySQL está
+     * siempre actualizada, por lo que no existe una operación de refresco.
+     */
     public function refrescarVistaStock(): void
     {
-        // CONCURRENTLY exige NO estar en transacción; si lo estamos (p. ej.
-        // dentro de otro Service o de las pruebas), se cae al refresh normal.
-        if (DB::transactionLevel() > 0) {
-            DB::statement('REFRESH MATERIALIZED VIEW stock_actual');
-
-            return;
-        }
-
-        DB::statement('REFRESH MATERIALIZED VIEW CONCURRENTLY stock_actual');
+        // No-op intencional.
     }
 }

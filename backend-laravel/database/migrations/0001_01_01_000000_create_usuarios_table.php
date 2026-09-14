@@ -29,7 +29,7 @@ return new class extends Migration
             $table->columnasSincronizacion();
         });
 
-        DB::statement("ALTER TABLE usuarios ADD CONSTRAINT usuarios_dni_numerico_chk CHECK (dni ~ '^[0-9]{8}$')");
+        DB::statement("ALTER TABLE usuarios ADD CONSTRAINT usuarios_dni_numerico_chk CHECK (dni REGEXP '^[0-9]{8}$')");
         DB::statement(
             'ALTER TABLE usuarios ADD CONSTRAINT usuarios_rol_valido_chk CHECK (rol IN ('
             .collect(RolUsuario::cases())->map(fn ($r) => "'{$r->value}'")->implode(',')

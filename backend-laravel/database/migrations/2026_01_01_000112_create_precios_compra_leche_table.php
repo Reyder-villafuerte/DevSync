@@ -25,8 +25,35 @@ return new class extends Migration
 
         DB::statement('ALTER TABLE precios_compra_leche ADD CONSTRAINT pcl_precios_positivos_chk CHECK (precio_litro > 0 AND precio_litro_minimo > 0 AND precio_litro_minimo <= precio_litro)');
         DB::statement('ALTER TABLE precios_compra_leche ADD CONSTRAINT pcl_vigencia_chk CHECK (vigente_hasta IS NULL OR vigente_hasta >= vigente_desde)');
-        DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
-        DB::statement("ALTER TABLE precios_compra_leche ADD CONSTRAINT pcl_sin_solape_excl EXCLUDE USING gist (daterange(vigente_desde, COALESCE(vigente_hasta, 'infinity'::date), '[]') WITH &&) WHERE (deleted = false)");
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER precios_compra_sin_solape_bi
+            BEFORE INSERT ON precios_compra_leche FOR EACH ROW
+            BEGIN
+                IF NEW.deleted = 0 AND EXISTS (
+                    SELECT 1 FROM precios_compra_leche
+                    WHERE deleted = 0
+                      AND vigente_desde <= COALESCE(NEW.vigente_hasta, '9999-12-31')
+                      AND COALESCE(vigente_hasta, '9999-12-31') >= NEW.vigente_desde
+                ) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Las vigencias de compra de leche no pueden solaparse';
+                END IF;
+            END
+        SQL);
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER precios_compra_sin_solape_bu
+            BEFORE UPDATE ON precios_compra_leche FOR EACH ROW
+            BEGIN
+                IF NEW.deleted = 0 AND EXISTS (
+                    SELECT 1 FROM precios_compra_leche
+                    WHERE id <> OLD.id
+                      AND deleted = 0
+                      AND vigente_desde <= COALESCE(NEW.vigente_hasta, '9999-12-31')
+                      AND COALESCE(vigente_hasta, '9999-12-31') >= NEW.vigente_desde
+                ) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Las vigencias de compra de leche no pueden solaparse';
+                END IF;
+            END
+        SQL);
     }
 
     public function down(): void

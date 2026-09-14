@@ -11,6 +11,7 @@ use App\Models\Usuario;
 use App\Services\Calidad\EvaluacionCalidadService;
 use App\Services\Stock\StockService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -44,9 +45,8 @@ class SyncService
         // con timestamp casi simultáneo (el cliente reaplica de forma idempotente).
         $margen = (int) config('sync.margen_reloj_segundos');
         // El cursor viaja en UTC (ISO-8601 con 'Z'). Al comparar hay que pasar
-        // el string CON zona horaria: si se pasa un Carbon, el grammar lo
-        // formatea como 'Y-m-d H:i:s' sin zona y PostgreSQL lo interpreta en la
-        // zona de sesión (America/Lima) -> se pierden ~5 h de cambios recientes.
+        // el string CON zona horaria. MySQL lo convierte a la zona configurada
+        // para la sesión y así el cursor conserva el instante exacto.
         $cursor = $desde ? Carbon::parse($desde)->subSeconds($margen)->toIso8601String() : null;
 
         // Límite POR ENTIDAD (no un presupuesto global compartido): así una
@@ -249,8 +249,8 @@ class SyncService
 
                 return;
 
-            // Movimientos de stock: conmutativos. Cada UUID se inserta una vez;
-            // reenviarlo es no-op. El orden entre movimientos no altera el saldo.
+                // Movimientos de stock: conmutativos. Cada UUID se inserta una vez;
+                // reenviarlo es no-op. El orden entre movimientos no altera el saldo.
             case 'conmutativo':
                 if ($existente) {
                     $res->aceptar($id, $entidad, (int) $existente->version, 'idempotente');
@@ -261,7 +261,7 @@ class SyncService
 
                 return;
 
-            // Precios, avisos, liquidaciones: gana el servidor SIEMPRE.
+                // Precios, avisos, liquidaciones: gana el servidor SIEMPRE.
             case 'servidor_gana':
                 if ($existente) {
                     $res->conflicto($id, $entidad, 'servidor_autoritativo', $this->aCamel($existente->attributesToArray()));
@@ -271,7 +271,7 @@ class SyncService
 
                 return;
 
-            // Concurrencia optimista por `version`.
+                // Concurrencia optimista por `version`.
             case 'version':
             default:
                 if (! $existente) {
@@ -429,7 +429,7 @@ class SyncService
         if ($e instanceof ReglaNegocioException) {
             return $e->regla;
         }
-        if ($e instanceof \Illuminate\Database\QueryException) {
+        if ($e instanceof QueryException) {
             return 'violacion_integridad'; // FK/único/CHECK
         }
 

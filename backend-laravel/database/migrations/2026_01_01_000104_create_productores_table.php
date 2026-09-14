@@ -30,7 +30,7 @@ return new class extends Migration
             $table->index('estado');
         });
 
-        DB::statement("ALTER TABLE productores ADD CONSTRAINT productores_dni_numerico_chk CHECK (dni ~ '^[0-9]{8}$')");
+        DB::statement("ALTER TABLE productores ADD CONSTRAINT productores_dni_numerico_chk CHECK (dni REGEXP '^[0-9]{8}$')");
         DB::statement(
             'ALTER TABLE productores ADD CONSTRAINT productores_estado_valido_chk CHECK (estado IN ('
             .collect(EstadoProductor::cases())->map(fn ($e) => "'{$e->value}'")->implode(',')

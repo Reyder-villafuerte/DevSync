@@ -23,7 +23,10 @@ return new class extends Migration
             $table->columnasSincronizacion();
 
             // Sin repeticiones de comprobante (requisito técnico 6).
-            $table->unique(['tipo_comprobante', 'serie_comprobante', 'numero_comprobante']);
+            $table->unique(
+                ['tipo_comprobante', 'serie_comprobante', 'numero_comprobante'],
+                'ventas_comprobante_unique',
+            );
             $table->index(['cliente_id', 'fecha']);
         });
 

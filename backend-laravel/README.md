@@ -2,7 +2,7 @@
 
 Backend centralizado de la plataforma de gestión lechera de la asociación de
 productores de Puno. Autenticación con **Sanctum**, persistencia en
-**PostgreSQL** vía Eloquent, panel de escritorio con **Blade + Livewire** y
+**MySQL 8.4** vía Eloquent, panel de escritorio con **Blade + Livewire** y
 **API de sincronización offline-first** para la capa `shared` de Kotlin
 Multiplatform (SQLDelight + Ktor).
 
@@ -26,8 +26,8 @@ composer install
 cp .env.example .env
 php artisan key:generate
 
-# PostgreSQL (requiere permiso para CREATE EXTENSION btree_gist)
-createdb milkflow
+# MySQL de Laragon (root sin contraseña en la instalación predeterminada)
+mysql -u root -e "CREATE DATABASE milkflow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 php artisan migrate --seed
 
 php artisan serve
@@ -56,7 +56,7 @@ Administración). App móvil: `POST /api/login` con `{ dni, password, dispositiv
 | RN-08 rendimiento | `Produccion\RendimientoService` | Meta 11–12 quesos / 100 L; se calcula y persiste al completar la sesión. |
 | Tolerancia volumétrica | `Acopio\ConciliacionService` | Diferencia acopiador vs. caudalímetro >1% → alerta persistida. |
 | Liquidación semanal | `Liquidacion\LiquidacionService` | Ciclo jue→mié; congela tarifa y sanciones; aplica descuentos. |
-| Movimiento de stock | `Stock\StockService` + `Produccion\SesionProduccionService` | Libro de eventos + vista materializada `stock_actual`. |
+| Movimiento de stock | `Stock\StockService` + `Produccion\SesionProduccionService` | Libro de eventos + vista MySQL siempre actualizada `stock_actual`. |
 | Correlativo por dispositivo | `Facturacion\CorrelativoService` | Reserva de rangos sin huecos ni repeticiones; `liberarRangosDelDia()` al cierre. |
 | Sincronización | `Sync\SyncService` + `Sync\ResolutorAmbito` | Bajada por cursor de timestamp filtrada por ámbito de rol; subida idempotente por UUID con reglas de conflicto por dominio. |
 | Quórum de asamblea | `Asamblea\AsambleaService` | Padrón y quórum congelados al abrir registro. |
@@ -115,3 +115,4 @@ php artisan test
 - `tests/Feature/Api/SyncPullTest.php` — pull incremental, filtro por ámbito, borrados.
 - `tests/Feature/Api/SyncPushTest.php` — idempotencia, conflicto de versión, conmutatividad de stock.
 - `tests/Feature/Api/InspeccionTest.php` — `POST /api/inspecciones` devuelve el dictamen evaluado.
+- `tests/Feature/MySqlCompatibilityTest.php` — vista de stock, no-solapamiento y búsqueda sin acentos en MySQL.

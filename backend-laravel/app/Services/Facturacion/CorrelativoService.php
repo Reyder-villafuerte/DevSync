@@ -15,9 +15,8 @@ use Illuminate\Support\Facades\DB;
  * (requisito técnico 6).
  *
  * Garantías:
- *  - Sin repeticiones: la restricción de exclusión GiST sobre int8range impide
- *    dos rangos solapados en la misma serie, aunque dos reservas corran a la
- *    vez.
+ *  - Sin repeticiones: el bloqueo de la fila padre y los triggers MySQL impiden
+ *    dos rangos solapados en la misma serie.
  *  - Sin huecos: cada reserva arranca en numero_maximo_asignado + 1, contiguo
  *    al rango anterior. El bloqueo de fila (lockForUpdate) sobre el correlativo
  *    serializa las reservas.

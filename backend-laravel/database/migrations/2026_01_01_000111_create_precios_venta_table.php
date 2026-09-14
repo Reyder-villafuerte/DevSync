@@ -32,10 +32,41 @@ return new class extends Migration
             .collect(TipoCliente::cases())->map(fn ($t) => "'{$t->value}'")->implode(',')
             .'))'
         );
-        // No solapamiento de vigencias para el mismo producto+tipo_cliente
-        // (exclusion constraint de PostgreSQL sobre rango de fechas).
-        DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
-        DB::statement("ALTER TABLE precios_venta ADD CONSTRAINT precios_venta_sin_solape_excl EXCLUDE USING gist (producto_id WITH =, tipo_cliente WITH =, daterange(vigente_desde, COALESCE(vigente_hasta, 'infinity'::date), '[]') WITH &&) WHERE (deleted = false)");
+        // MySQL no tiene exclusion constraints. Los triggers conservan el
+        // no-solapamiento inclusivo por producto+tipo y respetan borrado lógico.
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER precios_venta_sin_solape_bi
+            BEFORE INSERT ON precios_venta FOR EACH ROW
+            BEGIN
+                IF NEW.deleted = 0 AND EXISTS (
+                    SELECT 1 FROM precios_venta
+                    WHERE producto_id = NEW.producto_id
+                      AND tipo_cliente = NEW.tipo_cliente
+                      AND deleted = 0
+                      AND vigente_desde <= COALESCE(NEW.vigente_hasta, '9999-12-31')
+                      AND COALESCE(vigente_hasta, '9999-12-31') >= NEW.vigente_desde
+                ) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Las vigencias de precios_venta no pueden solaparse';
+                END IF;
+            END
+        SQL);
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER precios_venta_sin_solape_bu
+            BEFORE UPDATE ON precios_venta FOR EACH ROW
+            BEGIN
+                IF NEW.deleted = 0 AND EXISTS (
+                    SELECT 1 FROM precios_venta
+                    WHERE id <> OLD.id
+                      AND producto_id = NEW.producto_id
+                      AND tipo_cliente = NEW.tipo_cliente
+                      AND deleted = 0
+                      AND vigente_desde <= COALESCE(NEW.vigente_hasta, '9999-12-31')
+                      AND COALESCE(vigente_hasta, '9999-12-31') >= NEW.vigente_desde
+                ) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Las vigencias de precios_venta no pueden solaparse';
+                END IF;
+            END
+        SQL);
     }
 
     public function down(): void

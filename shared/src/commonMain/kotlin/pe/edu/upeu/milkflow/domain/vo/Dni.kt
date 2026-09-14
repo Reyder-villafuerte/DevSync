@@ -6,7 +6,7 @@ import pe.edu.upeu.milkflow.core.Resultado
 
 /**
  * Documento Nacional de Identidad peruano: 8 dígitos. Coherente con el CHECK
- * `dni ~ '^[0-9]{8}$'` del backend.
+ * `dni REGEXP '^[0-9]{8}$'` del backend MySQL.
  */
 @JvmInline
 value class Dni private constructor(val valor: String) {

@@ -31,7 +31,7 @@ return new class extends Migration
             $table->decimal('grasa_porcentaje', 5, 2)->nullable();
             $table->decimal('solidos_no_grasos_porcentaje', 5, 2)->nullable();
             $table->decimal('temperatura', 5, 2)->nullable();
-            $table->jsonb('lactoscan_crudo')->nullable()->comment('Volcado íntegro del equipo');
+            $table->json('lactoscan_crudo')->nullable()->comment('Volcado íntegro del equipo');
 
             // --- Dictamen persistido ---
             $table->string('dictamen')->comment('Enum DictamenCalidad; congelado al momento del control');

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * (vigente_hasta = nueva_vigencia − 1 día) y se ABRE una nueva fila con
  * vigente_desde = hoy y vigente_hasta = null. Nunca se hace UPDATE del precio
  * histórico, salvo el caso de re-editar el precio del mismo día (se corrige en
- * sitio para no chocar con la restricción de exclusión de rangos de Postgres).
+ * sitio para no chocar con la guarda de no-solapamiento de MySQL).
  *
  * Todo en transacción (restricción: escrituras que afectan precios).
  */

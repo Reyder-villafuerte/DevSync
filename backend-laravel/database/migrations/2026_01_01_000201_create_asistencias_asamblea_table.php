@@ -25,7 +25,7 @@ return new class extends Migration
             $table->unique(['asamblea_id', 'dni']);
         });
 
-        DB::statement("ALTER TABLE asistencias_asamblea ADD CONSTRAINT aa_dni_numerico_chk CHECK (dni ~ '^[0-9]{8}$')");
+        DB::statement("ALTER TABLE asistencias_asamblea ADD CONSTRAINT aa_dni_numerico_chk CHECK (dni REGEXP '^[0-9]{8}$')");
     }
 
     public function down(): void

@@ -24,13 +24,9 @@ trait Sincronizable
      * método (y no la propiedad `$dateFormat`) porque PHP no admite que un
      * trait redeclare una propiedad que el modelo base ya define.
      *
-     * Sin la `P` final, Eloquent escribe el reloj de pared del Carbon sin zona
-     * ("2026-09-10 20:09:56") y PostgreSQL lo interpreta en la zona de la
-     * sesión. Una hora que llegó del móvil en UTC se guardaba entonces como
-     * hora local: +5 h por cada viaje, y el error se acumulaba en cada
-     * re-sincronización (una jornada abierta a las 16:09 acababa marcando
-     * 21:09, y al siguiente push 02:09). Con el offset explícito no hay nada
-     * que adivinar, venga el dato del móvil (UTC) o del panel (America/Lima).
+     * Sin la `P` final, Eloquent escribiría el reloj de pared sin zona. MySQL
+     * 8.4 acepta el offset ISO-8601 y, con DB_TIMEZONE=-05:00, almacena/lee el
+     * mismo instante venga el dato del móvil (UTC) o del panel (America/Lima).
      */
     public function getDateFormat(): string
     {

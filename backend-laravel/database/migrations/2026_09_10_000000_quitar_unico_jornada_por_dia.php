@@ -19,18 +19,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rutas_acopio', function (Blueprint $table) {
-            $table->dropUnique(['acopiador_id', 'fecha']);
             // El índice se conserva como NO único: las consultas por acopiador
-            // y día (panel de recepción, conciliación) lo siguen usando.
+            // y día (panel de recepción, conciliación) lo siguen usando. En
+            // MySQL debe crearse antes de quitar el UNIQUE porque InnoDB usa
+            // este último como índice de soporte de la FK acopiador_id.
             $table->index(['acopiador_id', 'fecha'], 'rutas_acopio_acopiador_fecha_idx');
+            $table->dropUnique(['acopiador_id', 'fecha']);
         });
     }
 
     public function down(): void
     {
         Schema::table('rutas_acopio', function (Blueprint $table) {
-            $table->dropIndex('rutas_acopio_acopiador_fecha_idx');
             $table->unique(['acopiador_id', 'fecha']);
+            $table->dropIndex('rutas_acopio_acopiador_fecha_idx');
         });
     }
 };

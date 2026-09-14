@@ -4,17 +4,20 @@ namespace Tests\Feature\Api;
 
 use App\Enums\RolUsuario;
 use App\Models\Acopiador;
+use App\Models\MovimientoStock;
 use App\Models\Producto;
 use App\Models\Productor;
 use App\Models\RegistroAcopio;
 use App\Models\Ruta;
 use App\Models\RutaAcopio;
+use App\Models\Usuario;
 use App\Models\Zona;
+use App\Services\Stock\StockService;
 use Illuminate\Support\Str;
 
 class SyncPushTest extends ApiTestCase
 {
-    /** @return array{0:\App\Models\Usuario,1:array,2:RutaAcopio,3:Productor} */
+    /** @return array{0:Usuario,1:array,2:RutaAcopio,3:Productor} */
     private function escenarioAcopio(): array
     {
         $ruta = Ruta::create(['nombre' => 'Ruta Norte', 'codigo' => '01']);
@@ -151,7 +154,7 @@ class SyncPushTest extends ApiTestCase
 
     /**
      * Una hora enviada en UTC debe guardarse como ese mismo instante. Antes se
-     * escribía el reloj de pared sin zona y PostgreSQL lo leía como hora local:
+     * escribía el reloj de pared sin zona y el motor lo leía como hora local:
      * +5 h en cada subida, acumulándose en cada re-sincronización.
      */
     public function test_la_hora_enviada_en_utc_no_se_desplaza(): void
@@ -200,7 +203,7 @@ class SyncPushTest extends ApiTestCase
         $this->postJson('/api/sync/push', ['operaciones' => [$mkOp($id1, 10), $mkOp($id2, 5)]], $headers)->assertOk();
         $this->postJson('/api/sync/push', ['operaciones' => [$mkOp($id2, 5), $mkOp($id1, 10)]], $headers)->assertOk();
 
-        $this->assertSame(2, \App\Models\MovimientoStock::count());
-        $this->assertEquals(15.0, app(\App\Services\Stock\StockService::class)->cantidadActual($producto->id));
+        $this->assertSame(2, MovimientoStock::count());
+        $this->assertEquals(15.0, app(StockService::class)->cantidadActual($producto->id));
     }
 }

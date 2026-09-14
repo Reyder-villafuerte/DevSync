@@ -3,27 +3,32 @@
 use Illuminate\Support\Str;
 
 return [
-    // PostgreSQL es la persistencia central. Se elige por: soporte nativo de
-    // UUID y gen_random_uuid(), vistas materializadas para stock_actual,
-    // restricciones CHECK con expresiones, y aislamiento serializable real
-    // para la reserva de correlativos.
-    'default' => env('DB_CONNECTION', 'pgsql'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     'connections' => [
 
-        'pgsql' => [
-            'driver' => 'pgsql',
+        'mysql' => [
+            'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
+            'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'milkflow'),
-            'username' => env('DB_USERNAME', 'milkflow'),
+            'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8',
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'strict' => true,
+            'engine' => null,
+            // MySQL no conserva el offset en TIMESTAMP/DATETIME. La sesión usa
+            // la misma zona del negocio para que los ISO-8601 del móvil se
+            // conviertan y se reconstruyan como el mismo instante.
+            'timezone' => env('DB_TIMEZONE', '-05:00'),
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
         ],
 
         // Solo para la suite de pruebas rápida.

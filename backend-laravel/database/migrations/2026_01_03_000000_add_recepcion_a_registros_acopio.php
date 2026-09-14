@@ -43,9 +43,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE registros_acopio DROP CONSTRAINT IF EXISTS registros_acopio_estado_recepcion_chk');
-        DB::statement('ALTER TABLE registros_acopio DROP CONSTRAINT IF EXISTS registros_acopio_recibidos_no_neg_chk');
-        DB::statement('ALTER TABLE registros_acopio DROP CONSTRAINT IF EXISTS registros_acopio_faltantes_no_neg_chk');
+        DB::statement('ALTER TABLE registros_acopio DROP CHECK registros_acopio_estado_recepcion_chk');
+        DB::statement('ALTER TABLE registros_acopio DROP CHECK registros_acopio_recibidos_no_neg_chk');
+        DB::statement('ALTER TABLE registros_acopio DROP CHECK registros_acopio_faltantes_no_neg_chk');
 
         Schema::table('registros_acopio', function (Blueprint $table) {
             $table->dropForeign(['recepcion_confirmada_por']);

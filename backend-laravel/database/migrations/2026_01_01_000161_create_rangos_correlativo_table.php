@@ -28,9 +28,38 @@ return new class extends Migration
         });
 
         DB::statement('ALTER TABLE rangos_correlativo ADD CONSTRAINT rc_rango_valido_chk CHECK (numero_desde <= numero_hasta AND numero_siguiente >= numero_desde AND numero_siguiente <= numero_hasta + 1)');
-        DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
-        // Dos rangos de la misma serie no pueden solaparse => sin repeticiones.
-        DB::statement('ALTER TABLE rangos_correlativo ADD CONSTRAINT rc_sin_solape_excl EXCLUDE USING gist (correlativo_id WITH =, int8range(numero_desde, numero_hasta, \'[]\') WITH &&)');
+        // Dos rangos de la misma serie no pueden solaparse. El servicio bloquea
+        // la fila del correlativo y estos triggers mantienen además la garantía
+        // ante escrituras que no pasen por ese servicio.
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER rangos_correlativo_sin_solape_bi
+            BEFORE INSERT ON rangos_correlativo FOR EACH ROW
+            BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM rangos_correlativo
+                    WHERE correlativo_id = NEW.correlativo_id
+                      AND numero_desde <= NEW.numero_hasta
+                      AND numero_hasta >= NEW.numero_desde
+                ) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Los rangos de un correlativo no pueden solaparse';
+                END IF;
+            END
+        SQL);
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER rangos_correlativo_sin_solape_bu
+            BEFORE UPDATE ON rangos_correlativo FOR EACH ROW
+            BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM rangos_correlativo
+                    WHERE id <> OLD.id
+                      AND correlativo_id = NEW.correlativo_id
+                      AND numero_desde <= NEW.numero_hasta
+                      AND numero_hasta >= NEW.numero_desde
+                ) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Los rangos de un correlativo no pueden solaparse';
+                END IF;
+            END
+        SQL);
     }
 
     public function down(): void

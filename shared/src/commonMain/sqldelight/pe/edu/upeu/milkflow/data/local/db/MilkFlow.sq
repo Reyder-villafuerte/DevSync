@@ -1,6 +1,6 @@
 -- =====================================================================
 -- MilkFlow · esquema local SQLDelight
--- Espejo de PostgreSQL. Convenciones:
+-- Espejo del backend MySQL. Convenciones:
 --   id            TEXT  UUID generado en cliente
 --   updated_at    INTEGER  epoch millis (sello del servidor; local hasta confirmar)
 --   version       INTEGER  versión del servidor (0 = nace local)

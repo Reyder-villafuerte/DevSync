@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Proyección de solo lectura sobre la vista materializada `stock_actual`.
- * No se inserta ni actualiza desde Eloquent: la refresca StockService.
+ * Proyección de solo lectura sobre la vista MySQL `stock_actual`.
+ * No se inserta ni actualiza desde Eloquent; se calcula al consultar.
  */
 class StockActual extends Model
 {

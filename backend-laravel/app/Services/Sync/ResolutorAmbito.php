@@ -138,7 +138,7 @@ class ResolutorAmbito
     }
 
     // ------------------------------------------------------------------
-    // Helpers: evitan pasar '-' a columnas uuid (PostgreSQL es estricto).
+    // Helpers: evitan pasar '-' a columnas UUID/CHAR(36).
     // ------------------------------------------------------------------
     private function whereIdOVacio(Builder $q, string $columna, ?string $valor): Builder
     {

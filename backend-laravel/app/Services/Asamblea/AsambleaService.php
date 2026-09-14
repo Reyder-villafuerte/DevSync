@@ -77,8 +77,8 @@ class AsambleaService
 
     /**
      * Buscador del padrón por DNI (prefijo) o por nombre, IGNORANDO acentos y
-     * mayúsculas. Se usa `translate()` de PostgreSQL para no depender de la
-     * extensión `unaccent`.
+     * mayúsculas. La conexión usa una collation utf8mb4 "ai_ci" (sin distinguir
+     * acentos ni mayúsculas), por lo que CONCAT + LIKE mantiene esa búsqueda.
      *
      * @return Collection<int,Productor>
      */
@@ -98,10 +98,7 @@ class AsambleaService
             ->where('deleted', false)
             ->where(function ($q) use ($termino, $sinAcentos) {
                 $q->where('dni', 'like', $termino.'%')
-                    ->orWhereRaw(
-                        "translate(lower(nombres || ' ' || apellidos), 'áéíóúüñ', 'aeiouun') like ?",
-                        ['%'.$sinAcentos.'%'],
-                    );
+                    ->orWhereRaw("LOWER(CONCAT(nombres, ' ', apellidos)) LIKE ?", ['%'.$sinAcentos.'%']);
             })
             ->orderBy('apellidos')
             ->orderBy('nombres')
