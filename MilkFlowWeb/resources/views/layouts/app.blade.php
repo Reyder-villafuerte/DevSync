@@ -3,80 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MilkFlow Huata - @yield('title', 'Spark Dashboard')</title>
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        spark: {
-                            dark: '#0f1713',       // Sidebar fondo negro verdoso profundo
-                            darker: '#090e0b',
-                            cardDark: '#17271f',   // Tarjeta destacada verde bosque
-                            surface: '#f4f6f5',    // Fondo general gris muy sutil
-                            border: '#e5e7eb',
-                            lime: '#bef264',       // Verde lima vibrante botón / insignia
-                            limeDark: '#a3e635',
-                            limeText: '#4d7c0f',
-                            muted: '#94a3b8',
-                        }
-                    },
-                    borderRadius: {
-                        '2xl': '1.25rem',
-                        '3xl': '1.75rem',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f4f6f5;
-        }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 9999px;
-        }
-    </style>
+    <title>MilkFlow Huata - @yield('title', 'Panel del día')</title>
+    <script>try{const m=localStorage.getItem('huata-theme')||'sistema';document.documentElement.dataset.bsTheme=m==='oscuro'||m==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}</script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full bg-spark-surface text-slate-800 antialiased flex">
 
     @auth
     <!-- SIDEBAR ESTILO SPARK ADMIN (OSCURO) -->
-    <aside class="w-64 bg-spark-dark text-slate-300 flex-shrink-0 flex flex-col justify-between p-4 no-print border-r border-emerald-950/40">
+    <aside id="huataMenu" tabindex="-1" aria-label="Menú principal" class="huata-sidebar offcanvas-lg offcanvas-start w-64 bg-spark-dark text-slate-300 flex-shrink-0 flex flex-col justify-between p-4 no-print border-r border-emerald-950/40">
         <div>
-            <!-- Logo Spark / MilkFlow -->
-            <div class="flex items-center gap-3 px-3 py-4 mb-4">
-                <div class="w-8 h-8 rounded-lg bg-spark-lime flex items-center justify-center text-spark-dark shadow-sm">
-                    <i class="fa-solid fa-asterisk text-lg font-black"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-                        MilkFlow <span class="text-[10px] bg-spark-lime/20 text-spark-lime px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Huata</span>
-                    </span>
-                </div>
-            </div>
-
+            <div class="huata-brand"><img src="{{ asset('brand/huata-simbolo-vaca.png') }}" alt="Ecolácteos Huata" width="86" height="86"><span>MilkFlow<br><small>Hecho para nuestra comunidad</small></span><button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#huataMenu" aria-label="Cerrar menú"></button></div>
             <!-- Navegación Categorizada -->
             <nav class="space-y-6 text-xs font-semibold">
                 @if(Auth::user()->role === 'productor')
@@ -381,44 +318,10 @@
         
         @auth
         <!-- NAVBAR SUPERIOR ESTILO SPARK -->
-        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 px-8 py-4 border-b border-slate-200/70 flex justify-between items-center no-print">
-            <div class="flex items-center gap-3 flex-1 max-w-xl">
-                <!-- Botón de acción rápida '+ Crear' -->
-                @if(in_array(Auth::user()->role, ['personal_venta', 'admin', 'jefe_general']))
-                <a href="{{ route('ventas.create') }}" class="bg-spark-dark hover:bg-black text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-plus text-spark-lime text-xs"></i> <span>+ Venta</span>
-                </a>
-                @endif
-
-                <!-- Buscador tipo Pill redondeado de Spark -->
-                <div class="relative w-full max-w-md">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" placeholder="Buscar proveedores, zonas, lotes o recibos en Spark..." 
-                        class="w-full bg-slate-100/80 focus:bg-white text-xs pl-9 pr-4 py-2 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-spark-lime focus:border-transparent transition placeholder:text-slate-400">
-                </div>
-            </div>
-
-            <!-- Controles a la derecha (Alertas, Rango, Usuario) -->
-            <div class="flex items-center gap-3">
-                <div class="hidden sm:flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-xs font-medium text-slate-600 shadow-sm">
-                    <i class="fa-regular fa-calendar text-slate-400"></i>
-                    <span>{{ date('F j, Y') }}</span>
-                </div>
-
-                <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 cursor-pointer relative transition">
-                    <i class="fa-regular fa-bell text-xs"></i>
-                    @if(session('login_announcements') && count(session('login_announcements')) > 0)
-                    <span class="w-2 h-2 rounded-full bg-spark-lime ring-2 ring-white absolute top-2 right-2"></span>
-                    @endif
-                </div>
-
-                <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
-                    <div class="w-8 h-8 rounded-full bg-spark-dark text-spark-lime font-bold text-xs flex items-center justify-center">
-                        {{ substr(Auth::user()->name, 0, 1) }}
-                    </div>
-                    <span class="text-xs font-bold text-slate-700 hidden md:inline-block">{{ Auth::user()->name }}</span>
-                </div>
-            </div>
+        <header class="huata-header no-print">
+            <button class="btn huata-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#huataMenu" aria-controls="huataMenu"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menú</button>
+            <img class="huata-wordmark" src="{{ asset('brand/huata-letras.png') }}" alt="Ecolácteos Huata, productivo y sostenible">
+            <div class="huata-header-actions"><span class="hidden md:inline">{{ Auth::user()->name }}</span>@include('partials.theme-selector')</div>
         </header>
         @endauth
 
@@ -456,11 +359,11 @@
                             <span class="text-[10px] bg-spark-lime text-spark-dark font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                                 COMUNICADO OFICIAL
                             </span>
-                            <h4 class="text-base font-bold text-white mt-1">{{ $anuncio->title }}</h4>
-                            <p class="text-xs text-slate-300 mt-1 max-w-2xl">{{ $anuncio->message }}</p>
+                            <h4 class="text-base font-bold text-white mt-1">{{ data_get($anuncio, 'title') }}</h4>
+                            <p class="text-xs text-slate-300 mt-1 max-w-2xl">{{ data_get($anuncio, 'message') }}</p>
                         </div>
                         <span class="text-xs text-slate-400 font-mono z-10 whitespace-nowrap">
-                            Vigente: {{ $anuncio->start_date }} → {{ $anuncio->end_date }}
+                            Vigente: {{ data_get($anuncio, 'start_date') }} → {{ data_get($anuncio, 'end_date') }}
                         </span>
                         <i class="fa-solid fa-asterisk text-7xl text-white/5 absolute -right-4 -bottom-4"></i>
                     </div>
@@ -471,7 +374,7 @@
         </main>
 
         <footer class="p-6 text-center text-xs text-slate-400 no-print border-t border-slate-200/50 mt-auto">
-            MilkFlow Huata &copy; 2026 — Diseñado con lenguaje visual Spark Admin para el Distrito de Huata
+            Ecolácteos Huata · Productivo y sostenible
         </footer>
     </div>
 

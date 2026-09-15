@@ -1,9 +1,36 @@
+@layer theme, base, bootstrap, components, utilities;
+@import 'bootstrap/dist/css/bootstrap.min.css' layer(bootstrap);
+@import '@fortawesome/fontawesome-free/css/all.min.css' layer(components);
 @import 'tailwindcss';
-
+@source '../views/**/*.blade.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+ --font-sans: 'Segoe UI', system-ui, sans-serif;
+ --color-spark-dark:#295781; --color-spark-darker:#233e59; --color-spark-cardDark:#233e59;
+ --color-spark-surface:var(--huata-bg); --color-spark-border:var(--huata-border);
+ --color-spark-lime:#e8eef3; --color-spark-limeDark:#b7cbdb; --color-spark-limeText:#295781; --color-spark-muted:#65747e;
 }
+@layer theme { main .bg-white { background-color:var(--huata-surface)!important; } }
+.huata-sidebar nav ul{padding-left:0;margin-bottom:0}.huata-brand .btn-close{flex-shrink:0}
+:root{--huata-bg:#f8f7f3;--huata-surface:#fffefa;--huata-nav:#eef1f2;--huata-ink:#2e3d49;--huata-muted:#65747e;--huata-border:#dce2e4;--huata-soft:#e8eef3;--huata-primary:#295781;color-scheme:light}
+[data-bs-theme=dark]{--huata-bg:#19252f;--huata-surface:#22313e;--huata-nav:#1e2c38;--huata-ink:#e7edf0;--huata-muted:#b2c0ca;--huata-border:#394a58;--huata-soft:#293d4e;--huata-primary:#9fbed9;color-scheme:dark}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--huata-bg);color:var(--huata-ink)!important;line-height:1.55}
+a{text-decoration:none}button,a,input,select,textarea{touch-action:manipulation}button,input,select{min-height:42px}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #bfab73;outline-offset:3px}
+.huata-sidebar{--bs-offcanvas-width:270px;width:270px;background:var(--huata-nav)!important;color:var(--huata-ink)!important;border-color:var(--huata-border)!important;overflow-y:auto}
+.huata-sidebar nav{font-size:13px}.huata-sidebar nav a{min-height:44px;font-weight:500}.huata-sidebar nav a:hover{background:var(--huata-soft)}
+.huata-sidebar [class*=text-slate],.huata-sidebar .text-white{color:var(--huata-ink)!important}.huata-sidebar nav .bg-spark-lime{background:#295781;color:white!important}.huata-sidebar nav .bg-spark-lime *{color:white!important}
+.huata-brand{display:flex;align-items:center;gap:10px;padding:8px 0 24px;font-weight:700}.huata-brand img{object-fit:contain;width:75px;height:75px}.huata-brand small{font-weight:400;display:block;font-size:11px;color:var(--huata-muted)}
+.huata-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 28px;background:var(--huata-surface);border-bottom:1px solid var(--huata-border);position:sticky;top:0;z-index:20;min-height:84px}
+.huata-wordmark{width:160px;height:58px;object-fit:contain}.huata-header-actions{display:flex;align-items:center;gap:24px;font-size:13px}.huata-theme{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--huata-muted)}.huata-theme select{width:105px;font-size:13px;background-color:var(--huata-surface);color:var(--huata-ink);border-color:var(--huata-border)}.huata-menu-button{color:var(--huata-ink);white-space:nowrap}
+main .bg-white,main [class*='bg-white/']{background:var(--huata-surface)!important}main [class*=border-slate],footer{border-color:var(--huata-border)!important}
+main :is(.text-slate-900,.text-slate-800,.text-slate-700){color:var(--huata-ink)}main :is(.text-slate-600,.text-slate-500,.text-slate-400){color:var(--huata-muted)}
+main :is(.bg-slate-50,.bg-slate-100){background:var(--huata-soft)}main :is(.rounded-3xl,.rounded-2xl){border-radius:16px}main .shadow-lg{box-shadow:0 12px 44px #233e590b}main .text-xs{font-size:13px}main input,main select,main textarea{color:var(--huata-ink);background-color:var(--huata-surface)}main .font-black{font-weight:700}
+[data-bs-theme=dark] main [class*='text-spark-limeText']{color:#9fbed9}[data-bs-theme=dark] main [class*='bg-emerald-50'],[data-bs-theme=dark] main [class*='bg-rose-50'],[data-bs-theme=dark] main [class*='bg-amber-50']{background:#293d4e}[data-bs-theme=dark] main [class*='text-emerald-'],[data-bs-theme=dark] main [class*='text-green-']{color:#9dceae}[data-bs-theme=dark] main [class*='text-rose-'],[data-bs-theme=dark] main [class*='text-red-']{color:#ffb3b3}[data-bs-theme=dark] main [class*='text-amber-']{color:#dfc990}
+.huata-welcome{display:flex;justify-content:space-between;align-items:center;gap:20px}.huata-welcome h1{font-size:28px;font-weight:700;color:var(--huata-ink);margin:6px 0}.huata-welcome p,.huata-welcome>span{font-size:14px;color:var(--huata-muted)}.huata-welcome .huata-eyebrow{font-size:10px;letter-spacing:2px;color:var(--huata-primary);font-weight:700}
+.huata-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}.huata-metric{display:flex;align-items:center;justify-content:space-between;min-height:150px;padding:22px 18px;border:1px solid var(--huata-border);border-top:3px solid #416b95;border-radius:15px;background:var(--huata-surface);transition:transform .2s,box-shadow .2s}.huata-metric:nth-child(2){border-top-color:#719681}.huata-metric:nth-child(3){border-top-color:#91a5b5}.huata-metric:nth-child(4){border-top-color:#c3ae76}.huata-metric:hover{transform:translateY(-3px);box-shadow:0 9px 24px #233e5910}.huata-metric p{font-size:13px;color:var(--huata-muted);margin-bottom:8px}.huata-metric strong{font-size:27px;white-space:nowrap;display:block;line-height:1.3}.huata-metric small{font-size:15px}.huata-metric div>span{font-size:11px;color:var(--huata-muted)}
+.huata-drawing{display:block;flex-shrink:0;width:66px;height:66px;background-image:url('/brand/huata-ilustraciones.png');background-size:300% 200%;mask-image:radial-gradient(ellipse,black 45%,transparent 74%);filter:saturate(.65);mix-blend-mode:multiply}.huata-drawing.milk{background-position:0 0}.huata-drawing.people{background-position:50% 0}.huata-drawing.cheese{background-position:0 100%}.huata-drawing.ledger{background-position:50% 100%}[data-bs-theme=dark] .huata-drawing{mix-blend-mode:normal}
+.huata-login-cow{height:110px;width:110px;object-fit:contain;margin:auto}.huata-login-name{height:72px;width:205px;object-fit:contain;margin:8px auto}main{animation:huata-enter .35s ease-out}@keyframes huata-enter{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(min-width:992px){.huata-sidebar{height:100dvh;position:sticky;top:0;flex-shrink:0}}
+@media(max-width:991px){.huata-sidebar{visibility:hidden}.huata-sidebar.show,.huata-sidebar.showing{visibility:visible}.huata-header{padding:10px 14px}.huata-wordmark{width:105px;height:48px}.huata-theme{font-size:0}.huata-theme select{font-size:13px;width:96px}main{padding:20px 14px!important}.huata-welcome{align-items:flex-start}.huata-welcome>span{font-size:11px}.huata-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.huata-metric{padding:14px 12px;min-height:135px;position:relative;overflow:hidden}.huata-metric strong{font-size:23px}.huata-drawing{width:40px;height:40px;position:absolute;right:5px;bottom:7px;opacity:.7}.huata-metric div>span{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.no-print{display:none!important}.print-only{display:block!important}body,main{background:white!important;color:black!important}}

@@ -1,0 +1,5 @@
+- `[x]` Crear archivo `.env` configurado para MySQL
+- `[ ]` Instalar dependencias con `composer install`
+- `[ ]` Generar `APP_KEY`
+- `[ ]` Instalar `laravel/boost` vía Composer
+- `[ ]` Ejecutar `php artisan boost:install`

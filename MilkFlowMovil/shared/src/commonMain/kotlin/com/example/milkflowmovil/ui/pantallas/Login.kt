@@ -36,6 +36,8 @@ import com.example.milkflowmovil.ui.componentes.BotonPrimario
 import com.example.milkflowmovil.ui.componentes.Campo
 import com.example.milkflowmovil.ui.componentes.Nota
 import com.example.milkflowmovil.ui.componentes.Tarjeta
+import com.example.milkflowmovil.ui.componentes.MarcaHuata
+import com.example.milkflowmovil.ui.tema.SelectorTema
 import com.example.milkflowmovil.ui.tema.coloresMilkFlow
 import kotlinx.coroutines.launch
 
@@ -81,9 +83,8 @@ fun PantallaLogin(repositorio: Repositorio) {
     ) {
         Spacer(Modifier.height(32.dp))
 
-        Text("🥛", style = MaterialTheme.typography.displaySmall)
-        Spacer(Modifier.height(8.dp))
-        Text("MilkFlow", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
+        MarcaHuata()
+        SelectorTema()
         Text(
             "Asociación de productores de Huata",
             style = MaterialTheme.typography.bodySmall,

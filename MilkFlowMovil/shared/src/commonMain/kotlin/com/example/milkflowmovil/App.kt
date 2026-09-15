@@ -1,4 +1,4 @@
-package com.example.milkflowmovil
+    package com.example.milkflowmovil
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -70,6 +70,8 @@ import com.example.milkflowmovil.ui.pantallas.PantallaSolicitudesZona
 import com.example.milkflowmovil.ui.pantallas.PantallaTarifas
 import com.example.milkflowmovil.ui.pantallas.PantallaVentas
 import com.example.milkflowmovil.ui.pantallas.PantallaZonas
+import com.example.milkflowmovil.ui.componentes.MarcaHuata
+import com.example.milkflowmovil.ui.tema.SelectorTema
 import com.example.milkflowmovil.ui.tema.TemaMilkFlow
 import com.example.milkflowmovil.ui.tema.coloresMilkFlow
 import kotlinx.coroutines.launch
@@ -123,8 +125,8 @@ private fun Caparazon(repositorio: com.example.milkflowmovil.datos.Repositorio) 
         drawerContent = {
             ModalDrawerSheet {
                 Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState())) {
-                    Text("MilkFlow", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
-                    Text("Huata", style = MaterialTheme.typography.labelMedium, color = coloresMilkFlow.acento)
+                    MarcaHuata()
+                    SelectorTema()
 
                     Spacer(Modifier.height(16.dp))
                     Text(usuario.name, style = MaterialTheme.typography.titleMedium)

@@ -5,99 +5,13 @@
 @section('content')
 <div class="space-y-8">
     
-    <!-- ENCABEZADO DE DASHBOARD ESTILO SPARK -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
-            <p class="text-xs text-slate-500 mt-1">Gestión de acopio distrital Huata, balance lechero y despacho de quesos.</p>
-        </div>
-
-        <!-- Selector de fecha / rango redondeado estilo Spark -->
-        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold text-slate-700 shadow-sm">
-            <i class="fa-regular fa-calendar-days text-slate-400"></i>
-            <span>{{ date('F j, Y') }} — Hoy</span>
-            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
-        </div>
+    <div class="huata-welcome"><div><p class="huata-eyebrow">NUESTRA COMUNIDAD · HUATA</p><h1>Panel del día</h1><p>¡Qué gusto verte, {{ $user->name }}!</p></div><span>{{ now()->format('d/m/Y') }}</span></div>
+    <div class="huata-metrics">
+        <article class="huata-metric"><div><p>Leche en planta</p><strong>{{ number_format($stockLeche, 1) }} <small>L</small></strong><span>Stock verificado</span></div><span class="huata-drawing milk" aria-hidden="true"></span></article>
+        <article class="huata-metric"><div><p>Quesos en almacén</p><strong>{{ (int)$stockQueso }}</strong><span>Moldes disponibles</span></div><span class="huata-drawing cheese" aria-hidden="true"></span></article>
+        @isset($totalProductores)<article class="huata-metric"><div><p>Productores</p><strong>{{ $totalProductores }}</strong><span>Nuestra comunidad</span></div><span class="huata-drawing people" aria-hidden="true"></span></article>@endisset
+        @isset($litrosAcopiadosHoy)<article class="huata-metric"><div><p>Acopio de hoy</p><strong>{{ number_format($litrosAcopiadosHoy, 1) }} <small>L</small></strong><span>Leche registrada hoy</span></div><span class="huata-drawing ledger" aria-hidden="true"></span></article>@endisset
     </div>
-
-    <!-- FILA DE TARJETAS HERO Y MÉTRICAS (ESTILO SPARK ADMIN) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- Tarjeta Hero Oscura / Verde Bosque con insignia y estrella verde lima (Spark Style) -->
-        <div class="bg-spark-cardDark text-white p-6 rounded-3xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[190px]">
-            <div>
-                <div class="flex items-center justify-between">
-                    <span class="inline-flex items-center gap-1 text-[10px] bg-white/10 text-spark-lime font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-spark-lime animate-pulse"></span> Sistema Activo
-                    </span>
-                    <span class="text-[11px] text-slate-400 font-medium">{{ date('M jS, Y') }}</span>
-                </div>
-
-                <h3 class="text-lg font-bold text-white mt-4 leading-snug">
-                    Acopio diario en Huata: 4 Zonas, 5 Acopiadores
-                </h3>
-            </div>
-
-            <div class="flex items-center justify-between mt-4">
-                <a href="{{ route('acopio.index') }}" class="text-xs font-bold text-spark-lime hover:underline flex items-center gap-1.5 z-10">
-                    <span>Ver Rutas de Campo</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </a>
-                <!-- Icono decorativo Spark de estrella verde lima -->
-                <div class="text-spark-lime text-5xl font-black opacity-90 select-none">
-                    <i class="fa-solid fa-asterisk"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tarjeta Métrica 1: Stock Leche Verificada (Caudalímetro) -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-h-[190px]">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-xs font-semibold text-slate-500">Stock Leche en Planta</span>
-                    <h2 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">{{ number_format($stockLeche, 1) }} <span class="text-sm font-bold text-slate-500">L</span></h2>
-                </div>
-                <div class="p-2 rounded-xl bg-slate-50 text-slate-400">
-                    <i class="fa-solid fa-ellipsis"></i>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex items-center gap-1 text-xs font-bold text-emerald-600">
-                    <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
-                    <span>Verificado por Caudalímetro</span>
-                </div>
-                <!-- Curva gráfica sintética verde estilo Spark -->
-                <svg class="w-full h-7 mt-2 text-emerald-500" viewBox="0 0 100 25" fill="none" preserveAspectRatio="none">
-                    <path d="M0 20 C20 18, 40 22, 60 10 C80 5, 90 8, 100 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Tarjeta Métrica 2: Stock Quesos Madurados -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-h-[190px]">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-xs font-semibold text-slate-500">Moldes de Queso en Almacén</span>
-                    <h2 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">{{ (int)$stockQueso }} <span class="text-sm font-bold text-slate-500">Moldes</span></h2>
-                </div>
-                <div class="p-2 rounded-xl bg-slate-50 text-slate-400">
-                    <i class="fa-solid fa-ellipsis"></i>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex items-center gap-1 text-xs font-bold text-spark-limeText">
-                    <i class="fa-solid fa-cheese text-[10px] text-amber-500"></i>
-                    <span>Listos para despacho (Solo Efectivo)</span>
-                </div>
-                <!-- Curva gráfica sintética lima estilo Spark -->
-                <svg class="w-full h-7 mt-2 text-lime-500" viewBox="0 0 100 25" fill="none" preserveAspectRatio="none">
-                    <path d="M0 15 C25 22, 45 10, 70 12 C85 14, 95 6, 100 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-
     <!-- SECCIÓN OPERATIVA SEGÚN ROL (VISTAS ESPECIALIZADAS) -->
 
     @if($user->role === 'productor')

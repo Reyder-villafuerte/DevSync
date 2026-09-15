@@ -43,7 +43,7 @@ fun Tarjeta(
 ) {
     Card(
         modifier = if (alPulsar != null) modifier.clickable { alPulsar() } else modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(1.dp, coloresMilkFlow.borde),
     ) {
@@ -61,8 +61,9 @@ fun TarjetaMetrica(
     modifier: Modifier = Modifier,
 ) {
     Tarjeta(modifier) {
+        DibujoHuata(titulo)
         Text(
-            titulo.uppercase(),
+            titulo,
             style = MaterialTheme.typography.labelSmall,
             color = coloresMilkFlow.textoSuave,
         )
