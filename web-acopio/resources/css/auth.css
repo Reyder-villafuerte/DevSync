@@ -1,0 +1,31 @@
+.auth-page{background:#f6f7f9;color:#243247;min-height:100vh}
+.auth-page .auth-shell{display:flex;flex-direction:column;gap:0;width:100%;max-width:508px;margin:0 auto;padding:42px 24px 32px}
+.auth-heading{text-align:center;margin-bottom:28px}
+.auth-heading h1{font-size:38px;letter-spacing:-1.2px;margin:0 0 10px;color:#243247}
+.auth-heading p{font-size:15px;color:#717987;margin:0;line-height:1.6}
+.auth-page .auth-form{width:100%;padding:30px 34px;border:1px solid #e9ebef;border-radius:18px;box-shadow:0 10px 35px #202d4510}
+.auth-form form>label:first-of-type{margin-top:0}
+.auth-page label,.auth-name legend{font-size:14px;font-weight:600;color:#374151}
+.auth-page input{height:48px;border-color:#dce0e6;border-radius:9px;font-size:14px;color:#243247}
+.auth-page input::placeholder{color:#9299a4}
+.auth-password{position:relative}
+.auth-password input{padding-right:50px}
+.auth-password button{position:absolute;right:2px;top:2px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#737d8c;cursor:pointer}
+.auth-password svg{width:21px;height:21px}
+.auth-password button:focus-visible{outline:2px solid var(--mf-orange);outline-offset:1px}
+.auth-page .auth-submit{margin-top:25px;min-height:49px;font-size:15px;border-radius:9px}
+.auth-page .forgot{text-align:center;margin:20px 0 0;color:#d84422;font-size:13px}
+.auth-footer{font-size:14px;color:#717987;text-align:center;margin:24px 0 0}
+.auth-footer a{font-weight:600;color:#d84422}
+.auth-footer a:hover,.auth-page .forgot:hover{text-decoration:underline}
+.auth-name,.auth-details{border:0;padding:0;margin:0;min-width:0}
+.auth-name legend{float:none;width:auto;margin:0}
+.auth-name label{margin-top:8px;font-size:12px}
+.auth-page .form-grid{gap:0 14px}
+.auth-details{border-top:1px solid #eceef2;margin-top:22px;padding-top:16px}
+.auth-details legend{float:none;width:auto;font-size:12px;color:#717987;margin:0}
+.auth-details label{font-size:12px;margin-top:6px}
+.auth-help{display:block;font-size:12px;color:#717987;line-height:1.6;margin-top:8px}
+.auth-review{text-align:center;margin:14px 0 0}
+@media(max-width:700px){.auth-page .auth-shell{padding:28px 16px}.auth-page .auth-form{padding:25px 22px}.auth-heading h1{font-size:32px}.auth-heading p{font-size:14px}.auth-page .form-grid{grid-template-columns:1fr 1fr}.auth-heading{margin-bottom:24px}}
+@media(max-width:360px){.auth-page .form-grid{grid-template-columns:1fr}}

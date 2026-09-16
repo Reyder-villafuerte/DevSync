@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-09-08T10:16:30.538Z",
+  "checks": [
+    "Manifest, iconos 192/512 y service worker activos",
+    "Recolección persistida sin red",
+    "Recarga sin conexión muestra alternativa y conserva registros",
+    "Reintento conserva UUID y confirma envío (transporte simulado)",
+    "Caché contiene solo archivos públicos; sin paneles, sesiones ni tokens",
+    "Almacenamiento dañado no se sobrescribe ni rompe JavaScript"
+  ],
+  "errors": []
+}

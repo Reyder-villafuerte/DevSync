@@ -1,0 +1,434 @@
+{
+  "pages": [
+    {
+      "path": "/login",
+      "mode": "dark"
+    },
+    {
+      "path": "/register",
+      "mode": "dark"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "mode": "dark"
+    },
+    {
+      "path": "/reset-password/preview",
+      "mode": "dark"
+    },
+    {
+      "path": "/registro/pendiente",
+      "mode": "dark"
+    },
+    {
+      "path": "/login",
+      "mode": "light"
+    },
+    {
+      "path": "/register",
+      "mode": "light"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "mode": "light"
+    },
+    {
+      "path": "/reset-password/preview",
+      "mode": "light"
+    },
+    {
+      "path": "/registro/pendiente",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/dashboard",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/solicitudes",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/users",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/producers",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/acopiadores",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/zones",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/sectors",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/routes",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/entregas",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/liquidaciones",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/rotaciones",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/comunicados",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/reports",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/settings",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/audit",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/producers/create",
+      "mode": "dark"
+    },
+    {
+      "path": "/admin/dashboard",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/solicitudes",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/users",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/producers",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/acopiadores",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/zones",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/sectors",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/routes",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/entregas",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/liquidaciones",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/rotaciones",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/comunicados",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/reports",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/settings",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/audit",
+      "mode": "light"
+    },
+    {
+      "path": "/admin/producers/create",
+      "mode": "light"
+    },
+    {
+      "path": "/acopiador/dashboard",
+      "mode": "dark"
+    },
+    {
+      "path": "/acopiador/producers",
+      "mode": "dark"
+    },
+    {
+      "path": "/acopiador/entregas",
+      "mode": "dark"
+    },
+    {
+      "path": "/acopiador/entregas/create",
+      "mode": "dark"
+    },
+    {
+      "path": "/acopiador/sync",
+      "mode": "dark"
+    },
+    {
+      "path": "/acopiador/ruta/cerrar",
+      "mode": "dark"
+    },
+    {
+      "path": "/acopiador/dashboard",
+      "mode": "light"
+    },
+    {
+      "path": "/acopiador/producers",
+      "mode": "light"
+    },
+    {
+      "path": "/acopiador/entregas",
+      "mode": "light"
+    },
+    {
+      "path": "/acopiador/entregas/create",
+      "mode": "light"
+    },
+    {
+      "path": "/acopiador/sync",
+      "mode": "light"
+    },
+    {
+      "path": "/acopiador/ruta/cerrar",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/dashboard",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/calidad",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/calidad/create",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/problemas",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/inspecciones",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/capacitaciones",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/reportes",
+      "mode": "dark"
+    },
+    {
+      "path": "/supervisor/dashboard",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/calidad",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/calidad/create",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/problemas",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/inspecciones",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/capacitaciones",
+      "mode": "light"
+    },
+    {
+      "path": "/supervisor/reportes",
+      "mode": "light"
+    },
+    {
+      "path": "/produccion/dashboard",
+      "mode": "dark"
+    },
+    {
+      "path": "/produccion/lotes",
+      "mode": "dark"
+    },
+    {
+      "path": "/produccion/lotes/create",
+      "mode": "dark"
+    },
+    {
+      "path": "/produccion/hoy",
+      "mode": "dark"
+    },
+    {
+      "path": "/produccion/reportes",
+      "mode": "dark"
+    },
+    {
+      "path": "/produccion/sync",
+      "mode": "dark"
+    },
+    {
+      "path": "/produccion/dashboard",
+      "mode": "light"
+    },
+    {
+      "path": "/produccion/lotes",
+      "mode": "light"
+    },
+    {
+      "path": "/produccion/lotes/create",
+      "mode": "light"
+    },
+    {
+      "path": "/produccion/hoy",
+      "mode": "light"
+    },
+    {
+      "path": "/produccion/reportes",
+      "mode": "light"
+    },
+    {
+      "path": "/produccion/sync",
+      "mode": "light"
+    },
+    {
+      "path": "/despacho/dashboard",
+      "mode": "dark"
+    },
+    {
+      "path": "/despacho/ventas",
+      "mode": "dark"
+    },
+    {
+      "path": "/despacho/ventas/create",
+      "mode": "dark"
+    },
+    {
+      "path": "/despacho/stock",
+      "mode": "dark"
+    },
+    {
+      "path": "/despacho/reportes",
+      "mode": "dark"
+    },
+    {
+      "path": "/despacho/dashboard",
+      "mode": "light"
+    },
+    {
+      "path": "/despacho/ventas",
+      "mode": "light"
+    },
+    {
+      "path": "/despacho/ventas/create",
+      "mode": "light"
+    },
+    {
+      "path": "/despacho/stock",
+      "mode": "light"
+    },
+    {
+      "path": "/despacho/reportes",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/dashboard",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/entregas",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/calidad",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/liquidaciones",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/comunicados",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/rotaciones",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/perfil",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/rotaciones/create",
+      "mode": "dark"
+    },
+    {
+      "path": "/productor/dashboard",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/entregas",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/calidad",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/liquidaciones",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/comunicados",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/rotaciones",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/perfil",
+      "mode": "light"
+    },
+    {
+      "path": "/productor/rotaciones/create",
+      "mode": "light"
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "Persistencia al navegar/recargar y sincronización entre pestañas",
+    "Cambio de tema sin red en la PWA",
+    "Cambio de tema funcional con almacenamiento bloqueado"
+  ]
+}

@@ -1,0 +1,471 @@
+{
+  "base": "http://127.0.0.1:8011",
+  "checkedAt": "2026-09-08T10:14:27.939Z",
+  "roles": [
+    {
+      "role": "admin",
+      "dashboard": "/admin/dashboard",
+      "links": [
+        {
+          "path": "/admin/dashboard",
+          "status": 200
+        },
+        {
+          "path": "/admin/solicitudes",
+          "status": 200
+        },
+        {
+          "path": "/admin/users",
+          "status": 200
+        },
+        {
+          "path": "/admin/producers",
+          "status": 200
+        },
+        {
+          "path": "/admin/acopiadores",
+          "status": 200
+        },
+        {
+          "path": "/admin/zones",
+          "status": 200
+        },
+        {
+          "path": "/admin/sectors",
+          "status": 200
+        },
+        {
+          "path": "/admin/routes",
+          "status": 200
+        },
+        {
+          "path": "/admin/entregas",
+          "status": 200
+        },
+        {
+          "path": "/admin/liquidaciones",
+          "status": 200
+        },
+        {
+          "path": "/admin/rotaciones",
+          "status": 200
+        },
+        {
+          "path": "/admin/comunicados",
+          "status": 200
+        },
+        {
+          "path": "/admin/reports",
+          "status": 200
+        },
+        {
+          "path": "/admin/settings",
+          "status": 200
+        },
+        {
+          "path": "/admin/audit",
+          "status": 200
+        }
+      ],
+      "forbiddenDashboards": [
+        {
+          "path": "/acopiador/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/supervisor/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/produccion/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/despacho/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/productor/dashboard",
+          "status": 403
+        }
+      ],
+      "forbiddenWrites": [
+        {
+          "path": "/acopiador/entregas",
+          "status": 403
+        }
+      ],
+      "logout": "passed"
+    },
+    {
+      "role": "acopiador",
+      "dashboard": "/acopiador/dashboard",
+      "links": [
+        {
+          "path": "/acopiador/dashboard",
+          "status": 200
+        },
+        {
+          "path": "/acopiador/producers",
+          "status": 200
+        },
+        {
+          "path": "/acopiador/entregas",
+          "status": 200
+        },
+        {
+          "path": "/acopiador/entregas/create",
+          "status": 200
+        },
+        {
+          "path": "/acopiador/sync",
+          "status": 200
+        },
+        {
+          "path": "/acopiador/ruta/cerrar",
+          "status": 200
+        }
+      ],
+      "forbiddenDashboards": [
+        {
+          "path": "/admin/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/supervisor/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/produccion/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/despacho/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/productor/dashboard",
+          "status": 403
+        }
+      ],
+      "forbiddenWrites": [
+        {
+          "path": "/admin/producers",
+          "status": 403
+        },
+        {
+          "path": "/acopiador/producers",
+          "status": 403
+        }
+      ],
+      "logout": "passed"
+    },
+    {
+      "role": "supervisor",
+      "dashboard": "/supervisor/dashboard",
+      "links": [
+        {
+          "path": "/supervisor/dashboard",
+          "status": 200
+        },
+        {
+          "path": "/supervisor/calidad",
+          "status": 200
+        },
+        {
+          "path": "/supervisor/calidad/create",
+          "status": 200
+        },
+        {
+          "path": "/supervisor/problemas",
+          "status": 200
+        },
+        {
+          "path": "/supervisor/inspecciones",
+          "status": 200
+        },
+        {
+          "path": "/supervisor/capacitaciones",
+          "status": 200
+        },
+        {
+          "path": "/supervisor/reportes",
+          "status": 200
+        }
+      ],
+      "forbiddenDashboards": [
+        {
+          "path": "/admin/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/acopiador/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/produccion/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/despacho/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/productor/dashboard",
+          "status": 403
+        }
+      ],
+      "forbiddenWrites": [
+        {
+          "path": "/admin/producers",
+          "status": 403
+        }
+      ],
+      "logout": "passed"
+    },
+    {
+      "role": "produccion",
+      "dashboard": "/produccion/dashboard",
+      "links": [
+        {
+          "path": "/produccion/dashboard",
+          "status": 200
+        },
+        {
+          "path": "/produccion/lotes",
+          "status": 200
+        },
+        {
+          "path": "/produccion/lotes/create",
+          "status": 200
+        },
+        {
+          "path": "/produccion/hoy",
+          "status": 200
+        },
+        {
+          "path": "/produccion/reportes",
+          "status": 200
+        },
+        {
+          "path": "/produccion/sync",
+          "status": 200
+        }
+      ],
+      "forbiddenDashboards": [
+        {
+          "path": "/admin/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/acopiador/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/supervisor/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/despacho/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/productor/dashboard",
+          "status": 403
+        }
+      ],
+      "forbiddenWrites": [
+        {
+          "path": "/admin/producers",
+          "status": 403
+        }
+      ],
+      "logout": "passed"
+    },
+    {
+      "role": "despacho",
+      "dashboard": "/despacho/dashboard",
+      "links": [
+        {
+          "path": "/despacho/dashboard",
+          "status": 200
+        },
+        {
+          "path": "/despacho/ventas",
+          "status": 200
+        },
+        {
+          "path": "/despacho/ventas/create",
+          "status": 200
+        },
+        {
+          "path": "/despacho/stock",
+          "status": 200
+        },
+        {
+          "path": "/despacho/reportes",
+          "status": 200
+        }
+      ],
+      "forbiddenDashboards": [
+        {
+          "path": "/admin/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/acopiador/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/supervisor/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/produccion/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/productor/dashboard",
+          "status": 403
+        }
+      ],
+      "forbiddenWrites": [
+        {
+          "path": "/admin/producers",
+          "status": 403
+        }
+      ],
+      "logout": "passed"
+    },
+    {
+      "role": "productor",
+      "dashboard": "/productor/dashboard",
+      "links": [
+        {
+          "path": "/productor/dashboard",
+          "status": 200
+        },
+        {
+          "path": "/productor/entregas",
+          "status": 200
+        },
+        {
+          "path": "/productor/calidad",
+          "status": 200
+        },
+        {
+          "path": "/productor/liquidaciones",
+          "status": 200
+        },
+        {
+          "path": "/productor/comunicados",
+          "status": 200
+        },
+        {
+          "path": "/productor/rotaciones",
+          "status": 200
+        },
+        {
+          "path": "/productor/perfil",
+          "status": 200
+        }
+      ],
+      "forbiddenDashboards": [
+        {
+          "path": "/admin/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/acopiador/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/supervisor/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/produccion/dashboard",
+          "status": 403
+        },
+        {
+          "path": "/despacho/dashboard",
+          "status": 403
+        }
+      ],
+      "forbiddenWrites": [
+        {
+          "path": "/admin/producers",
+          "status": 403
+        },
+        {
+          "path": "/productor/entregas",
+          "status": 403
+        }
+      ],
+      "logout": "passed"
+    }
+  ],
+  "authentication": [
+    {
+      "path": "/login",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "path": "/register",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "path": "/reset-password/preview",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "path": "/login",
+      "width": 390,
+      "status": "passed"
+    },
+    {
+      "path": "/register",
+      "width": 390,
+      "status": "passed"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "width": 390,
+      "status": "passed"
+    },
+    {
+      "path": "/reset-password/preview",
+      "width": 390,
+      "status": "passed"
+    },
+    {
+      "path": "/login",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "path": "/register",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "path": "/reset-password/preview",
+      "width": 320,
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}
