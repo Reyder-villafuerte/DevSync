@@ -1,0 +1,10 @@
+# Local workspace caches and IDE settings
+/.gradle/
+/.idea/
+
+# Machine-specific configuration and credentials
+**/.env
+**/.env.backup
+**/.env.production
+**/auth.json
+**/local.properties
