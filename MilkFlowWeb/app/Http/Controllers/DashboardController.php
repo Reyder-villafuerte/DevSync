@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
-use App\Models\InventoryStock;
-use App\Models\CollectionRoute;
 use App\Models\CollectionRecord;
-use App\Models\PlantReception;
-use App\Models\CheeseProduction;
-use App\Models\Sale;
+use App\Models\CollectionRoute;
+use App\Models\InventoryStock;
 use App\Models\LactoscanAnalysis;
-use App\Models\Zone;
+use App\Models\Sale;
 use App\Models\User;
+use App\Models\Zone;
 use App\Models\ZoneChangeRequest;
+use App\Services\Acopio\JornadaOperativa;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -37,10 +34,10 @@ class DashboardController extends Controller
             return redirect()->route('pagos.ruta.index');
         }
 
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
 
-        $stockLeche = InventoryStock::getStock('MILK_RAW_LITERS');
-        $stockQueso = InventoryStock::getStock('CHEESE_MOLD_UNITS');
+        $stockLeche = InventoryStock::getStock(config('huata.codigos.leche'));
+        $stockQueso = InventoryStock::getStock(config('huata.codigos.queso'));
 
         $data = [
             'user' => $user,
@@ -81,13 +78,12 @@ class DashboardController extends Controller
                 $data['rutasPorVerificar'] = CollectionRoute::where('date', $today)
                     ->with(['zone', 'collector', 'records.producer', 'reception'])
                     ->get();
-                $data['produccionesRecientes'] = CheeseProduction::latest()->take(10)->get();
                 break;
 
             case 'personal_venta':
-                $data['ventasHoy'] = Sale::whereDate('sold_at', $today)->with('customer')->latest()->get();
-                $data['totalVentasHoy'] = Sale::whereDate('sold_at', $today)->sum('total_amount');
-                $data['quesosVendidosHoy'] = Sale::whereDate('sold_at', $today)->sum('cheese_molds_quantity');
+                $data['ventasHoy'] = Sale::deLaJornada($today)->with('customer')->latest()->get();
+                $data['totalVentasHoy'] = Sale::deLaJornada($today)->sum('total_amount');
+                $data['quesosVendidosHoy'] = Sale::deLaJornada($today)->sum('cheese_molds_quantity');
                 break;
 
             case 'inspector_calidad':
@@ -103,7 +99,7 @@ class DashboardController extends Controller
             case 'personal_pago':
             default:
                 $data['rutasHoy'] = CollectionRoute::where('date', $today)->with(['zone', 'collector'])->get();
-                $data['litrosAcopiadosHoy'] = CollectionRecord::whereHas('route', fn($q) => $q->where('date', $today))->sum('liters');
+                $data['litrosAcopiadosHoy'] = CollectionRecord::whereHas('route', fn ($q) => $q->where('date', $today))->sum('liters');
                 $data['totalVentasMonto'] = Sale::sum('total_amount');
                 $data['totalProductores'] = User::where('role', 'productor')->count();
                 $data['totalAcopiadores'] = User::where('role', 'acopiador')->count();

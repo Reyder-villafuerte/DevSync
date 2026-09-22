@@ -2,30 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
 use App\Exceptions\ReglaNegocioException;
+use App\Models\CollectionRoute;
+use App\Models\User;
 use App\Models\Zone;
 use App\Models\ZoneChangeRequest;
-use App\Models\User;
+use App\Services\Acopio\JornadaOperativa;
 use App\Services\Zonas\ZonaService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ZoneController extends Controller
 {
-    public function __construct(private ZonaService $zonas)
-    {
-    }
+    public function __construct(private ZonaService $zonas) {}
 
     public function index()
     {
         $zones = Zone::with(['producers', 'routes'])->get();
-        $pendingRequests = ZoneChangeRequest::with(['producer.zone', 'requestedZone', 'currentZone'])
-            ->where('status', 'pendiente')
-            ->latest()
+
+        // Quién cubre cada zona hoy. Se arma acá para que la jefatura vea el
+        // reparto del día en la misma pantalla donde mira el territorio.
+        $today = app(JornadaOperativa::class)->fecha();
+
+        $rutasDeHoy = CollectionRoute::with(['zone', 'collector'])
+            ->where('date', $today)
             ->get();
 
-        return view('zonas.index', compact('zones', 'pendingRequests'));
+        $collectors = User::where('role', 'acopiador')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('zonas.index', compact(
+            'zones',
+            'rutasDeHoy',
+            'collectors',
+            'today'
+        ));
     }
 
     // Vista dedicada para gestión y aprobación de solicitudes de cambio de zona
@@ -40,7 +53,14 @@ class ZoneController extends Controller
             $query->where('status', $status);
         }
 
-        $solicitudes = $query->paginate(15)->appends($request->all());
+        if ($request->filled('buscar')) {
+            $termino = $request->buscar;
+
+            $query->whereHas('producer', fn ($q) => $q->where('name', 'like', "%{$termino}%")
+                ->orWhere('dni', 'like', "%{$termino}%"));
+        }
+
+        $solicitudes = $query->paginate(10)->withQueryString();
 
         $totalPendientes = ZoneChangeRequest::where('status', 'pendiente')->count();
         $totalAprobadas = ZoneChangeRequest::where('status', 'aprobado')->count();

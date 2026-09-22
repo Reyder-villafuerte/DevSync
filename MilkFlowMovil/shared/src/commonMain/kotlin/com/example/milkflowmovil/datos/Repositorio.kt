@@ -15,7 +15,6 @@ import com.example.milkflowmovil.dominio.Aviso
 import com.example.milkflowmovil.dominio.CierreCaja
 import com.example.milkflowmovil.dominio.Egreso
 import com.example.milkflowmovil.dominio.Entrega
-import com.example.milkflowmovil.dominio.ProduccionQueso
 import com.example.milkflowmovil.dominio.Recepcion
 import com.example.milkflowmovil.dominio.Reglas
 import com.example.milkflowmovil.dominio.Ruta
@@ -311,50 +310,6 @@ class Repositorio(
             },
             "Caudalímetro de la ruta del ${Fechas.corta(ruta.date)}: $litrosCaudalimetro L",
         )
-    }
-
-    fun producirQueso(moldes: Int, lote: String?): ErrorApp? {
-        val usuario = yo ?: return ErrorApp.SesionVencida
-        val litros = Reglas.litrosParaMoldes(moldes)
-
-        if (base.actual.stockLeche < litros) {
-            return ErrorApp.Regla(
-                "Stock de leche insuficiente. Se requieren $litros L y hay ${base.actual.stockLeche} L."
-            )
-        }
-
-        val uuid = nuevoUuid()
-        val idNuevo = base.reservarIdTemporal()
-
-        base.actualizar { estado ->
-            val produccion = ProduccionQueso(
-                id = idNuevo,
-                clientUuid = uuid,
-                fecha = Fechas.hoy(),
-                supervisorId = usuario.id,
-                moldes = moldes,
-                litrosUsados = litros,
-                lote = lote,
-                pendiente = true,
-            )
-
-            var stocks = ajustarStock(estado, com.example.milkflowmovil.dominio.Stock.LECHE, -litros)
-            stocks = ajustarStock(estado.copy(stocks = stocks), com.example.milkflowmovil.dominio.Stock.QUESO, moldes.toDouble())
-
-            estado.copy(producciones = estado.producciones + produccion, stocks = stocks)
-        }
-
-        encolar(
-            uuid, "producir_queso",
-            buildJsonObject {
-                put("cheese_molds_produced", moldes)
-                put("production_date", Fechas.hoy())
-                lote?.takeIf { it.isNotBlank() }?.let { put("batch_number", it) }
-            },
-            "Producción de $moldes moldes de queso",
-        )
-
-        return null
     }
 
     /**

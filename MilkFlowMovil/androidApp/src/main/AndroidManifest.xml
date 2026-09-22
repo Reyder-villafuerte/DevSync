@@ -4,6 +4,15 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!--
+        El servidor de la planta vive en la red local (192.168.x / 10.x / 172.x).
+        Desde Android 16 eso ya no alcanza con INTERNET: sin este permiso la
+        conexión a una IP privada no da error, se queda colgada hasta que vence
+        el tiempo de espera, y la app dice «sin conexión» teniendo wifi.
+        maxSdkVersion no aplica: en Android viejo simplemente se ignora.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

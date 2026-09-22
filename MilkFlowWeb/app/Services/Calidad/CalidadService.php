@@ -6,6 +6,7 @@ use App\Exceptions\ReglaNegocioException;
 use App\Models\LactoscanAnalysis;
 use App\Models\TechnicalVisit;
 use App\Models\User;
+use App\Services\Acopio\JornadaOperativa;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,7 +23,7 @@ class CalidadService
     {
         $veredicto = $datos['verdict'] ?? 'conforme';
 
-        if (!in_array($veredicto, self::VEREDICTOS, true)) {
+        if (! in_array($veredicto, self::VEREDICTOS, true)) {
             throw new ReglaNegocioException("Veredicto no válido: {$veredicto}.", 'verdict');
         }
 
@@ -31,7 +32,7 @@ class CalidadService
                 'client_uuid' => $clientUuid,
                 'producer_id' => $datos['producer_id'],
                 'inspector_id' => $inspector->id,
-                'analysis_date' => $datos['analysis_date'] ?? date('Y-m-d'),
+                'analysis_date' => $datos['analysis_date'] ?? app(JornadaOperativa::class)->fecha(),
                 'fat_percentage' => $datos['fat_percentage'] ?? null,
                 'snf_percentage' => $datos['snf_percentage'] ?? null,
                 'density' => $datos['density'] ?? null,
@@ -43,19 +44,19 @@ class CalidadService
                 'notes' => $datos['notes'] ?? null,
             ]);
 
-            if (!empty($datos['schedule_visit']) || $veredicto === 'acidez_alta') {
+            if (! empty($datos['schedule_visit']) || $veredicto === 'acidez_alta') {
                 $ph = $datos['ph_or_acidity'] ?? 'anómala';
 
                 TechnicalVisit::create([
                     'lactoscan_analysis_id' => $analisis->id,
                     'producer_id' => $datos['producer_id'],
                     'inspector_id' => $inspector->id,
-                    'scheduled_date' => !empty($datos['scheduled_date'])
+                    'scheduled_date' => ! empty($datos['scheduled_date'])
                         ? $datos['scheduled_date']
                         : date('Y-m-d', strtotime('+2 days')),
                     'scheduled_time' => $datos['scheduled_time'] ?? '09:00:00',
                     'status' => 'programada',
-                    'reason' => !empty($datos['visit_reason'])
+                    'reason' => ! empty($datos['visit_reason'])
                         ? $datos['visit_reason']
                         : "Visita técnica programada por detección de acidez alta ({$ph}) en prueba Lactoscan.",
                 ]);

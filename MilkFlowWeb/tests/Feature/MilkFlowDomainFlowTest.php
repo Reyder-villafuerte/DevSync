@@ -2,16 +2,28 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Zone;
+use App\Models\ClientType;
+use App\Models\CollectionPriceRule;
+use App\Models\CollectionRecord;
+use App\Models\CollectionRoute;
 use App\Models\Customer;
 use App\Models\InventoryStock;
-use App\Models\CollectionRoute;
-use App\Models\CollectionRecord;
+use App\Models\LactoscanAnalysis;
+use App\Models\PlantReception;
+use App\Models\ProducerDeduction;
+use App\Models\ProducerSettlement;
+use App\Models\Product;
 use App\Models\Sale;
-
+use App\Models\SystemPrice;
+use App\Models\TechnicalVisit;
+use App\Models\User;
+use App\Models\Zone;
+use App\Models\ZoneChangeRequest;
+use App\Services\Acopio\JornadaOperativa;
+use Carbon\Carbon;
+use Database\Seeders\MilkFlowHuataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class MilkFlowDomainFlowTest extends TestCase
 {
@@ -20,8 +32,9 @@ class MilkFlowDomainFlowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\MilkFlowHuataSeeder::class);
+        $this->seed(MilkFlowHuataSeeder::class);
     }
+
     public function test_login_and_dashboard_access()
     {
         $admin = User::where('role', 'admin')->first();
@@ -37,7 +50,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $zona = Zone::first();
 
         $route = CollectionRoute::firstOrCreate(
-            ['date' => date('Y-m-d'), 'zone_id' => $zona->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'zone_id' => $zona->id],
             ['collector_id' => $acopiador->id, 'start_time' => '04:30:00', 'status' => 'descargada_planta', 'total_collected_liters' => 148.0]
         );
 
@@ -54,25 +67,6 @@ class MilkFlowDomainFlowTest extends TestCase
         $this->assertEquals($initialStock + 150.0, $newStock);
     }
 
-    public function test_cheese_production_deducts_10_liters_per_mold()
-    {
-        $jefe = User::where('role', 'jefe_produccion')->first();
-
-        // Asegurar stock de leche
-        InventoryStock::adjustStock('MILK_RAW_LITERS', 100.0);
-        $stockLecheBefore = InventoryStock::getStock('MILK_RAW_LITERS');
-        $stockQuesoBefore = InventoryStock::getStock('CHEESE_MOLD_UNITS');
-
-        $response = $this->actingAs($jefe)->post('/produccion/queso', [
-            'cheese_molds_produced' => 5, // debe descontar 50 L
-            'batch_number' => 'BATCH-TEST-001',
-        ]);
-
-        $response->assertSessionHas('success');
-        $this->assertEquals($stockLecheBefore - 50.0, InventoryStock::getStock('MILK_RAW_LITERS'));
-        $this->assertEquals($stockQuesoBefore + 5, InventoryStock::getStock('CHEESE_MOLD_UNITS'));
-    }
-
     public function test_sales_rates_differentiated_and_receipt_generation()
     {
         $seller = User::where('role', 'personal_venta')->first();
@@ -82,12 +76,12 @@ class MilkFlowDomainFlowTest extends TestCase
         $proveedorCust = Customer::where('type', 'proveedor')->first();
         $response = $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $proveedorCust->id,
-            'cheese_molds_quantity' => 2,
+            'items' => $this->pedidoDeQueso(2),
         ]);
         $response->assertRedirect();
         $sale = Sale::latest()->first();
-        $this->assertEquals(18.00, (float)$sale->unit_price);
-        $this->assertEquals(36.00, (float)$sale->total_amount);
+        $this->assertEquals(18.00, (float) $sale->unit_price);
+        $this->assertEquals(36.00, (float) $sale->total_amount);
         $this->assertEquals('efectivo', $sale->payment_method);
 
         // 2. Venta a Cliente local con >= 10 moldes -> tarifa mayorista S/ 19
@@ -95,12 +89,12 @@ class MilkFlowDomainFlowTest extends TestCase
         $salesCountBefore = Sale::count();
         $response2 = $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $localCust->id,
-            'cheese_molds_quantity' => 10,
+            'items' => $this->pedidoDeQueso(10),
         ]);
         $response2->assertRedirect();
         $wholesaleSale = Sale::orderBy('id', 'desc')->first();
-        $this->assertEquals(19.00, (float)$wholesaleSale->unit_price);
-        $this->assertEquals(190.00, (float)$wholesaleSale->total_amount);
+        $this->assertEquals(19.00, (float) $wholesaleSale->unit_price);
+        $this->assertEquals(190.00, (float) $wholesaleSale->total_amount);
     }
 
     public function test_mobile_login_and_route_sync_api()
@@ -110,7 +104,7 @@ class MilkFlowDomainFlowTest extends TestCase
 
         // Asegurar ruta asignada hoy
         CollectionRoute::firstOrCreate(
-            ['date' => date('Y-m-d'), 'collector_id' => $acopiador->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'collector_id' => $acopiador->id],
             ['zone_id' => $zona->id, 'start_time' => '04:30:00', 'status' => 'asignada']
         );
 
@@ -125,7 +119,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $token = $response->json('token');
 
         // 2. Descargar ruta para trabajo offline
-        $routeResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $routeResponse = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/mobile/collector/route');
         $routeResponse->assertStatus(200);
         $routeResponse->assertJsonStructure(['route_id', 'date', 'zone', 'producers']);
@@ -197,7 +191,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $newZone = Zone::where('id', '!=', $producer->zone_id)->first();
 
         // Crear solicitud pendiente
-        $req = \App\Models\ZoneChangeRequest::create([
+        $req = ZoneChangeRequest::create([
             'producer_id' => $producer->id,
             'current_zone_id' => $producer->zone_id,
             'requested_zone_id' => $newZone->id,
@@ -214,7 +208,7 @@ class MilkFlowDomainFlowTest extends TestCase
         // 2. Panel dedicado de Solicitudes de Zona
         $solResponse = $this->actingAs($admin)->get('/zonas/solicitudes');
         $solResponse->assertStatus(200);
-        $solResponse->assertSee('Solicitudes de Cambio de Zona');
+        $solResponse->assertSee('Solicitudes de cambio de zona');
         $solResponse->assertSee($producer->name);
 
         // 3. Admin aprueba la solicitud
@@ -232,27 +226,41 @@ class MilkFlowDomainFlowTest extends TestCase
     {
         $admin = User::where('role', 'admin')->first();
 
-        // 1. Actualizar tarifas por temporada
+        // 1. El queso se tarifa en su producto del catálogo
+        $queso = Product::where('item_code', 'CHEESE_MOLD_UNITS')->firstOrFail();
+        $jefePlanta = User::where('role', 'jefe_produccion')->firstOrFail();
+
+        $this->actingAs($jefePlanta)->post("/produccion/productos/{$queso->id}/precios", [
+            'tarifas' => $this->tarifasPorTipo(17.50, 18.50, 21.00),
+            'process_hours' => 0,
+            'is_active' => 1,
+        ])->assertSessionHas('success');
+
+        // 2. La leche se tarifa en las reglas de acopio
+        $base = CollectionPriceRule::whereNull('metric')->firstOrFail();
+
+        $this->actingAs($admin)->put("/admin/precios/tarifas/{$base->id}", [
+            'name' => 'Tarifa base',
+            'price_per_unit' => 1.50,
+            'is_active' => 1,
+        ])->assertSessionHas('success');
+
+        // 3. Y Precios solo cierra la temporada, copiando lo que rige hoy
         $response = $this->actingAs($admin)->post('/admin/precios', [
             'season_name' => 'Temporada Seca 2026',
-            'price_milk_base' => 1.50,
-            'price_milk_water_penalty_low' => 1.20,
-            'price_milk_water_penalty_high' => 0.90,
-            'price_cheese_provider' => 17.50,
-            'price_cheese_wholesale' => 18.50,
-            'price_cheese_local' => 21.00,
             'notes' => 'Ajuste estacional por sequía',
         ]);
         $response->assertRedirect('/admin/precios');
 
-        // 2. Verificar que SystemPrice tiene la nueva tarifa activa
-        $current = \App\Models\SystemPrice::current();
-        $this->assertEquals(1.50, (float)$current->price_milk_base);
-        $this->assertEquals(17.50, (float)$current->price_cheese_provider);
+        $current = SystemPrice::current();
+        $this->assertEquals(1.50, (float) $current->price_milk_base);
 
-        // 3. Verificar que cliente proveedor calcula el nuevo precio de queso
+        // 4. La fila histórica copia del producto la tarifa que regía ese día
+        $this->assertEquals(17.50, (float) $current->price_cheese_provider);
+
+        // 5. Y el mostrador le cobra eso al proveedor
         $proveedorCust = Customer::where('type', 'proveedor')->first();
-        $this->assertEquals(17.50, $proveedorCust->determineUnitPrice(1));
+        $this->assertEquals(17.50, $queso->fresh()->priceForCustomer($proveedorCust, 1));
     }
 
     public function test_milk_quality_water_penalty_and_admin_payment_authorization()
@@ -262,7 +270,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $inspector = User::where('role', 'inspector_calidad')->first();
 
         // Registrar análisis con 4% de agua (debe penalizar a S/ 1.20)
-        \App\Models\LactoscanAnalysis::create([
+        LactoscanAnalysis::create([
             'producer_id' => $producer->id,
             'inspector_id' => $inspector->id,
             'analysis_date' => date('Y-m-d'),
@@ -274,7 +282,7 @@ class MilkFlowDomainFlowTest extends TestCase
             'verdict' => 'adulterada',
         ]);
 
-        $priceInfo = \App\Models\SystemPrice::getMilkPriceForProducer($producer->id, date('Y-m-d'), date('Y-m-d'));
+        $priceInfo = SystemPrice::getMilkPriceForProducer($producer->id, date('Y-m-d'), date('Y-m-d'));
         $this->assertEquals('leve_descuento', $priceInfo['penalty_type']);
         $this->assertEquals(1.20, $priceInfo['price']);
 
@@ -290,10 +298,10 @@ class MilkFlowDomainFlowTest extends TestCase
         $payResponse->assertSessionHas('success');
 
         // Verificar que la liquidación se generó con la tarifa de penalidad de 1.20 aplicada a toda la semana
-        $settlement = \App\Models\ProducerSettlement::where('producer_id', $producer->id)->latest('id')->first();
-        $this->assertEquals(1.20, (float)$settlement->price_per_liter);
+        $settlement = ProducerSettlement::where('producer_id', $producer->id)->latest('id')->first();
+        $this->assertEquals(1.20, (float) $settlement->price_per_liter);
         $this->assertContains($settlement->status, ['autorizado', 'pagado']);
-        $this->assertGreaterThan(0, (float)$settlement->deductions_total);
+        $this->assertGreaterThan(0, (float) $settlement->deductions_total);
     }
 
     public function test_cheese_purchase_deducted_from_producer_milk_settlement()
@@ -306,7 +314,7 @@ class MilkFlowDomainFlowTest extends TestCase
         // Vender 2 quesos al proveedor con modalidad 'descuento_leche'
         $response = $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $customer->id,
-            'cheese_molds_quantity' => 2,
+            'items' => $this->pedidoDeQueso(2),
             'payment_method' => 'descuento_leche',
         ]);
         $response->assertRedirect();
@@ -331,7 +339,7 @@ class MilkFlowDomainFlowTest extends TestCase
 
         // 2. Ruta activa en campo: debe ver el botón 'Cerrar Ruta'
         $route = CollectionRoute::firstOrCreate(
-            ['date' => date('Y-m-d'), 'collector_id' => $collector->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'collector_id' => $collector->id],
             ['zone_id' => $zone->id, 'start_time' => '04:30:00', 'status' => 'en_ruta', 'total_collected_liters' => 85.0]
         );
         $route->status = 'en_ruta';
@@ -391,7 +399,7 @@ class MilkFlowDomainFlowTest extends TestCase
 
         // 1. Crear una ruta histórica previa con recepción y merma en planta (400 L campo vs 395 L caudalímetro)
         $pastRoute = CollectionRoute::create([
-            'date' => date('Y-m-d', strtotime('-1 day')),
+            'date' => Carbon::parse(app(JornadaOperativa::class)->fecha())->subDay()->toDateString(),
             'zone_id' => $zone->id,
             'collector_id' => $collector->id,
             'start_time' => '04:30:00',
@@ -399,7 +407,7 @@ class MilkFlowDomainFlowTest extends TestCase
             'total_collected_liters' => 400.0,
         ]);
 
-        \App\Models\PlantReception::create([
+        PlantReception::create([
             'collection_route_id' => $pastRoute->id,
             'verifier_id' => $jefe->id,
             'collector_declared_liters' => 400.0,
@@ -431,7 +439,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $response->assertSee('Merma de 5L por espuma en descarga');
 
         // 3. Registrar entrega para un productor y verificar actualización y reordenamiento
-        $activeRoute = CollectionRoute::where('collector_id', $collector->id)->where('date', date('Y-m-d'))->first();
+        $activeRoute = CollectionRoute::where('collector_id', $collector->id)->where('date', app(JornadaOperativa::class)->fecha())->first();
         $firstProducer = $activeRoute->zone->producers->first();
 
         $deliveryResponse = $this->actingAs($collector)->post(route('acopio.delivery', $activeRoute->id), [
@@ -444,7 +452,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $responseAfter = $this->actingAs($collector)->get('/acopio');
         $responseAfter->assertStatus(200);
         $responseAfter->assertSee('32.50 L');
-        $responseAfter->assertSee('Actualizar');
+        $responseAfter->assertSee('Acopiado');
         $responseAfter->assertSee('Porongo de aluminio');
     }
 
@@ -466,7 +474,7 @@ class MilkFlowDomainFlowTest extends TestCase
             ['collector_id' => $collector->id, 'start_time' => '04:30:00', 'status' => 'verificada', 'total_collected_liters' => 250.0]
         );
 
-        \App\Models\PlantReception::updateOrCreate(
+        PlantReception::updateOrCreate(
             ['collection_route_id' => $pastRoute->id],
             [
                 'verifier_id' => $jefe->id,
@@ -556,7 +564,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $followResponse->assertStatus(200);
         $followResponse->assertDontSee('<span>Dashboard</span>', false);
         $followResponse->assertSee('Caudalímetro');
-        $followResponse->assertSee('Quesería (-10L)');
+        $followResponse->assertDontSee('Quesería (-10L)');
     }
 
     public function test_producer_can_view_receipt_for_cheese_purchase_deduction()
@@ -582,7 +590,7 @@ class MilkFlowDomainFlowTest extends TestCase
         InventoryStock::adjustStock('CHEESE_MOLD_UNITS', 10);
         $responseSale = $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $customer->id,
-            'cheese_molds_quantity' => 3,
+            'items' => $this->pedidoDeQueso(3),
             'payment_method' => 'descuento_leche',
         ]);
         $responseSale->assertSessionHas('success');
@@ -590,7 +598,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $sale = Sale::where('customer_id', $customer->id)->latest()->first();
         $this->assertNotNull($sale);
 
-        $deduction = \App\Models\ProducerDeduction::where('producer_id', $producer->id)
+        $deduction = ProducerDeduction::where('producer_id', $producer->id)
             ->where('sale_id', $sale->id)
             ->first();
         $this->assertNotNull($deduction);
@@ -626,21 +634,21 @@ class MilkFlowDomainFlowTest extends TestCase
         // 1. Venta a Proveedor: 2 moldes @ S/ 18 = S/ 36 (A CUENTA DE LECHE - no entra a caja)
         $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $provCustomer->id,
-            'cheese_molds_quantity' => 2,
+            'items' => $this->pedidoDeQueso(2),
             'payment_method' => 'descuento_leche',
         ]);
 
         // 2. Venta a Mayorista: 10 moldes @ S/ 19 = S/ 190 (EFECTIVO EN CAJA)
         $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $mayoristaCustomer->id,
-            'cheese_molds_quantity' => 10,
+            'items' => $this->pedidoDeQueso(10),
             'payment_method' => 'efectivo',
         ]);
 
         // 3. Venta a Local: 3 moldes @ S/ 20 = S/ 60 (EFECTIVO EN CAJA)
         $this->actingAs($seller)->post('/ventas', [
             'customer_id' => $localCustomer->id,
-            'cheese_molds_quantity' => 3,
+            'items' => $this->pedidoDeQueso(3),
             'payment_method' => 'efectivo',
         ]);
 
@@ -662,10 +670,11 @@ class MilkFlowDomainFlowTest extends TestCase
         $response->assertSee('286.00');
         $response->assertSee('15');
 
-        // Validar desglose en tabla por categorías
-        $response->assertSee('Proveedores de Leche');
-        $response->assertSee('Clientes Mayoristas');
-        $response->assertSee('Clientes Locales / Detal');
+        // El desglose se arma desde `client_types`, así que las filas llevan el
+        // nombre del tipo y no las tres etiquetas fijas de antes.
+        $response->assertSee('Proveedor de leche');
+        $response->assertSee('Mayorista');
+        $response->assertSee('Cliente local');
         $response->assertSee('Ventas de hoy');
 
         // 5. Confirmar y ejecutar el Cierre de Caja
@@ -676,7 +685,8 @@ class MilkFlowDomainFlowTest extends TestCase
         // 6. Consultar /ventas tras el cierre: la bandeja de ventas de hoy debe volver a blanco
         $responseAfterClose = $this->actingAs($seller)->get('/ventas');
         $responseAfterClose->assertStatus(200);
-        $responseAfterClose->assertSee('Bandeja en blanco: Caja de hoy cerrada');
+        $responseAfterClose->assertSee('No hay ventas pendientes en el turno de hoy.');
+        $responseAfterClose->assertSee('Las ventas ya están en el historial de recibos.');
 
         // 7. Consultar /ventas/recibos: deben figurar todos los recibos emitidos históricos
         $responseReceipts = $this->actingAs($seller)->get(route('ventas.receipts'));
@@ -793,7 +803,7 @@ class MilkFlowDomainFlowTest extends TestCase
         // Crear una ruta y registro de acopio hoy para verificar el cruce de datos
         $acopiador = User::where('role', 'acopiador')->first();
         $route = CollectionRoute::firstOrCreate(
-            ['date' => date('Y-m-d'), 'zone_id' => $zone->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'zone_id' => $zone->id],
             ['collector_id' => $acopiador->id, 'start_time' => '04:30:00', 'status' => 'asignada']
         );
         $record = CollectionRecord::updateOrCreate(
@@ -802,18 +812,18 @@ class MilkFlowDomainFlowTest extends TestCase
         );
 
         // Crear una visita técnica para el día de hoy con su análisis
-        $ana = \App\Models\LactoscanAnalysis::create([
+        $ana = LactoscanAnalysis::create([
             'producer_id' => $producer->id,
             'inspector_id' => $inspector->id,
             'analysis_date' => date('Y-m-d'),
             'verdict' => 'conforme',
         ]);
 
-        $visit = \App\Models\TechnicalVisit::create([
+        $visit = TechnicalVisit::create([
             'lactoscan_analysis_id' => $ana->id,
             'producer_id' => $producer->id,
             'inspector_id' => $inspector->id,
-            'scheduled_date' => date('Y-m-d'),
+            'scheduled_date' => app(JornadaOperativa::class)->fecha(),
             'scheduled_time' => '10:00:00',
             'status' => 'programada',
             'reason' => 'Revisión preventiva de acidez en finca',
@@ -831,7 +841,7 @@ class MilkFlowDomainFlowTest extends TestCase
         // 2. Filtros de Veredicto (Todos, Conformes, Acidez, Adulteración)
         $response->assertSee('Conformes');
         $response->assertSee('Acidez Alta');
-        $response->assertSee('Adulteración (Agua)');
+        $response->assertSee('Adulterada (agua)');
 
         // 3. Registro de Visitas y Citas Técnicas del Día
         $response->assertSee('Agenda de Visitas Técnicas de Hoy');
@@ -845,7 +855,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $producer = User::where('role', 'productor')->first();
 
         // 1. Crear análisis de acidez y análisis conforme
-        $anaAcidez = \App\Models\LactoscanAnalysis::create([
+        $anaAcidez = LactoscanAnalysis::create([
             'producer_id' => $producer->id,
             'inspector_id' => $inspector->id,
             'analysis_date' => date('Y-m-d'),
@@ -853,7 +863,7 @@ class MilkFlowDomainFlowTest extends TestCase
             'verdict' => 'acidez_alta',
         ]);
 
-        $anaConforme = \App\Models\LactoscanAnalysis::create([
+        $anaConforme = LactoscanAnalysis::create([
             'producer_id' => $producer->id,
             'inspector_id' => $inspector->id,
             'analysis_date' => date('Y-m-d'),
@@ -867,11 +877,11 @@ class MilkFlowDomainFlowTest extends TestCase
         $responseAcidez->assertSee('Acidez Alta');
 
         // 3. Crear y completar una visita técnica del día
-        $visit = \App\Models\TechnicalVisit::create([
+        $visit = TechnicalVisit::create([
             'lactoscan_analysis_id' => $anaAcidez->id,
             'producer_id' => $producer->id,
             'inspector_id' => $inspector->id,
-            'scheduled_date' => date('Y-m-d'),
+            'scheduled_date' => app(JornadaOperativa::class)->fecha(),
             'scheduled_time' => '11:30:00',
             'status' => 'programada',
             'reason' => 'Verificación de higiene por acidez alta',
@@ -894,7 +904,7 @@ class MilkFlowDomainFlowTest extends TestCase
     public function test_pagador_campo_dashboard_redirects_and_sidebar_is_strictly_isolated()
     {
         $pagador = User::where('role', 'pagador_campo')->first();
-        if (!$pagador) {
+        if (! $pagador) {
             $pagador = User::factory()->create([
                 'name' => 'Felipe Pagador Test',
                 'email' => 'pagador.test@milkflow.com',
@@ -928,7 +938,7 @@ class MilkFlowDomainFlowTest extends TestCase
     public function test_pagador_campo_can_deliver_envelope_cash_and_generate_receipt()
     {
         $pagador = User::where('role', 'pagador_campo')->first();
-        if (!$pagador) {
+        if (! $pagador) {
             $pagador = User::factory()->create([
                 'name' => 'Felipe Pagador Test 2',
                 'email' => 'pagador2@milkflow.com',
@@ -949,7 +959,7 @@ class MilkFlowDomainFlowTest extends TestCase
         ]);
 
         $route = CollectionRoute::firstOrCreate(
-            ['date' => date('Y-m-d'), 'zone_id' => $zone->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'zone_id' => $zone->id],
             [
                 'collector_id' => $collector->id,
                 'start_time' => '04:30:00',
@@ -967,13 +977,13 @@ class MilkFlowDomainFlowTest extends TestCase
         ]);
 
         // Compra de queso a descontar: 2 quesos a S/ 20 c/u = S/ 40
-        \App\Models\ProducerDeduction::create([
+        ProducerDeduction::create([
             'producer_id' => $producer->id,
             'settlement_id' => null,
             'amount' => 40.0,
             'concept' => 'Compra 2 Quesos a cuenta de liquidación semanal',
             'status' => 'pendiente',
-            'date' => date('Y-m-d'),
+            'date' => app(JornadaOperativa::class)->fecha(),
         ]);
 
         // 1. ANTES DE AUTORIZACIÓN:
@@ -1007,7 +1017,7 @@ class MilkFlowDomainFlowTest extends TestCase
         ]);
 
         // Debe registrar la entrega y redirigir con éxito a la planilla
-        $settlement = \App\Models\ProducerSettlement::where('producer_id', $producer->id)
+        $settlement = ProducerSettlement::where('producer_id', $producer->id)
             ->where('status', 'pagado')
             ->first();
 
@@ -1033,7 +1043,7 @@ class MilkFlowDomainFlowTest extends TestCase
         $responseHistory = $this->actingAs($pagador)->get('/pagos/ruta/historial');
         $responseHistory->assertStatus(200);
         $responseHistory->assertSee('Productor Viernes Test');
-        $responseHistory->assertSee("#SOBRE-" . str_pad($settlement->id, 5, '0', STR_PAD_LEFT));
+        $responseHistory->assertSee('#SOBRE-'.str_pad($settlement->id, 5, '0', STR_PAD_LEFT));
     }
 
     public function test_admin_sidebar_and_lactoscan_permissions_restriction()
@@ -1044,8 +1054,8 @@ class MilkFlowDomainFlowTest extends TestCase
         // 1. Admin en /calidad NO ve el formulario de registro y ve el historial
         $responseAdmin = $this->actingAs($admin)->get('/calidad');
         $responseAdmin->assertStatus(200);
-        $responseAdmin->assertDontSee('Registrar Prueba Lactoscan');
-        $responseAdmin->assertSee('Historial de Evaluaciones Lactoscan');
+        $responseAdmin->assertDontSee('Registrar prueba Lactoscan');
+        $responseAdmin->assertSee('Historial de evaluaciones Lactoscan');
 
         // 2. Admin no ve enlaces a Caudalímetro ni Quesería en el sidebar
         $responseAdmin->assertDontSee('route(\'planta.verificacion\')', false);
@@ -1065,7 +1075,7 @@ class MilkFlowDomainFlowTest extends TestCase
         // 4. Inspector de Calidad SÍ ve el formulario de registro en /calidad
         $responseInspector = $this->actingAs($inspector)->get('/calidad');
         $responseInspector->assertStatus(200);
-        $responseInspector->assertSee('Registrar Prueba Lactoscan');
+        $responseInspector->assertSee('Registrar prueba Lactoscan');
     }
 
     public function test_admin_financial_cash_flow_and_sidebar_restriction()
@@ -1119,9 +1129,27 @@ class MilkFlowDomainFlowTest extends TestCase
         $responseVentaUser->assertStatus(200);
         $responseVentaUser->assertSee('Ventas');
     }
+
+    /** Un pedido de queso con el formato de renglones que usa la caja. */
+    private function pedidoDeQueso(float $cantidad): array
+    {
+        return [[
+            'product_id' => Product::where('item_code', 'CHEESE_MOLD_UNITS')->value('id'),
+            'quantity' => $cantidad,
+        ]];
+    }
+
+    /**
+     * Las tarifas con el formato que espera la pantalla: una por tipo.
+     *
+     * @return array<int, float>
+     */
+    private function tarifasPorTipo(float $proveedor, float $mayorista, float $local): array
+    {
+        return [
+            ['client_type_id' => ClientType::where('slug', 'proveedor')->value('id'), 'price_per_unit' => $proveedor],
+            ['client_type_id' => ClientType::where('slug', 'mayorista')->value('id'), 'price_per_unit' => $mayorista],
+            ['client_type_id' => ClientType::where('slug', 'local')->value('id'), 'price_per_unit' => $local],
+        ];
+    }
 }
-
-
-
-
-

@@ -2,24 +2,20 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-
+use App\Models\Announcement;
+use App\Models\CollectionRecord;
+use App\Models\CollectionRoute;
+use App\Models\Customer;
+use App\Models\InventoryStock;
+use App\Models\LactoscanAnalysis;
+use App\Models\OperationalExpense;
+use App\Models\ProducerDeduction;
+use App\Models\ProducerSettlement;
 use App\Models\User;
 use App\Models\Zone;
-use App\Models\InventoryStock;
-use App\Models\Customer;
-use App\Models\Announcement;
-use App\Models\CollectionRoute;
-use App\Models\CollectionRecord;
-use App\Models\ProducerSettlement;
-use App\Models\ProducerDeduction;
-use App\Models\LactoscanAnalysis;
-use App\Models\TechnicalVisit;
 use App\Models\ZoneChangeRequest;
-use App\Models\OperationalExpense;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Seeder;
 
 class MilkFlowHuataSeeder extends Seeder
 {
@@ -53,137 +49,18 @@ class MilkFlowHuataSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 2. Usuarios del sistema según los 8 roles
-        $password = Hash::make('password');
-
-        // Rol 8: Jefe General / Dueño
-        $jefeGeneral = User::updateOrCreate(['email' => 'jefe@milkflow.com'], [
-            'name' => 'Jefe General Huata',
-            'password' => $password,
-            'role' => 'jefe_general',
-            'phone' => '951000001',
-            'dni' => '70000001',
-            'is_active' => true,
+        // 2. Usuarios del sistema: un acceso por rol + los 52 proveedores.
+        //    Credencial estándar en web y móvil: DNI + contraseña `password`.
+        $this->call([
+            UsuariosRolesSeeder::class,
+            ProveedoresSeeder::class,
         ]);
 
-        // Rol 3: Administrador
-        $admin = User::updateOrCreate(['email' => 'admin@milkflow.com'], [
-            'name' => 'Admin Sistema Huata',
-            'password' => $password,
-            'role' => 'admin',
-            'phone' => '951000002',
-            'dni' => '70000002',
-            'is_active' => true,
-        ]);
+        $porDni = fn (string $dni) => User::where('dni', $dni)->firstOrFail();
 
-        // Rol 4: Jefe de Producción
-        $jefeProduccion = User::updateOrCreate(['email' => 'produccion@milkflow.com'], [
-            'name' => 'Jefe Producción Planta',
-            'password' => $password,
-            'role' => 'jefe_produccion',
-            'phone' => '951000003',
-            'dni' => '70000003',
-            'is_active' => true,
-        ]);
-
-        // Rol 5: Personal de Pago
-        $personalPago = User::updateOrCreate(['email' => 'pagos@milkflow.com'], [
-            'name' => 'Encargado Liquidación y Pagos',
-            'password' => $password,
-            'role' => 'personal_pago',
-            'phone' => '951000004',
-            'dni' => '70000004',
-            'is_active' => true,
-        ]);
-
-        // Rol 6: Inspector de Calidad (Lactoscan)
-        $inspectorCalidad = User::updateOrCreate(['email' => 'calidad@milkflow.com'], [
-            'name' => 'Inspector Control Lactoscan',
-            'password' => $password,
-            'role' => 'inspector_calidad',
-            'phone' => '951000005',
-            'dni' => '70000005',
-            'is_active' => true,
-        ]);
-
-        // Rol 7: Personal de Venta o Despacho
-        $personalVenta = User::updateOrCreate(['email' => 'ventas@milkflow.com'], [
-            'name' => 'Personal Venta y Despacho',
-            'password' => $password,
-            'role' => 'personal_venta',
-            'phone' => '951000006',
-            'dni' => '70000006',
-            'is_active' => true,
-        ]);
-
-        // Rol 9: Pagador de Campo (Sueldos en efectivo / viernes en ruta con el acopiador)
-        $pagadorCampo = User::updateOrCreate(['email' => 'pagador@milkflow.com'], [
-            'name' => 'Pagador de Sueldos en Ruta',
-            'password' => $password,
-            'role' => 'pagador_campo',
-            'phone' => '951000009',
-            'dni' => '70000009',
-            'is_active' => true,
-        ]);
-
-        // Rol 2: 5 Acopiadores (con descanso rotativo para 4 zonas)
-        $acopiadoresData = [
-            ['email' => 'acopiador1@milkflow.com', 'name' => 'Carlos Quispe Acopiador', 'phone' => '951111001', 'dni' => '71110001'],
-            ['email' => 'acopiador2@milkflow.com', 'name' => 'Manuel Mamani Acopiador', 'phone' => '951111002', 'dni' => '71110002'],
-            ['email' => 'acopiador3@milkflow.com', 'name' => 'Raul Condori Acopiador', 'phone' => '951111003', 'dni' => '71110003'],
-            ['email' => 'acopiador4@milkflow.com', 'name' => 'Pedro Flores Acopiador', 'phone' => '951111004', 'dni' => '71110004'],
-            ['email' => 'acopiador5@milkflow.com', 'name' => 'David Choque (Turno Descanso)', 'phone' => '951111005', 'dni' => '71110005'],
-        ];
-
-        foreach ($acopiadoresData as $ac) {
-            User::updateOrCreate(['email' => $ac['email']], [
-                'name' => $ac['name'],
-                'password' => $password,
-                'role' => 'acopiador',
-                'phone' => $ac['phone'],
-                'dni' => $ac['dni'],
-                'is_active' => true,
-            ]);
-        }
-
-        // Rol 1: Productores / Proveedores asignados por zona
-        $productoresData = [
-            // Zona 1
-            ['name' => 'Juan Perez Huanca', 'email' => 'productor@milkflow.com', 'zone_id' => $z1->id, 'dni' => '40010001', 'phone' => '952000001'],
-            ['name' => 'Rosa Calsin Yana', 'email' => 'rosa.calsin@huata.pe', 'zone_id' => $z1->id, 'dni' => '40010002', 'phone' => '952000002'],
-            // Zona 2
-            ['name' => 'Marcos Nunure Ramos', 'email' => 'marcos.nunure@huata.pe', 'zone_id' => $z2->id, 'dni' => '40020001', 'phone' => '952000003'],
-            ['name' => 'Elena Sancachi Ticona', 'email' => 'elena.sancachi@huata.pe', 'zone_id' => $z2->id, 'dni' => '40020002', 'phone' => '952000004'],
-            // Zona 3
-            ['name' => 'Nestor Yasin Apaza', 'email' => 'nestor.yasin@huata.pe', 'zone_id' => $z3->id, 'dni' => '40030001', 'phone' => '952000005'],
-            ['name' => 'Silvia Moro Vilca', 'email' => 'silvia.moro@huata.pe', 'zone_id' => $z3->id, 'dni' => '40030002', 'phone' => '952000006'],
-            // Zona 4
-            ['name' => 'Esteban Faon Pari', 'email' => 'esteban.faon@huata.pe', 'zone_id' => $z4->id, 'dni' => '40040001', 'phone' => '952000007'],
-            ['name' => 'Teresa Karata Coila', 'email' => 'teresa.karata@huata.pe', 'zone_id' => $z4->id, 'dni' => '40040002', 'phone' => '952000008'],
-        ];
-
-        foreach ($productoresData as $prod) {
-            $user = User::updateOrCreate(['email' => $prod['email']], [
-                'name' => $prod['name'],
-                'password' => $password,
-                'role' => 'productor',
-                'zone_id' => $prod['zone_id'],
-                'dni' => $prod['dni'],
-                'phone' => $prod['phone'],
-                'is_active' => true,
-            ]);
-
-            // Vincular productor también como cliente con tarifa proveedor (S/ 18.00)
-            $nameParts = explode(' ', $prod['name']);
-            Customer::updateOrCreate(['linked_user_id' => $user->id], [
-                'first_name' => $nameParts[0],
-                'last_name' => implode(' ', array_slice($nameParts, 1)),
-                'dni_ruc' => $prod['dni'],
-                'phone' => $prod['phone'],
-                'type' => 'proveedor',
-                'is_wholesale_approved' => false,
-            ]);
-        }
+        $admin = $porDni('70000002');
+        $personalPago = $porDni('70000004');
+        $inspectorCalidad = $porDni('70000005');
 
         // 3. Clientes adicionales (Mayoristas y Locales)
         Customer::updateOrCreate(['dni_ruc' => '20601234567'], [
@@ -225,22 +102,11 @@ class MilkFlowHuataSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 6. Asegurar usuario productor@milkflow.com como alias de Juan Perez Huanca
-        $juan = User::updateOrCreate(['email' => 'productor@milkflow.com'], [
-            'name' => 'Juan Perez Huanca',
-            'password' => $password,
-            'role' => 'productor',
-            'zone_id' => $z1->id,
-            'dni' => '40010001',
-            'phone' => '952000001',
-            'is_active' => true,
-        ]);
-
-        // Actualizar también juan.perez@huata.pe si existiera
-        User::where('email', 'juan.perez@huata.pe')->update(['name' => 'Juan Perez Huanca', 'zone_id' => $z1->id]);
+        // 6. Productor de demostración: Juan Perez Huanca (Zona 1, DNI 40010001).
+        $juan = $porDni('40010001');
 
         // Acopiador 1 para asignarle las rutas
-        $acopiador1 = User::where('email', 'acopiador1@milkflow.com')->first();
+        $acopiador1 = $porDni('71110001');
 
         // 7. Generar ciclo anterior pagado (Semana 36: 01 Sep - 07 Sep)
         $pastRoute = CollectionRoute::firstOrCreate(
@@ -249,7 +115,7 @@ class MilkFlowHuataSeeder extends Seeder
                 'collector_id' => $acopiador1->id,
                 'start_time' => '04:30:00',
                 'status' => 'descargada_planta',
-                'total_collected_liters' => 210.00
+                'total_collected_liters' => 210.00,
             ]
         );
         CollectionRecord::firstOrCreate(
@@ -284,8 +150,11 @@ class MilkFlowHuataSeeder extends Seeder
             '2026-09-10' => 44.00,
             '2026-09-11' => 47.00,
             '2026-09-12' => 46.50,
-            date('Y-m-d') => 48.50, // Entrega de hoy
         ];
+
+        // La jornada de hoy queda abierta a propósito: el acopiador todavía no
+        // registra a Juan, de modo que la demostración (y las pruebas) puedan
+        // hacerlo en vivo sin chocar con la regla de una entrega por jornada.
 
         foreach ($fechasSemanaActiva as $f => $l) {
             $r = CollectionRoute::firstOrCreate(
@@ -294,7 +163,7 @@ class MilkFlowHuataSeeder extends Seeder
                     'collector_id' => $acopiador1->id,
                     'start_time' => '04:30:00',
                     'status' => 'descargada_planta',
-                    'total_collected_liters' => $l
+                    'total_collected_liters' => $l,
                 ]
             );
 
@@ -303,7 +172,7 @@ class MilkFlowHuataSeeder extends Seeder
                 [
                     'liters' => $l,
                     'collected_at' => '05:18:00',
-                    'notes' => 'Leche fresca de primera calidad en porongo limpio'
+                    'notes' => 'Leche fresca de primera calidad en porongo limpio',
                 ]
             );
         }
@@ -347,7 +216,7 @@ class MilkFlowHuataSeeder extends Seeder
         );
 
         // 12. Egresos Operativos y Pagos de Personal (Flujo de Caja)
-        $acopiador1 = User::where('email', 'acopiador1@milkflow.com')->first();
+        $acopiador1 = $porDni('71110001');
         OperationalExpense::firstOrCreate(
             ['description' => 'Pago de honorarios semanales acopio ruta Zona 1'],
             [
@@ -376,5 +245,9 @@ class MilkFlowHuataSeeder extends Seeder
                 'notes' => 'Abastecimiento de 35 galones de diésel.',
             ]
         );
+
+        // 13. Catálogo de producción: el queso deja de estar clavado en el código
+        //     y pasa a ser el primer producto, con sus 10 L por molde como receta.
+        $this->call(CatalogoProduccionSeeder::class);
     }
 }

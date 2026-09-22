@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
 use App\Exceptions\ReglaNegocioException;
+use App\Models\CollectionRecord;
+use App\Models\CollectionRoute;
 use App\Models\LactoscanAnalysis;
 use App\Models\TechnicalVisit;
 use App\Models\User;
 use App\Models\Zone;
-use App\Models\CollectionRoute;
-use App\Models\CollectionRecord;
+use App\Services\Acopio\JornadaOperativa;
 use App\Services\Calidad\CalidadService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class QualityController extends Controller
 {
-    public function __construct(private CalidadService $calidad)
-    {
-    }
+    public function __construct(private CalidadService $calidad) {}
 
     public function index(Request $request)
     {
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
 
         // 1. Zonas y Productores enriquecidos con los registros del acopiador de hoy
         $zones = Zone::where('is_active', true)->orderBy('code')->get();
@@ -45,6 +43,7 @@ class QualityController extends Controller
                 $rec = $todayRecords->get($p->id);
                 $p->today_liters = $rec ? (float) $rec->liters : null;
                 $p->today_zone_id = $rec ? $rec->route->zone_id : ($p->zone_id ?? null);
+
                 return $p;
             });
 
@@ -59,7 +58,7 @@ class QualityController extends Controller
         if ($search) {
             $analysesQuery->whereHas('producer', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('dni', 'like', "%{$search}%");
+                    ->orWhere('dni', 'like', "%{$search}%");
             });
         }
 
@@ -73,7 +72,7 @@ class QualityController extends Controller
             });
         }
 
-        $analyses = $analysesQuery->paginate(15)->appends($request->query());
+        $analyses = $analysesQuery->paginate(10)->withQueryString();
 
         // Contadores para las píldoras de filtrado
         $counts = [

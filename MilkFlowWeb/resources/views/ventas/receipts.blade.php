@@ -63,9 +63,9 @@
         </div>
 
         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Moldes Despachados</span>
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Unidades Despachadas</span>
             <div class="mt-2">
-                <span class="text-2xl font-black text-slate-900 font-mono">{{ $totalMoldesHistorico }} <span class="text-xs font-bold text-slate-400">unidades</span></span>
+                <span class="text-2xl font-black text-slate-900 font-mono">{{ $totalUnidadesHistorico }} <span class="text-xs font-bold text-slate-400">unidades</span></span>
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Salidas históricas de almacén</p>
         </div>
@@ -110,11 +110,12 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
                     <tr>
-                        <th class="p-3.5 rounded-l-xl">Recibo</th>
+                        <th class="p-3.5 rounded-l-xl w-16">ID</th>
+                        <th class="p-3.5">Recibo</th>
                         <th class="p-3.5">Cliente</th>
                         <th class="p-3.5">Categoría</th>
-                        <th class="p-3.5 text-center">Moldes</th>
-                        <th class="p-3.5">P. Unitario</th>
+                        <th class="p-3.5 text-center">Unidades</th>
+                        <th class="p-3.5">Detalle</th>
                         <th class="p-3.5">Total</th>
                         <th class="p-3.5">Flujo / Pago</th>
                         <th class="p-3.5">Cierre Caja</th>
@@ -126,6 +127,7 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($sales as $sale)
                     <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3.5 font-mono text-slate-400">{{ $sale->id }}</td>
                         <td class="p-3.5 font-mono font-bold text-slate-800">{{ $sale->receipt_number }}</td>
                         <td class="p-3.5 font-bold text-slate-900">
                             {{ $sale->customer->first_name }} {{ $sale->customer->last_name }}
@@ -140,28 +142,28 @@
                             </span>
                         </td>
                         <td class="p-3.5 text-center font-black text-slate-800 text-sm">{{ $sale->cheese_molds_quantity }}</td>
-                        <td class="p-3.5 text-slate-600 font-semibold font-mono">S/ {{ number_format($sale->unit_price, 2) }}</td>
+                        <td class="p-3.5 text-slate-600 font-semibold text-[11px]">{{ $sale->resumenItems() }}</td>
                         <td class="p-3.5 font-black text-slate-900 text-sm font-mono">S/ {{ number_format($sale->total_amount, 2) }}</td>
                         <td class="p-3.5">
                             @if($sale->payment_method === 'descuento_leche')
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                    <i class="fa-solid fa-receipt text-[9px]"></i> A Cuenta Leche
-                                </span>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                <i class="fa-solid fa-receipt text-[9px]"></i> A Cuenta Leche
+                            </span>
                             @else
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                    <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Efectivo
-                                </span>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Efectivo
+                            </span>
                             @endif
                         </td>
                         <td class="p-3.5">
                             @if($sale->closure_id)
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600" title="Arqueado en cierre #{{ $sale->closure_id }}">
-                                    Cerrado
-                                </span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600" title="Arqueado en cierre #{{ $sale->closure_id }}">
+                                Cerrado
+                            </span>
                             @else
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Pendiente de arqueo">
-                                    Activo
-                                </span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Pendiente de arqueo">
+                                Activo
+                            </span>
                             @endif
                         </td>
                         <td class="p-3.5 text-slate-500">{{ $sale->seller ? $sale->seller->name : 'Planta' }}</td>
@@ -181,7 +183,7 @@
             </table>
         </div>
         <div class="mt-4">
-            {{ $sales->links() }}
+            <x-paginador :coleccion="$sales" />
         </div>
     </div>
 </div>

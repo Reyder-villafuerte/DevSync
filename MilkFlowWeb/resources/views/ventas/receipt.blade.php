@@ -68,12 +68,21 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
+                    @forelse($sale->items as $item)
                     <tr>
-                        <td class="py-2.5">Molde Queso Madurado Huata</td>
-                        <td class="text-center py-2.5 font-black">{{ $sale->cheese_molds_quantity }}</td>
-                        <td class="text-right py-2.5">S/ {{ number_format($sale->unit_price, 2) }}</td>
-                        <td class="text-right py-2.5 font-bold">S/ {{ number_format($sale->total_amount, 2) }}</td>
+                        <td class="py-2.5">{{ $item->product->name }}</td>
+                        <td class="text-center py-2.5 font-black">
+                            {{ rtrim(rtrim(number_format($item->quantity, 2, '.', ''), '0'), '.') }}
+                            <span class="text-[10px] text-slate-400">{{ $item->product->unit }}</span>
+                        </td>
+                        <td class="text-right py-2.5">S/ {{ number_format($item->unit_price, 2) }}</td>
+                        <td class="text-right py-2.5 font-bold">S/ {{ number_format($item->subtotal, 2) }}</td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td class="py-2.5 text-slate-400 italic" colspan="4">Recibo sin detalle registrado.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

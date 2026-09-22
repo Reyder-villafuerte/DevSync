@@ -20,7 +20,6 @@
  */
 
 use App\Models\Announcement;
-use App\Models\CheeseProduction;
 use App\Models\CollectionRecord;
 use App\Models\CollectionRoute;
 use App\Models\Customer;
@@ -31,7 +30,9 @@ use App\Models\OperationalExpense;
 use App\Models\PlantReception;
 use App\Models\ProducerDeduction;
 use App\Models\ProducerSettlement;
+use App\Models\Product;
 use App\Models\Sale;
+use App\Models\SaleItem;
 use App\Models\SystemPrice;
 use App\Models\TechnicalVisit;
 use App\Models\User;
@@ -115,18 +116,6 @@ return [
             ],
         ],
 
-        'cheese_productions' => [
-            'modelo' => CheeseProduction::class,
-            'columnas' => ['id', 'client_uuid', 'production_date', 'supervisor_id', 'cheese_molds_produced',
-                'milk_liters_used', 'batch_number', 'status', 'updated_at'],
-            'acceso' => [
-                'productor' => 'ninguno',
-                'acopiador' => 'ninguno',
-                'pagador_campo' => 'ninguno',
-                '*' => 'todos',
-            ],
-        ],
-
         'customers' => [
             'modelo' => Customer::class,
             'columnas' => ['id', 'client_uuid', 'first_name', 'last_name', 'dni_ruc', 'phone', 'type',
@@ -145,6 +134,35 @@ return [
                 'cheese_molds_quantity', 'unit_price', 'total_amount', 'payment_method', 'sold_at', 'updated_at'],
             'acceso' => [
                 'productor' => 'mis_compras',
+                'acopiador' => 'ninguno',
+                '*' => 'todos',
+            ],
+        ],
+
+        /*
+         * El catálogo de productos viaja para que el móvil pueda nombrar lo que
+         * se vendió y, más adelante, vender algo que no sea queso. Las tarifas
+         * no son secreto: las ve cualquier rol.
+         */
+        'products' => [
+            'modelo' => Product::class,
+            'columnas' => ['id', 'inventory_category_id', 'item_code', 'name', 'unit', 'process_hours',
+                'price_provider', 'price_wholesale', 'price_local', 'is_active', 'updated_at'],
+            'acceso' => [
+                '*' => 'todos',
+            ],
+        ],
+
+        /*
+         * Renglones de la venta. El productor no los recibe: sus compras ya le
+         * llegan resumidas en `sales`, y darle todos los renglones sería mostrarle
+         * lo que compraron los demás.
+         */
+        'sale_items' => [
+            'modelo' => SaleItem::class,
+            'columnas' => ['id', 'sale_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'updated_at'],
+            'acceso' => [
+                'productor' => 'ninguno',
                 'acopiador' => 'ninguno',
                 '*' => 'todos',
             ],
@@ -257,9 +275,10 @@ return [
         'collection_routes',
         'collection_records',
         'plant_receptions',
-        'cheese_productions',
         'customers',
+        'products',
         'sales',
+        'sale_items',
         'daily_cash_closures',
         'lactoscan_analyses',
         'technical_visits',
@@ -279,7 +298,6 @@ return [
         'cerrar_ruta' => ['acopiador'],
         'asignar_ruta' => ['admin', 'jefe_general'],
         'verificar_recepcion' => ['jefe_produccion', 'jefe_general'],
-        'producir_queso' => ['jefe_produccion', 'jefe_general'],
         'registrar_venta' => ['personal_venta', 'jefe_general'],
         'cerrar_caja' => ['personal_venta', 'jefe_general'],
         'registrar_analisis' => ['inspector_calidad', 'jefe_general'],

@@ -36,7 +36,7 @@
         <div class="flex flex-wrap items-center gap-3">
             <div class="bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-2xl text-right shadow-sm">
                 <span class="text-[10px] text-slate-400 block uppercase font-bold">Stock Almacén</span>
-                <span class="text-xl font-black text-slate-800 tracking-tight">{{ (int)$stockQueso }} <span class="text-xs font-bold text-slate-400">Moldes</span></span>
+                <span class="text-xl font-black text-slate-800 tracking-tight">{{ (int) $unidadesEnAlmacen }} <span class="text-xs font-bold text-slate-400">Unidades</span></span>
             </div>
 
             <a href="{{ route('ventas.create') }}" class="bg-spark-dark hover:bg-black text-spark-lime font-black px-5 py-3 rounded-2xl shadow-sm text-xs transition flex items-center gap-2">
@@ -133,128 +133,53 @@
                     </div>
                 </div>
                 <p class="text-xs text-slate-300 mt-2">
-                    <strong>{{ $totalMoldesDia }}</strong> moldes entregados en <strong>{{ $totalTransaccionesDia }}</strong> transacciones registradas.
+                    <strong>{{ $totalUnidadesDia }}</strong> unidades entregadas en <strong>{{ $totalTransaccionesDia }}</strong> transacciones registradas.
                 </p>
             </div>
         </div>
 
-        <!-- CUADRO DE RESUMEN POR CATEGORÍA DE CLIENTE -->
-        <div class="pt-2">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Resumen Consolidado por Categoría de Cliente ({{ \Carbon\Carbon::parse($fechaCierre)->format('d/m/Y') }})
-                </h3>
-            </div>
-
-            <div class="overflow-x-auto border border-slate-100 rounded-2xl">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-100">
-                        <tr>
-                            <th class="py-3 px-4">Tipo de Cliente</th>
-                            <th class="py-3 px-4">Tarifa / Condición</th>
-                            <th class="py-3 px-4 text-center">Moldes de Queso</th>
-                            <th class="py-3 px-4 text-right">Efectivo Cobrado</th>
-                            <th class="py-3 px-4 text-right">A Cuenta Leche</th>
-                            <th class="py-3 px-4 text-right">Subtotal Facturado</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <!-- Proveedor -->
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="py-3 px-4">
-                                <span class="font-bold text-slate-900 block">{{ $resumenClientes['proveedor']['nombre'] }}</span>
-                                <span class="text-[10px] text-slate-400">Productores inscritos con entrega de leche</span>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                    S/ 18.00 / molde
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 text-center font-black text-slate-900 text-sm">
-                                {{ $resumenClientes['proveedor']['moldes'] }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono font-bold text-emerald-700">
-                                S/ {{ number_format($resumenClientes['proveedor']['efectivo'], 2) }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono font-bold text-amber-700">
-                                S/ {{ number_format($resumenClientes['proveedor']['descuento_leche'], 2) }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono font-black text-slate-900">
-                                S/ {{ number_format($resumenClientes['proveedor']['total_monto'], 2) }}
-                            </td>
-                        </tr>
-
-                        <!-- Mayorista -->
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="py-3 px-4">
-                                <span class="font-bold text-slate-900 block">{{ $resumenClientes['mayorista']['nombre'] }}</span>
-                                <span class="text-[10px] text-slate-400">Comerciantes mayoristas o compras ≥ 10 moldes</span>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-lime-50 text-spark-limeText border border-lime-200">
-                                    S/ 19.00 / molde
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 text-center font-black text-slate-900 text-sm">
-                                {{ $resumenClientes['mayorista']['moldes'] }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono font-bold text-emerald-700">
-                                S/ {{ number_format($resumenClientes['mayorista']['efectivo'], 2) }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono text-slate-400">
-                                S/ 0.00
-                            </td>
-                            <td class="py-3.5 px-4 text-right font-mono font-black text-slate-900">
-                                S/ {{ number_format($resumenClientes['mayorista']['total_monto'], 2) }}
-                            </td>
-                        </tr>
-
-                        <!-- Local -->
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="py-3 px-4">
-                                <span class="font-bold text-slate-900 block">{{ $resumenClientes['local']['nombre'] }}</span>
-                                <span class="text-[10px] text-slate-400">Público en general y ventas minoristas</span>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                                    S/ 20.00 / molde
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 text-center font-black text-slate-900 text-sm">
-                                {{ $resumenClientes['local']['moldes'] }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono font-bold text-emerald-700">
-                                S/ {{ number_format($resumenClientes['local']['efectivo'], 2) }}
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono text-slate-400">
-                                S/ 0.00
-                            </td>
-                            <td class="py-3 px-4 text-right font-mono font-black text-slate-900">
-                                S/ {{ number_format($resumenClientes['local']['total_monto'], 2) }}
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot class="bg-slate-100 font-bold border-t-2 border-slate-200">
-                        <tr>
-                            <td colspan="2" class="py-3.5 px-4 text-slate-900 font-black text-xs uppercase tracking-wider">
-                                TOTALES CIERRE DE CAJA
-                            </td>
-                            <td class="py-3.5 px-4 text-center font-black text-slate-900 text-base">
-                                {{ $totalMoldesDia }}
-                            </td>
-                            <td class="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-sm">
-                                S/ {{ number_format($efectivoTotal, 2) }}
-                            </td>
-                            <td class="py-3.5 px-4 text-right font-mono font-black text-amber-800 text-sm">
-                                S/ {{ number_format($descuentoLecheTotal, 2) }}
-                            </td>
-                            <td class="py-3.5 px-4 text-right font-mono font-black text-slate-900 text-sm">
-                                S/ {{ number_format($totalMontoDia, 2) }}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+        <div class="pt-2 overflow-x-auto border border-slate-100 rounded-2xl">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-100">
+                    <tr>
+                        <th class="py-3 px-4 w-16">ID</th>
+                        <th class="py-3 px-4">Tipo de cliente</th>
+                        <th class="py-3 px-4">Condición</th>
+                        <th class="py-3 px-4 text-center">Unidades</th>
+                        <th class="py-3 px-4 text-right">Efectivo cobrado</th>
+                        <th class="py-3 px-4 text-right">A cuenta leche</th>
+                        <th class="py-3 px-4 text-right">Subtotal facturado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach($resumenClientes as $fila)
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="py-3 px-4 font-mono text-slate-400">{{ $fila['id'] ?? '—' }}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900">{{ $fila['nombre'] }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 whitespace-nowrap">
+                                {{ $fila['tag'] }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center font-black text-slate-900 text-sm">{{ $fila['unidades'] }}</td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-emerald-700">S/ {{ number_format($fila['efectivo'], 2) }}</td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-amber-700">S/ {{ number_format($fila['descuento_leche'], 2) }}</td>
+                        <td class="py-3 px-4 text-right font-mono font-black text-slate-900">S/ {{ number_format($fila['total_monto'], 2) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot class="bg-slate-100 font-bold border-t-2 border-slate-200">
+                    <tr>
+                        <td colspan="3" class="py-3.5 px-4 text-slate-900 font-black text-xs uppercase tracking-wider">
+                            Totales cierre de caja
+                        </td>
+                        <td class="py-3.5 px-4 text-center font-black text-slate-900 text-base">{{ $totalUnidadesDia }}</td>
+                        <td class="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-sm">S/ {{ number_format($efectivoTotal, 2) }}</td>
+                        <td class="py-3.5 px-4 text-right font-mono font-black text-amber-800 text-sm">S/ {{ number_format($descuentoLecheTotal, 2) }}</td>
+                        <td class="py-3.5 px-4 text-right font-mono font-black text-slate-900 text-sm">S/ {{ number_format($totalMontoDia, 2) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
 
         <!-- ACCIÓN PARA CERRAR CAJA DE HOY (DEJA LA BANDEJA EN BLANCO) -->
@@ -264,7 +189,7 @@
                 <i class="fa-solid fa-circle-info text-emerald-600 mr-1.5 text-sm"></i>
                 Al confirmar el cierre, se conciliarán <strong>S/ {{ number_format($efectivoTotal, 2) }}</strong> en efectivo y la tabla de ventas de hoy volverá a blanco.
             </div>
-            <form method="POST" action="{{ route('ventas.close-cash') }}" onsubmit="return confirm('¿Confirmas el cierre de caja de hoy?\n\n• Efectivo en caja: S/ {{ number_format($efectivoTotal, 2) }}\n• Descuento en leche: S/ {{ number_format($descuentoLecheTotal, 2) }}\n• Moldes: {{ $totalMoldesDia }}\n\nLa bandeja de ventas de hoy volverá a blanco.');">
+            <form method="POST" action="{{ route('ventas.close-cash') }}" onsubmit="return confirm('¿Confirmas el cierre de caja de hoy?\n\n• Efectivo en caja: S/ {{ number_format($efectivoTotal, 2) }}\n• Descuento en leche: S/ {{ number_format($descuentoLecheTotal, 2) }}\n• Unidades: {{ $totalUnidadesDia }}\n\nLa bandeja de ventas de hoy volverá a blanco.');">
                 @csrf
                 <button type="submit" class="px-6 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs shadow-md transition flex items-center gap-2">
                     <i class="fa-solid fa-lock"></i>
@@ -280,113 +205,97 @@
         @endif
     </div>
 
-    <!-- TABLA DE VENTAS DE HOY (SE PONE EN BLANCO AL CERRAR CAJA) -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-                <div class="flex items-center gap-2">
-                    <h3 class="text-base font-bold text-slate-900">Ventas de hoy</h3>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase {{ $ventasHoy->isNotEmpty() ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100 text-slate-600' }}">
-                        {{ $ventasHoy->isNotEmpty() ? 'Turno Activo (' . $ventasHoy->count() . ')' : 'Bandeja en Blanco' }}
-                    </span>
+    <x-tabla
+        titulo="Ventas de hoy"
+        :descripcion="'Ventas de la jornada actual (' . \Carbon\Carbon::parse($today)->format('d/m/Y') . ') pendientes de cierre de caja. Al cerrar caja pasan al historial de recibos.'"
+        :coleccion="$ventasHoy"
+        :columnas="10"
+        vacio="No hay ventas pendientes en el turno de hoy.">
+
+        <x-slot:acciones>
+            <a href="{{ route('ventas.create') }}"
+                class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap no-print">
+                <i class="fa-solid fa-plus mr-1"></i> Agregar
+            </a>
+            <a href="{{ route('ventas.receipts') }}"
+                class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider hover:bg-slate-50 transition whitespace-nowrap no-print">
+                <i class="fa-solid fa-receipt mr-1"></i> Historial
+            </a>
+        </x-slot:acciones>
+
+        <x-slot:filtros>
+            <form action="{{ route('ventas.index') }}" method="GET" class="flex flex-wrap items-center gap-2 no-print">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                    <input type="search" name="search" value="{{ request('search') }}" placeholder="Cliente o recibo..."
+                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
                 </div>
-                <p class="text-xs text-slate-400">Ventas activas de la jornada actual ({{ \Carbon\Carbon::parse($today)->format('d/m/Y') }}) pendientes de cierre de caja</p>
-            </div>
-
-            <form action="{{ route('ventas.index') }}" method="GET" class="w-full sm:w-auto flex gap-2 no-print">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar cliente o recibo..."
-                    class="text-xs px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-full w-full sm:w-64 focus:bg-white focus:ring-2 focus:ring-spark-lime">
-                <button type="submit" class="bg-spark-dark hover:bg-black text-white px-4 py-2 rounded-full text-xs font-bold transition">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-spark-lime font-bold text-[10px] uppercase">Buscar</button>
+                @if(request('search'))
+                <a href="{{ route('ventas.index') }}" class="text-[11px] font-bold text-slate-500 underline">Quitar búsqueda</a>
+                @endif
             </form>
-        </div>
+        </x-slot:filtros>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-                    <tr>
-                        <th class="p-3.5 rounded-l-xl">Recibo</th>
-                        <th class="p-3.5">Cliente</th>
-                        <th class="p-3.5">Categoría</th>
-                        <th class="p-3.5 text-center">Moldes</th>
-                        <th class="p-3.5">P. Unitario</th>
-                        <th class="p-3.5">Total</th>
-                        <th class="p-3.5">Flujo / Pago</th>
-                        <th class="p-3.5">Vendedor</th>
-                        <th class="p-3.5">Hora</th>
-                        <th class="p-3.5 rounded-r-xl text-right">Comprobante</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($ventasHoy as $sale)
-                    <tr class="hover:bg-slate-50/80 transition">
-                        <td class="p-3.5 font-mono font-bold text-slate-800">{{ $sale->receipt_number }}</td>
-                        <td class="p-3.5 font-bold text-slate-900">
-                            {{ $sale->customer->first_name }} {{ $sale->customer->last_name }}
-                        </td>
-                        <td class="p-3.5">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase
-                                {{ $sale->customer->type === 'proveedor' ? 'bg-blue-100 text-blue-900' : ($sale->customer->type === 'mayorista' ? 'bg-lime-100 text-spark-limeText' : 'bg-slate-100 text-slate-700') }}">
-                                {{ $sale->customer->type }}
-                            </span>
-                        </td>
-                        <td class="p-3.5 text-center font-black text-slate-800 text-sm">{{ $sale->cheese_molds_quantity }}</td>
-                        <td class="p-3.5 text-slate-600 font-semibold font-mono">S/ {{ number_format($sale->unit_price, 2) }}</td>
-                        <td class="p-3.5 font-black text-slate-900 text-sm font-mono">S/ {{ number_format($sale->total_amount, 2) }}</td>
-                        <td class="p-3.5">
-                            @if($sale->payment_method === 'descuento_leche')
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200" title="Descontado de la liquidación semanal del proveedor">
-                                    <i class="fa-solid fa-receipt text-[9px]"></i> A Cuenta Leche
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" title="Efectivo cobrado en ventanilla">
-                                    <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Efectivo en Caja
-                                </span>
-                            @endif
-                        </td>
-                        <td class="p-3.5 text-slate-500">{{ $sale->seller ? $sale->seller->name : 'Planta' }}</td>
-                        <td class="p-3.5 text-slate-400 font-mono text-[11px]">{{ \Carbon\Carbon::parse($sale->sold_at)->format('H:i') }}</td>
-                        <td class="p-3.5 text-right">
-                            <a href="{{ route('ventas.receipt', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-black font-bold text-xs shadow-sm transition">
-                                <i class="fa-solid fa-receipt text-xs"></i> <span>Recibo</span>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="10" class="p-12 text-center">
-                            <div class="max-w-md mx-auto space-y-3">
-                                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mx-auto">
-                                    <i class="fa-solid fa-cash-register"></i>
-                                </div>
-                                @if($closureToday)
-                                    <h4 class="text-sm font-bold text-slate-900">Bandeja en blanco: Caja de hoy cerrada</h4>
-                                    <p class="text-xs text-slate-500 leading-relaxed">
-                                        El arqueo de hoy se completó con un total de <strong>S/ {{ number_format($closureToday->total_cash, 2) }}</strong> en efectivo y <strong>{{ $closureToday->cheese_molds_quantity }}</strong> moldes. Todas las ventas han sido liquidadas y transferidas al historial de recibos.
-                                    </p>
-                                @else
-                                    <h4 class="text-sm font-bold text-slate-900">No hay ventas pendientes en el turno de hoy</h4>
-                                    <p class="text-xs text-slate-500 leading-relaxed">
-                                        Las ventas que registres hoy aparecerán aquí en tiempo real hasta que ejecutes el Cierre de Caja.
-                                    </p>
-                                @endif
-                                <div class="pt-2 flex justify-center gap-3 no-print">
-                                    <a href="{{ route('ventas.create') }}" class="px-4 py-2 rounded-xl bg-spark-dark text-spark-lime font-bold text-xs hover:bg-black transition flex items-center gap-1.5 shadow-sm">
-                                        <i class="fa-solid fa-cart-plus"></i> <span>+ Registrar Venta</span>
-                                    </a>
-                                    <a href="{{ route('ventas.receipts') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition flex items-center gap-1.5">
-                                        <i class="fa-solid fa-receipt"></i> <span>Ver Historial de Recibos</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <x-slot:encabezados>
+            <th class="text-left py-3 px-4 font-bold">Recibo</th>
+            <th class="text-left py-3 px-4 font-bold">Cliente</th>
+            <th class="text-left py-3 px-4 font-bold">Categoría</th>
+            <th class="text-center py-3 px-4 font-bold">Unidades</th>
+            <th class="text-left py-3 px-4 font-bold">Detalle</th>
+            <th class="text-right py-3 px-4 font-bold">Total</th>
+            <th class="text-left py-3 px-4 font-bold">Flujo / Pago</th>
+            <th class="text-left py-3 px-4 font-bold">Vendedor</th>
+            <th class="text-left py-3 px-4 font-bold">Hora</th>
+            <th class="text-right py-3 px-4 font-bold no-print">Comprobante</th>
+        </x-slot:encabezados>
+
+        @foreach($ventasHoy as $sale)
+        <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
+            <td class="py-3 px-4 font-mono text-slate-400">{{ $sale->id }}</td>
+            <td class="py-3 px-4 font-mono font-bold text-slate-800">{{ $sale->receipt_number }}</td>
+            <td class="py-3 px-4 font-bold text-slate-900">
+                {{ $sale->customer->first_name }} {{ $sale->customer->last_name }}
+            </td>
+            <td class="py-3 px-4">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase
+                    {{ $sale->customer->type === 'proveedor' ? 'bg-blue-100 text-blue-900' : ($sale->customer->type === 'mayorista' ? 'bg-lime-100 text-spark-limeText' : 'bg-slate-100 text-slate-700') }}">
+                    {{ $sale->customer->clientType->name ?? $sale->customer->type }}
+                </span>
+            </td>
+            <td class="py-3 px-4 text-center font-black text-slate-800 text-sm">{{ $sale->cheese_molds_quantity }}</td>
+            <td class="py-3 px-4 text-slate-600 font-semibold text-[11px]">{{ $sale->resumenItems() }}</td>
+            <td class="py-3 px-4 text-right font-black text-slate-900 text-sm font-mono">S/ {{ number_format($sale->total_amount, 2) }}</td>
+            <td class="py-3 px-4">
+                @if($sale->payment_method === 'descuento_leche')
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200" title="Descontado de la liquidación semanal del proveedor">
+                    <i class="fa-solid fa-receipt text-[9px]"></i> A Cuenta Leche
+                </span>
+                @else
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" title="Efectivo cobrado en ventanilla">
+                    <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Efectivo en Caja
+                </span>
+                @endif
+            </td>
+            <td class="py-3 px-4 text-slate-500">{{ $sale->seller ? $sale->seller->name : 'Planta' }}</td>
+            <td class="py-3 px-4 text-slate-400 font-mono text-[11px]">{{ \Carbon\Carbon::parse($sale->sold_at)->format('H:i') }}</td>
+            <td class="py-3 px-4 text-right no-print">
+                <a href="{{ route('ventas.receipt', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-black font-bold text-xs shadow-sm transition">
+                    <i class="fa-solid fa-receipt text-xs"></i> <span>Recibo</span>
+                </a>
+            </td>
+        </tr>
+        @endforeach
+    </x-tabla>
+
+    @if($ventasHoy->isEmpty() && $closureToday)
+    <p class="text-xs text-slate-500 leading-relaxed text-center">
+        El arqueo de hoy se completó con <strong>S/ {{ number_format($closureToday->total_cash, 2) }}</strong>
+        en efectivo y <strong>{{ $closureToday->cheese_molds_quantity }}</strong> unidades.
+        Las ventas ya están en el historial de recibos.
+    </p>
+    @endif
+
 </div>
 
 @push('scripts')

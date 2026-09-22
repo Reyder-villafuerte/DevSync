@@ -9,6 +9,7 @@ use App\Models\ProducerDeduction;
 use App\Models\ProducerSettlement;
 use App\Models\SystemPrice;
 use App\Models\User;
+use App\Services\Acopio\TarifaAcopioService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -55,8 +56,13 @@ class LiquidacionService
         $desde = min($inicio, $fin);
         $hasta = max($inicio, $fin);
 
-        $precios = SystemPrice::current();
-        $precioBase = (float) $precios->price_milk_base;
+        $tarifas = app(TarifaAcopioService::class);
+        $leche = $tarifas->leche();
+
+        // La tarifa base es la regla sin condición que cargó el administrador.
+        $precioBase = $leche
+            ? $tarifas->precioBase($leche)
+            : (float) SystemPrice::current()->price_milk_base;
 
         $registros = CollectionRecord::where('producer_id', $productor->id)
             ->whereHas('route', fn ($q) => $q->whereBetween('date', [$desde, $hasta]))
@@ -147,11 +153,11 @@ class LiquidacionService
             if ($ciclo['adulteration_found'] && $ciclo['water_penalty_total'] > 0) {
                 $peor = $ciclo['worst_analysis'];
                 $notaPenalidad = "Penalidad por leche adulterada ({$peor->water_addition_percentage}% agua detectada el {$peor->analysis_date}): "
-                    . "descuento de S/ {$ciclo['penalty_per_liter']}/L aplicado a toda la semana (-S/ {$ciclo['water_penalty_total']}). ";
+                    ."descuento de S/ {$ciclo['penalty_per_liter']}/L aplicado a toda la semana (-S/ {$ciclo['water_penalty_total']}). ";
             }
 
             $liquidacion = ProducerSettlement::create([
-                'settlement_code' => $prefijo . '-' . date('Ymd-His') . '-' . $productor->id,
+                'settlement_code' => $prefijo.'-'.date('Ymd-His').'-'.$productor->id,
                 'producer_id' => $productor->id,
                 'start_date' => $ciclo['start_date'],
                 'end_date' => $ciclo['end_date'],
@@ -165,9 +171,9 @@ class LiquidacionService
                 'paid_by' => null,
                 'payment_method' => 'efectivo',
                 'notes' => "Liquidación semanal autorizada por administración ({$autorizador->name}). "
-                    . "Listo para armado y entrega de sobre en ruta. Subtotal base S/ {$ciclo['gross_base']}. "
-                    . $notaPenalidad
-                    . ($ciclo['cheese_deductions_total'] > 0 ? "Compras de queso a cuenta: S/ {$ciclo['cheese_deductions_total']}." : ''),
+                    ."Listo para armado y entrega de sobre en ruta. Subtotal base S/ {$ciclo['gross_base']}. "
+                    .$notaPenalidad
+                    .($ciclo['cheese_deductions_total'] > 0 ? "Compras de queso a cuenta: S/ {$ciclo['cheese_deductions_total']}." : ''),
             ]);
 
             foreach ($ciclo['cheese_deductions'] as $deduccion) {
@@ -203,7 +209,7 @@ class LiquidacionService
     {
         $liquidacion = $this->sobreAutorizado($productor);
 
-        if (!$liquidacion) {
+        if (! $liquidacion) {
             throw new ReglaNegocioException(
                 "No se puede entregar el sobre: el pago de {$productor->name} aún no ha sido autorizado por la Administración.",
                 'producer_id'
@@ -215,9 +221,9 @@ class LiquidacionService
             'paid_at' => Carbon::now(),
             'paid_by' => $pagador->id,
             'payment_method' => 'efectivo',
-            'notes' => ($liquidacion->notes ? $liquidacion->notes . ' | ' : '')
-                . 'Sobre de S/ ' . number_format($liquidacion->net_total, 2)
-                . " entregado en efectivo en ruta del viernes por {$pagador->name}.",
+            'notes' => ($liquidacion->notes ? $liquidacion->notes.' | ' : '')
+                .'Sobre de S/ '.number_format($liquidacion->net_total, 2)
+                ." entregado en efectivo en ruta del viernes por {$pagador->name}.",
         ]);
 
         return $liquidacion;

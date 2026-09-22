@@ -2,7 +2,6 @@ package com.example.milkflowmovil.dominio
 
 import com.example.milkflowmovil.core.Fechas
 import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.round
 
@@ -15,13 +14,6 @@ import kotlin.math.round
  * su resultado manda; esto es la vista previa fiel de ese cálculo.
  */
 object Reglas {
-
-    const val LITROS_POR_MOLDE = 10
-
-    /** Moldes que alcanzan con la leche verificada en planta. */
-    fun moldesPosibles(litrosLeche: Double): Int = floor(litrosLeche / LITROS_POR_MOLDE).toInt()
-
-    fun litrosParaMoldes(moldes: Int): Double = (moldes * LITROS_POR_MOLDE).toDouble()
 
     // ------------------------------------------------------------- TARIFAS
 

@@ -126,6 +126,7 @@
                         @endphp
                         <tr class="producer-row hover:bg-slate-50/80 transition {{ $isRecorded ? 'bg-slate-50/40 text-slate-600' : 'bg-white' }}"
                             data-search="{{ strtolower($producer->name . ' ' . ($producer->dni ?? '')) }}"
+                            data-producer-id="{{ $producer->id }}"
                             data-recorded="{{ $isRecorded ? '1' : '0' }}">
                             <td class="p-3.5 text-slate-400 font-mono row-index">{{ $index + 1 }}</td>
                             <td class="p-3.5 font-bold text-slate-900 text-sm">
@@ -162,12 +163,7 @@
                             <td class="p-3.5 text-right">
                                 @if($route->status !== 'descargada_planta' && $route->status !== 'verificada')
                                     @if($isRecorded)
-                                        <button type="button" 
-                                            onclick="openRecordModal({{ $producer->id }}, '{{ addslashes($producer->name) }}', '{{ $producer->dni ?? '' }}', '{{ $record->liters }}', '{{ addslashes($record->notes ?? '') }}')"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition cursor-pointer shadow-sm">
-                                            <i class="fa-solid fa-pen text-[10px] text-slate-500"></i>
-                                            <span>Actualizar</span>
-                                        </button>
+                                        <span class="text-xs font-bold text-emerald-700">Acopiado</span>
                                     @else
                                         <button type="button" 
                                             onclick="openRecordModal({{ $producer->id }}, '{{ addslashes($producer->name) }}', '{{ $producer->dni ?? '' }}', '', '')"
@@ -598,6 +594,43 @@
     function closeRecordModal() {
         document.getElementById('recordModal').classList.add('hidden');
     }
+
+    document.getElementById('recordForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const button = document.getElementById('modalSubmitBtn');
+        button.disabled = true;
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: new FormData(form),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                alert(result.message || Object.values(result.errors || {}).flat().join('\n') || 'No se pudo registrar la entrega.');
+                return;
+            }
+
+            const row = [...document.querySelectorAll('.producer-row')].find(item => item.dataset.producerId === String(result.record.producer_id));
+            const cells = row.querySelectorAll('td');
+            cells[4].textContent = Number(result.record.liters).toFixed(2) + ' L';
+            cells[5].textContent = result.record.collected_at;
+            cells[6].textContent = result.record.notes || '—';
+            cells[7].textContent = 'Acopiado';
+            row.dataset.recorded = '1';
+            document.getElementById('producersTableBody').appendChild(row);
+            document.getElementById('counterPending').textContent = Number(document.getElementById('counterPending').textContent) - 1;
+            document.getElementById('counterRecorded').textContent = Number(document.getElementById('counterRecorded').textContent) + 1;
+            document.getElementById('headerTotalLiters').textContent = Number(result.total).toFixed(2) + ' L';
+            closeRecordModal();
+        } catch (error) {
+            alert('No se pudo conectar con el servidor.');
+        } finally {
+            button.disabled = false;
+        }
+    });
 
     // 3. Modal de Historial de Ruta (Ojito)
     function openHistoryModal(data) {

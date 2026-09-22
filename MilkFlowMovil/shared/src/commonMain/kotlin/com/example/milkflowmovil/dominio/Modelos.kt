@@ -129,20 +129,6 @@ data class Recepcion(
 )
 
 @Serializable
-data class ProduccionQueso(
-    val id: Long,
-    @SerialName("client_uuid") val clientUuid: String? = null,
-    @SerialName("production_date") val fecha: String = "",
-    @SerialName("supervisor_id") val supervisorId: Long = 0,
-    @Serializable(with = EnteroFlexible::class) @SerialName("cheese_molds_produced") val moldes: Int = 0,
-    @Serializable(with = DobleFlexible::class) @SerialName("milk_liters_used") val litrosUsados: Double = 0.0,
-    @SerialName("batch_number") val lote: String? = null,
-    val status: String = "completado",
-    @SerialName("updated_at") val actualizadoEn: String? = null,
-    val pendiente: Boolean = false,
-)
-
-@Serializable
 data class Cliente(
     val id: Long,
     @SerialName("client_uuid") val clientUuid: String? = null,

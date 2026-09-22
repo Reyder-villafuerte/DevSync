@@ -130,7 +130,7 @@
         </div>
 
         <div class="mt-4 text-center text-[11px] text-slate-400 border-t border-slate-100 pt-3">
-            Huata, Puno — Sistema MilkFlow • Pagos en ruta durante el acopio del día viernes
+            Huata, Puno — Sistema Ayni Huata • Pagos en ruta durante el acopio del día viernes
         </div>
     </div>
 </div>

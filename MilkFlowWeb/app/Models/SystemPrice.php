@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Acopio\TarifaAcopioService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,9 +44,9 @@ class SystemPrice extends Model
      */
     public static function current(): self
     {
-        $current = static::where('is_active', true)->latest()->first();
+        $current = static::where('is_active', true)->orderByDesc('id')->first();
 
-        if (!$current) {
+        if (! $current) {
             $current = static::create([
                 'season_name' => 'Temporada Regular Huata 2026',
                 'price_milk_base' => 1.40,
@@ -71,7 +72,7 @@ class SystemPrice extends Model
     public static function getMilkPriceForProducer($producerId, $startDate = null, $endDate = null): array
     {
         $prices = static::current();
-        
+
         $query = LactoscanAnalysis::where('producer_id', $producerId);
         if ($startDate && $endDate) {
             $from = min($startDate, $endDate);
@@ -79,22 +80,41 @@ class SystemPrice extends Model
             $query->whereBetween('analysis_date', [$from, $to]);
         }
         $latestAnalysis = (clone $query)->orderByDesc('water_addition_percentage')->first();
-        if (!$latestAnalysis) {
+        if (! $latestAnalysis) {
             $latestAnalysis = $query->latest('analysis_date')->first();
         }
 
-        $waterPercentage = $latestAnalysis ? (float)$latestAnalysis->water_addition_percentage : 0.0;
+        $waterPercentage = $latestAnalysis ? (float) $latestAnalysis->water_addition_percentage : 0.0;
+
+        // El precio sale de las tarifas que carga el administrador. Las tres
+        // columnas de abajo quedan de último recurso, por si el insumo que se
+        // acopia todavía no tiene ninguna regla cargada.
+        $tarifas = app(TarifaAcopioService::class);
+        $leche = $tarifas->leche();
+
+        if ($leche) {
+            $resuelta = $tarifas->resolver($leche, ['water_addition_percentage' => $waterPercentage]);
+
+            if ($resuelta['rule']) {
+                return [
+                    'price' => $resuelta['price'],
+                    'penalty_type' => $resuelta['penalty_type'],
+                    'water_percentage' => $waterPercentage,
+                    'reason' => $resuelta['reason'],
+                ];
+            }
+        }
 
         if ($waterPercentage > 5.0) {
             return [
-                'price' => (float)$prices->price_milk_water_penalty_high,
+                'price' => (float) $prices->price_milk_water_penalty_high,
                 'penalty_type' => 'grave_expulsion',
                 'water_percentage' => $waterPercentage,
                 'reason' => "Agua adicionada alta ({$waterPercentage}%). Penalidad S/ {$prices->price_milk_water_penalty_high} y advertencia de expulsión.",
             ];
         } elseif ($waterPercentage > 0.0) {
             return [
-                'price' => (float)$prices->price_milk_water_penalty_low,
+                'price' => (float) $prices->price_milk_water_penalty_low,
                 'penalty_type' => 'leve_descuento',
                 'water_percentage' => $waterPercentage,
                 'reason' => "Agua detectada ({$waterPercentage}% <= 5%). Penalidad reducida a S/ {$prices->price_milk_water_penalty_low}.",
@@ -102,7 +122,7 @@ class SystemPrice extends Model
         }
 
         return [
-            'price' => (float)$prices->price_milk_base,
+            'price' => (float) $prices->price_milk_base,
             'penalty_type' => 'ninguna',
             'water_percentage' => 0.0,
             'reason' => 'Leche conforme sin agua detectada.',
@@ -118,15 +138,15 @@ class SystemPrice extends Model
 
         // 1. Proveedor / Productor de leche vinculado
         if ($customer && ($customer->type === 'proveedor' || $customer->linked_user_id)) {
-            return (float)$prices->price_cheese_provider;
+            return (float) $prices->price_cheese_provider;
         }
 
         // 2. Mayorista o compra mayor o igual a 10 moldes
         if ($customer && ($customer->type === 'mayorista' || $customer->is_wholesale_approved || $quantity >= 10)) {
-            return (float)$prices->price_cheese_wholesale;
+            return (float) $prices->price_cheese_wholesale;
         }
 
         // 3. Público general / Local
-        return (float)$prices->price_cheese_local;
+        return (float) $prices->price_cheese_local;
     }
 }

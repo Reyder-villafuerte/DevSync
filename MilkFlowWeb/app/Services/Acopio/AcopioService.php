@@ -26,7 +26,7 @@ class AcopioService
      */
     public function rutaDelDia(User $acopiador, ?string $fecha = null, ?string $clientUuid = null): ?CollectionRoute
     {
-        $fecha = $fecha ?: date('Y-m-d');
+        $fecha = $fecha ?: app(JornadaOperativa::class)->fecha();
 
         $ruta = CollectionRoute::where('date', $fecha)
             ->where('collector_id', $acopiador->id)
@@ -35,7 +35,7 @@ class AcopioService
         if ($ruta) {
             // El móvil pudo abrir la ruta sin señal con su propio uuid: se adopta
             // para que el dispositivo pueda enlazar su fila local con la del servidor.
-            if ($clientUuid && !$ruta->client_uuid) {
+            if ($clientUuid && ! $ruta->client_uuid) {
                 $ruta->client_uuid = $clientUuid;
                 $ruta->save();
             }
@@ -45,18 +45,18 @@ class AcopioService
 
         if ($clientUuid) {
             $ruta = CollectionRoute::where('client_uuid', $clientUuid)->first();
-            if ($ruta) {
+            if ($ruta && $ruta->collector_id === $acopiador->id && $ruta->date === $fecha) {
                 return $ruta;
             }
         }
 
         $zonasOcupadas = CollectionRoute::where('date', $fecha)->pluck('zone_id')->all();
 
-        $zonaDestino = ($acopiador->zone_id && !in_array($acopiador->zone_id, $zonasOcupadas))
+        $zonaDestino = ($acopiador->zone_id && ! in_array($acopiador->zone_id, $zonasOcupadas))
             ? $acopiador->zone_id
             : Zone::where('is_active', true)->whereNotIn('id', $zonasOcupadas)->value('id');
 
-        if (!$zonaDestino) {
+        if (! $zonaDestino) {
             return null;
         }
 
@@ -85,20 +85,35 @@ class AcopioService
         ?string $hora = null,
         ?string $clientUuid = null
     ): CollectionRecord {
-        if ($ruta->status === 'verificada') {
+        if (in_array($ruta->status, ['descargada_planta', 'verificada'], true)) {
             throw new ReglaNegocioException(
                 'La ruta ya fue verificada en planta con caudalímetro y no admite cambios.',
                 'liters'
             );
         }
 
-        return DB::transaction(function () use ($ruta, $productorId, $litros, $notas, $hora, $clientUuid) {
-            $registro = CollectionRecord::updateOrCreate(
-                ['collection_route_id' => $ruta->id, 'producer_id' => $productorId],
+        return DB::transaction(function () use ($ruta, $productorId, $litros, $notas, $clientUuid) {
+            $ruta = CollectionRoute::whereKey($ruta->id)->lockForUpdate()->firstOrFail();
+
+            if ($ruta->date !== app(JornadaOperativa::class)->fecha()) {
+                throw new ReglaNegocioException('Esta ruta no corresponde a la jornada actual.', 'producer_id');
+            }
+
+            if (! User::whereKey($productorId)->where('role', 'productor')->where('zone_id', $ruta->zone_id)->exists()) {
+                throw new ReglaNegocioException('El proveedor no pertenece a esta ruta.', 'producer_id');
+            }
+
+            if ($ruta->records()->where('producer_id', $productorId)->exists()) {
+                throw new ReglaNegocioException('Este proveedor ya fue registrado en la jornada actual.', 'producer_id');
+            }
+
+            $registro = CollectionRecord::create(
                 [
+                    'collection_route_id' => $ruta->id,
+                    'producer_id' => $productorId,
                     'client_uuid' => $clientUuid,
                     'liters' => $litros,
-                    'collected_at' => $hora ?: date('H:i:s'),
+                    'collected_at' => app(JornadaOperativa::class)->hora(),
                     'notes' => $notas,
                 ]
             );
@@ -116,9 +131,26 @@ class AcopioService
     /**
      * El acopiador cierra la ruta y la descarga en planta.
      * Queda esperando la verificación con caudalímetro del jefe de producción.
+     *
+     * Cerrar dos veces no hace daño y el teléfono lo reintenta cuando se le
+     * corta la señal, así que se deja pasar sin ruido. Lo que no se deja es
+     * cerrar una ruta YA verificada: el caudalímetro es lo último que toca
+     * esa ruta, y devolverla a «descargada» la haría aparecer otra vez como
+     * pendiente de medir.
      */
     public function cerrarRuta(CollectionRoute $ruta): CollectionRoute
     {
+        if ($ruta->status === 'verificada') {
+            throw new ReglaNegocioException(
+                'Esta ruta ya fue verificada en planta con caudalímetro: no se puede volver a descargar.',
+                'status'
+            );
+        }
+
+        if ($ruta->status === 'descargada_planta') {
+            return $ruta;
+        }
+
         $ruta->total_collected_liters = $ruta->records()->sum('liters');
         $ruta->status = 'descargada_planta';
         $ruta->save();
@@ -129,13 +161,13 @@ class AcopioService
     /** Administración asigna manualmente una zona a un acopiador para una fecha. */
     public function asignarRuta(string $fecha, int $zonaId, int $acopiadorId, ?string $horaInicio = null): CollectionRoute
     {
-        return CollectionRoute::updateOrCreate(
+        return DB::transaction(fn (): CollectionRoute => CollectionRoute::updateOrCreate(
             ['date' => $fecha, 'zone_id' => $zonaId],
             [
                 'collector_id' => $acopiadorId,
                 'start_time' => $horaInicio ?: '04:30:00',
                 'status' => 'asignada',
             ]
-        );
+        ));
     }
 }

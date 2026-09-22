@@ -1,19 +1,26 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CollectionController;
-use App\Http\Controllers\PlantReceptionController;
-use App\Http\Controllers\CheeseProductionController;
-use App\Http\Controllers\SalesController;
-use App\Http\Controllers\QualityController;
-use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\ProductorController;
-use App\Http\Controllers\PriceController;
-use App\Http\Controllers\PaymentAuthorizationController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CatalogoAlmacenController;
+use App\Http\Controllers\ClientTypeController;
+use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\ComprasController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FieldPaymentController;
 use App\Http\Controllers\FinancialController;
+use App\Http\Controllers\InventoryCategoryController;
+use App\Http\Controllers\PaymentAuthorizationController;
+use App\Http\Controllers\PlantReceptionController;
+use App\Http\Controllers\PriceController;
+use App\Http\Controllers\ProductCatalogController;
+use App\Http\Controllers\ProductionOrderController;
+use App\Http\Controllers\ProductorController;
+use App\Http\Controllers\QualityController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\SistemaController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ZoneController;
 
 // Rutas públicas de autenticación
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('home');
@@ -43,8 +50,34 @@ Route::middleware('auth')->group(function () {
 
     // 3. Elaboración de Queso (1 molde = 10 L stock leche)
     Route::prefix('produccion')->name('produccion.')->group(function () {
-        Route::get('/queso', [CheeseProductionController::class, 'index'])->name('index');
-        Route::post('/queso', [CheeseProductionController::class, 'store'])->name('store');
+        // 3b. Catálogo abierto: almacén por categorías, productos con receta y lotes
+        Route::get('/categorias', [InventoryCategoryController::class, 'index'])->name('categorias.index');
+        Route::post('/categorias', [InventoryCategoryController::class, 'store'])->name('categorias.store');
+        Route::put('/categorias/{categoria}', [InventoryCategoryController::class, 'update'])->name('categorias.update');
+        Route::delete('/categorias/{categoria}', [InventoryCategoryController::class, 'destroy'])->name('categorias.destroy');
+        Route::post('/categorias/unidades', [InventoryCategoryController::class, 'storeUnidad'])->name('categorias.unidades.store');
+        Route::put('/categorias/unidades/{unidad}', [InventoryCategoryController::class, 'updateUnidad'])->name('categorias.unidades.update');
+        Route::delete('/categorias/unidades/{unidad}', [InventoryCategoryController::class, 'destroyUnidad'])->name('categorias.unidades.destroy');
+
+        Route::get('/almacen', [CatalogoAlmacenController::class, 'index'])->name('almacen.index');
+        Route::post('/almacen/insumos', [CatalogoAlmacenController::class, 'storeInsumo'])->name('almacen.insumos.store');
+        Route::post('/almacen/insumos/{supply}/ajuste', [CatalogoAlmacenController::class, 'ajustarStock'])->name('almacen.insumos.ajuste');
+
+        Route::get('/compras', [ComprasController::class, 'index'])->name('compras.index');
+        Route::post('/compras', [ComprasController::class, 'store'])->name('compras.store');
+        Route::put('/compras/{compra}', [ComprasController::class, 'update'])->name('compras.update');
+        Route::delete('/compras/{compra}', [ComprasController::class, 'destroy'])->name('compras.destroy');
+
+        Route::get('/productos', [ProductCatalogController::class, 'index'])->name('productos.index');
+        Route::post('/productos', [ProductCatalogController::class, 'store'])->name('productos.store');
+        Route::post('/productos/{product}/receta', [ProductCatalogController::class, 'updateReceta'])->name('productos.receta');
+        Route::post('/productos/{product}/precios', [ProductCatalogController::class, 'updatePrecios'])->name('productos.precios');
+
+        Route::get('/lotes', [ProductionOrderController::class, 'index'])->name('lotes.index');
+        Route::post('/lotes', [ProductionOrderController::class, 'store'])->name('lotes.store');
+        Route::post('/lotes/{order}/iniciar', [ProductionOrderController::class, 'start'])->name('lotes.iniciar');
+        Route::post('/lotes/{order}/terminar', [ProductionOrderController::class, 'finish'])->name('lotes.terminar');
+        Route::post('/lotes/{order}/cancelar', [ProductionOrderController::class, 'cancel'])->name('lotes.cancelar');
     });
 
     // 4. Ventas y Despacho (Tarifas S/ 18, 19, 20 + Solo efectivo + Recibos)
@@ -57,6 +90,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/recibo/{sale}', [SalesController::class, 'showReceipt'])->name('receipt');
         // Endpoints auxiliares para cálculo y autocompletado en caja
         Route::get('/clientes/buscar', [SalesController::class, 'searchCustomer'])->name('customers.search');
+        Route::get('/clientes/reconocer', [SalesController::class, 'matchCustomer'])->name('customers.match');
         Route::get('/calcular-precio', [SalesController::class, 'calculatePrice'])->name('calculate-price');
     });
 
@@ -96,9 +130,29 @@ Route::middleware('auth')->group(function () {
     });
 
     // 9. Administración: Tarifas y Precios de Temporada
+    Route::prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
+        Route::get('/', [UsuarioController::class, 'index'])->name('index');
+        Route::post('/', [UsuarioController::class, 'store'])->name('store');
+        Route::put('/{usuario}', [UsuarioController::class, 'update'])->name('update');
+        Route::post('/{usuario}/estado', [UsuarioController::class, 'toggle'])->name('toggle');
+    });
+
+    Route::get('/admin/roles', [SistemaController::class, 'roles'])->name('admin.roles.index');
+    Route::get('/admin/catalogo', [SistemaController::class, 'catalogo'])->name('admin.catalogo.index');
+
+    Route::prefix('admin/tipos-cliente')->name('admin.tipos-cliente.')->group(function () {
+        Route::get('/', [ClientTypeController::class, 'index'])->name('index');
+        Route::post('/', [ClientTypeController::class, 'store'])->name('store');
+        Route::put('/{tipo}', [ClientTypeController::class, 'update'])->name('update');
+        Route::delete('/{tipo}', [ClientTypeController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('admin/precios')->name('admin.precios.')->group(function () {
         Route::get('/', [PriceController::class, 'index'])->name('index');
         Route::post('/', [PriceController::class, 'update'])->name('update');
+        Route::post('/tarifas', [PriceController::class, 'storeRegla'])->name('tarifas.store');
+        Route::put('/tarifas/{regla}', [PriceController::class, 'updateRegla'])->name('tarifas.update');
+        Route::delete('/tarifas/{regla}', [PriceController::class, 'destroyRegla'])->name('tarifas.destroy');
     });
 
     // 10. Administración: Panel de Autorización y Liquidación de Pagos
@@ -122,4 +176,3 @@ Route::middleware('auth')->group(function () {
         Route::post('/egreso', [FinancialController::class, 'storeExpense'])->name('expense.store');
     });
 });
-

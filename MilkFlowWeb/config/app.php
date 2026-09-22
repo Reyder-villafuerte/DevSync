@@ -59,13 +59,14 @@ return [
     | Application Timezone
     |--------------------------------------------------------------------------
     |
-    | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | Toda la operación ocurre en el distrito de Huata (Puno), así que la
+    | aplicación vive en la hora de Lima. Con UTC, entre las 7 de la noche y
+    | la medianoche el servidor ya estaba en el día siguiente y las pantallas
+    | del día (planta, caja, dashboard) buscaban la fecha equivocada.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'America/Lima'),
 
     /*
     |--------------------------------------------------------------------------

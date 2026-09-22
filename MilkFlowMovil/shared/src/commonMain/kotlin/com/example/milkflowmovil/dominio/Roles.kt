@@ -8,7 +8,6 @@ enum class Pantalla(val titulo: String, val icono: String) {
     ACOPIO_HISTORIAL("Historial y reportes", "🧾"),
 
     CAUDALIMETRO("Caudalímetro", "📏"),
-    QUESERIA("Quesería (-10 L)", "🧀"),
 
     VENTAS("Ventas del día", "🛒"),
     NUEVA_VENTA("Nueva venta", "➕"),
@@ -66,7 +65,7 @@ enum class Rol(val clave: String, val etiqueta: String) {
             )
 
             JEFE_PRODUCCION -> listOf(
-                Pantalla.CAUDALIMETRO, Pantalla.QUESERIA, Pantalla.SINCRONIZACION,
+                Pantalla.CAUDALIMETRO, Pantalla.SINCRONIZACION,
             )
 
             INSPECTOR_CALIDAD -> listOf(
@@ -94,7 +93,7 @@ enum class Rol(val clave: String, val etiqueta: String) {
 
             JEFE_GENERAL -> listOf(
                 Pantalla.PANEL, Pantalla.ACOPIO, Pantalla.ACOPIO_HISTORIAL, Pantalla.CAUDALIMETRO,
-                Pantalla.QUESERIA, Pantalla.VENTAS, Pantalla.RECIBOS, Pantalla.CALIDAD,
+                Pantalla.VENTAS, Pantalla.RECIBOS, Pantalla.CALIDAD,
                 Pantalla.ZONAS, Pantalla.SOLICITUDES_ZONA, Pantalla.FINANZAS,
                 Pantalla.AUTORIZAR_PAGOS, Pantalla.SOBRES_RUTA, Pantalla.TARIFAS,
                 Pantalla.AVISOS, Pantalla.SINCRONIZACION,

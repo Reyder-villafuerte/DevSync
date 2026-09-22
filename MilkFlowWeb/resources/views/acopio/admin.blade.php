@@ -20,15 +20,60 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Formulario de asignación -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-            <div class="flex items-center gap-2 mb-5">
-                <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-route"></i>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">Asignar Acopiador a Zona</h3>
+    <x-tabla
+        titulo="Rutas programadas para hoy"
+        descripcion="Qué acopiador sale a cada zona, a qué hora y cuántos litros lleva anotados. Son 4 zonas: el que queda fuera descansa."
+        :coleccion="$routes"
+        :columnas="5"
+        vacio="No se han configurado rutas para hoy todavía.">
+
+        <x-slot:acciones>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400 font-medium whitespace-nowrap">Asignadas: {{ count($routes) }}</span>
+                <button type="button" data-asignar-ruta
+                    class="px-4 py-2.5 rounded-xl bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                    <i class="fa-solid fa-plus mr-1"></i> Agregar
+                </button>
             </div>
+        </x-slot:acciones>
+
+        <x-slot:encabezados>
+            <th class="text-left py-3 px-4 font-bold">Zona</th>
+            <th class="text-left py-3 px-4 font-bold">Acopiador asignado</th>
+            <th class="text-left py-3 px-4 font-bold">Hora de salida</th>
+            <th class="text-right py-3 px-4 font-bold">Litros anotados</th>
+            <th class="text-right py-3 px-4 font-bold">Estado</th>
+        </x-slot:encabezados>
+
+        @foreach($routes as $r)
+        <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
+            <td class="py-3 px-4 font-mono text-slate-400">{{ $r->id }}</td>
+            <td class="py-3 px-4 font-bold text-slate-900">{{ $r->zone->name }}</td>
+            <td class="py-3 px-4 text-slate-700 font-medium">{{ $r->collector->name }}</td>
+            <td class="py-3 px-4 font-mono text-slate-500 font-bold">{{ $r->start_time }}</td>
+            <td class="py-3 px-4 text-right font-extrabold text-[#0f1713]">{{ number_format($r->total_collected_liters, 2) }} L</td>
+            <td class="py-3 px-4 text-right">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+                    {{ $r->status === 'descargado' ? 'bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
+                    {{ $r->status }}
+                </span>
+            </td>
+        </tr>
+        @endforeach
+    </x-tabla>
+
+</div>
+
+{{-- Modal: asignar acopiador a zona --}}
+<div id="modalRuta" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Asignar acopiador a zona</h3>
+                <p class="text-[11px] text-slate-500">La salida del camión a las 4:30 de la mañana.</p>
+            </div>
+            <button type="button" data-cerrar-ruta class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+        </div>
 
             <form action="{{ route('acopio.assign') }}" method="POST" class="space-y-4">
                 @csrf
@@ -64,56 +109,33 @@
                     <i class="fa-solid fa-calendar-check"></i> Guardar Asignación
                 </button>
             </form>
-        </div>
-
-        <!-- Tabla de rutas asignadas hoy -->
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-map-pin"></i>
-                        </div>
-                        <h3 class="text-sm font-bold text-slate-900">Rutas Programadas para Hoy</h3>
-                    </div>
-                    <span class="text-xs text-slate-400 font-medium">Asignadas: {{ count($routes) }}</span>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                                <th class="pb-3 px-3">Zona</th>
-                                <th class="pb-3 px-3">Acopiador Asignado</th>
-                                <th class="pb-3 px-3">Hora Salida</th>
-                                <th class="pb-3 px-3">Litros Anotados</th>
-                                <th class="pb-3 px-3 text-right">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50">
-                            @forelse($routes as $r)
-                            <tr class="hover:bg-slate-50/60 transition">
-                                <td class="py-3.5 px-3 font-bold text-slate-900">{{ $r->zone->name }}</td>
-                                <td class="py-3.5 px-3 text-slate-700 font-medium">{{ $r->collector->name }}</td>
-                                <td class="py-3.5 px-3 font-mono text-slate-500 font-bold">{{ $r->start_time }}</td>
-                                <td class="py-3.5 px-3 font-extrabold text-[#0f1713]">{{ number_format($r->total_collected_liters, 2) }} L</td>
-                                <td class="py-3.5 px-3 text-right">
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-                                        {{ $r->status === 'descargado' ? 'bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
-                                        {{ $r->status }}
-                                    </span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="p-8 text-center text-slate-400 font-medium">No se han configurado rutas para hoy todavía.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+
+<script>
+(function () {
+    const modal = document.getElementById('modalRuta');
+
+    document.querySelectorAll('[data-asignar-ruta]').forEach(function (boton) {
+        boton.addEventListener('click', function () { modal.hidden = false; });
+    });
+
+    document.querySelectorAll('[data-cerrar-ruta]').forEach(function (boton) {
+        boton.addEventListener('click', function () { modal.hidden = true; });
+    });
+
+    modal.addEventListener('click', function (evento) {
+        if (evento.target === modal) { modal.hidden = true; }
+    });
+
+    document.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Escape') { modal.hidden = true; }
+    });
+
+    @if($errors->any())
+    modal.hidden = false;
+    @endif
+})();
+</script>
+
 @endsection

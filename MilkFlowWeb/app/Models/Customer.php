@@ -14,8 +14,14 @@ class Customer extends Model
         'phone',
         'type', // proveedor, mayorista, local
         'linked_user_id',
-        'is_wholesale_approved'
+        'client_type_id',
+        'is_wholesale_approved',
     ];
+
+    public function clientType()
+    {
+        return $this->belongsTo(ClientType::class);
+    }
 
     public function linkedUser()
     {

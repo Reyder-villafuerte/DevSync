@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Acopio\JornadaOperativa;
 use Illuminate\Database\Eloquent\Model;
 
 class Announcement extends Model
@@ -15,7 +16,7 @@ class Announcement extends Model
         'target_role',
         'target_user_id',
         'created_by',
-        'is_active'
+        'is_active',
     ];
 
     public function creator()
@@ -30,14 +31,15 @@ class Announcement extends Model
 
     public function scopeActiveForUser($query, User $user)
     {
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
+
         return $query->where('is_active', true)
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
             ->where(function ($q) use ($user) {
                 $q->whereNull('target_role')
-                  ->orWhere('target_role', $user->role)
-                  ->orWhere('target_user_id', $user->id);
+                    ->orWhere('target_role', $user->role)
+                    ->orWhere('target_user_id', $user->id);
             });
     }
 }

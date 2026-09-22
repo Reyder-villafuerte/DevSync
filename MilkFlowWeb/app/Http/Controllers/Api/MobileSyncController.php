@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\User;
-use App\Models\CollectionRoute;
-use App\Models\CollectionRecord;
-use App\Models\LactoscanAnalysis;
 use App\Models\Announcement;
+use App\Models\CollectionRecord;
+use App\Models\CollectionRoute;
+use App\Models\LactoscanAnalysis;
+use App\Models\User;
+use App\Services\Acopio\JornadaOperativa;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class MobileSyncController extends Controller
@@ -24,7 +24,7 @@ class MobileSyncController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
 
@@ -48,14 +48,14 @@ class MobileSyncController extends Controller
     public function getCollectorRoute(Request $request)
     {
         $user = $request->user();
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
 
         $route = CollectionRoute::where('collector_id', $user->id)
             ->where('date', $today)
             ->with(['zone.producers', 'records'])
             ->first();
 
-        if (!$route) {
+        if (! $route) {
             return response()->json(['message' => 'No tienes ruta asignada para hoy'], 404);
         }
 
@@ -70,12 +70,13 @@ class MobileSyncController extends Controller
             'status' => $route->status,
             'producers' => $route->zone->producers->map(function ($p) use ($route) {
                 $record = $route->records->firstWhere('producer_id', $p->id);
+
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
                     'dni' => $p->dni,
                     'phone' => $p->phone,
-                    'collected_liters' => $record ? (float)$record->liters : null,
+                    'collected_liters' => $record ? (float) $record->liters : null,
                 ];
             }),
         ]);

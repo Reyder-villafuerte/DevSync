@@ -2,26 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
 use App\Exceptions\ReglaNegocioException;
 use App\Models\CollectionRoute;
-use App\Models\Zone;
 use App\Models\User;
+use App\Models\Zone;
 use App\Services\Acopio\AcopioService;
+use App\Services\Acopio\JornadaOperativa;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CollectionController extends Controller
 {
-    public function __construct(private AcopioService $acopio)
-    {
-    }
+    public function __construct(private AcopioService $acopio) {}
 
     // Mostrar u obtener ruta asignada
     public function index()
     {
         $user = Auth::user();
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
 
         if ($user->role === 'acopiador') {
             // Ruta del día: si no tiene, se auto-asigna una zona de Huata libre
@@ -35,7 +33,7 @@ class CollectionController extends Controller
                 ->take(30)
                 ->get();
 
-            if (!$route) {
+            if (! $route) {
                 // Si todas las zonas de Huata ya están cubiertas hoy (turno de rotación / descanso)
                 return view('acopio.sin_ruta', compact('today', 'historicalRoutes'));
             }
@@ -63,9 +61,11 @@ class CollectionController extends Controller
     // Registrar o actualizar entrega de un productor
     public function recordProducerDelivery(Request $request, CollectionRoute $route)
     {
+        abort_unless(Auth::user()->role === 'acopiador' && $route->collector_id === Auth::id(), 403);
+
         $validated = $request->validate([
             'producer_id' => ['required', 'exists:users,id'],
-            'liters' => ['required', 'numeric', 'min:0.1'],
+            'liters' => ['required', 'numeric', 'gt:0', 'decimal:0,2'],
             'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -98,7 +98,13 @@ class CollectionController extends Controller
     // Acopiador finaliza ruta y descarga en planta (espera caudalímetro)
     public function completeAndSendToPlant(CollectionRoute $route)
     {
-        $this->acopio->cerrarRuta($route);
+        abort_unless(Auth::user()->role === 'acopiador' && $route->collector_id === Auth::id(), 403);
+
+        try {
+            $this->acopio->cerrarRuta($route);
+        } catch (ReglaNegocioException $e) {
+            return back()->withErrors([$e->campo() => $e->getMessage()]);
+        }
 
         return back()->with('success', 'Ruta descargada en planta. Pendiente de verificación por Jefe de Producción.');
     }
@@ -106,11 +112,19 @@ class CollectionController extends Controller
     // Admin asigna ruta a acopiador
     public function assignRoute(Request $request)
     {
+        abort_unless(Auth::user()->role === 'admin', 403);
+
         $validated = $request->validate([
             'date' => ['required', 'date'],
             'zone_id' => ['required', 'exists:zones,id'],
-            'collector_id' => ['required', 'exists:users,id'],
-            'start_time' => ['nullable'],
+            'collector_id' => ['required', 'exists:users,id', function ($attribute, $value, $fail) {
+                if (! User::whereKey($value)->where('role', 'acopiador')->exists()) {
+                    $fail('El usuario seleccionado no es acopiador.');
+                } elseif (CollectionRoute::where('date', request('date'))->where('collector_id', $value)->where('zone_id', '!=', request('zone_id'))->exists()) {
+                    $fail('Este acopiador ya tiene otra ruta asignada para la fecha seleccionada.');
+                }
+            }],
+            'start_time' => ['nullable', 'date_format:H:i'],
         ]);
 
         $this->acopio->asignarRuta(
@@ -144,7 +158,7 @@ class CollectionController extends Controller
 
         // Filtro por período
         $period = $request->get('period', 'all');
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
 
         if ($period === 'today') {
             $query->where('date', $today);
@@ -160,17 +174,22 @@ class CollectionController extends Controller
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
         }
 
-        $routes = $query->orderByDesc('date')->orderByDesc('id')->get();
+        $query->orderByDesc('date')->orderByDesc('id');
 
-        // Métricas consolidadas
-        $totalRoutes = $routes->count();
-        $totalFieldLiters = $routes->sum('total_collected_liters');
-        $verifiedRoutes = $routes->filter(fn($r) => $r->reception && $r->reception->flowmeter_liters !== null);
-        $totalFlowmeterLiters = $verifiedRoutes->sum(fn($r) => (float)$r->reception->flowmeter_liters);
-        $totalLossLiters = $verifiedRoutes->sum(function($r) {
-            return (float)$r->reception->flowmeter_liters - (float)$r->total_collected_liters;
+        // Las métricas miran todo el período filtrado, no solo la página que se
+        // está viendo, así que se calculan antes de paginar.
+        $todasLasRutas = (clone $query)->get();
+
+        $totalRoutes = $todasLasRutas->count();
+        $totalFieldLiters = $todasLasRutas->sum('total_collected_liters');
+        $verifiedRoutes = $todasLasRutas->filter(fn ($r) => $r->reception && $r->reception->flowmeter_liters !== null);
+        $totalFlowmeterLiters = $verifiedRoutes->sum(fn ($r) => (float) $r->reception->flowmeter_liters);
+        $totalLossLiters = $verifiedRoutes->sum(function ($r) {
+            return (float) $r->reception->flowmeter_liters - (float) $r->total_collected_liters;
         });
-        $observationsCount = $routes->filter(fn($r) => $r->reception && !empty($r->reception->observation))->count();
+        $observationsCount = $todasLasRutas->filter(fn ($r) => $r->reception && ! empty($r->reception->observation))->count();
+
+        $routes = $query->paginate(10)->withQueryString();
 
         $zones = Zone::where('is_active', true)->get();
         $collectors = User::where('role', 'acopiador')->get();

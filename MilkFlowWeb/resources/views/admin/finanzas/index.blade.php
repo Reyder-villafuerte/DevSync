@@ -41,11 +41,6 @@
                     Todo
                 </a>
             </div>
-
-            <button type="button" onclick="openExpenseModal()" class="px-4 py-2.5 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] text-xs font-bold rounded-2xl transition flex items-center gap-2 shadow-sm">
-                <i class="fa-solid fa-circle-plus"></i>
-                <span>Registrar Egreso / Pago</span>
-            </button>
         </div>
     </div>
 
@@ -175,177 +170,96 @@
     </div>
 
     <!-- Tabla de Flujo Unificado: Movimientos Detallados -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-                <div>
-                    <h2 class="text-base font-black text-slate-900">Detalle de Movimientos Financieros</h2>
-                    <p class="text-xs text-slate-400">Registro cronológico de ventas, liquidaciones a productores y egresos operativos/personal.</p>
-                </div>
-            </div>
+    <x-tabla
+        titulo="Detalle de movimientos financieros"
+        descripcion="Ventas, liquidaciones a productores y egresos de planilla y operación, en un solo libro por fecha."
+        :coleccion="$movimientos"
+        :columnas="6"
+        vacio="No hay movimientos registrados para el período seleccionado.">
 
-            <!-- Filtro rápido por tipo de movimiento -->
-            <div class="flex items-center gap-1.5">
-                <button type="button" onclick="filterTable('todos')" id="tab-todos" class="filter-tab px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0f1713] text-[#bef264] transition">
-                    Todos
-                </button>
-                <button type="button" onclick="filterTable('ingreso')" id="tab-ingreso" class="filter-tab px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition">
-                    Ingresos ({{ $allSales->count() }})
-                </button>
-                <button type="button" onclick="filterTable('proveedor')" id="tab-proveedor" class="filter-tab px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition">
-                    Proveedores ({{ $settlements->count() }})
-                </button>
-                <button type="button" onclick="filterTable('personal')" id="tab-personal" class="filter-tab px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition">
-                    Personal & Ops ({{ $allExpenses->count() }})
-                </button>
-            </div>
-        </div>
+        <x-slot:acciones>
+            <button type="button" onclick="openExpenseModal()"
+                class="px-4 py-2.5 rounded-xl bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                <i class="fa-solid fa-plus mr-1"></i> Agregar egreso
+            </button>
+        </x-slot:acciones>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                        <th class="pb-3 px-3">Fecha</th>
-                        <th class="pb-3 px-3">Tipo / Flujo</th>
-                        <th class="pb-3 px-3">Concepto / Descripción</th>
-                        <th class="pb-3 px-3">Beneficiario / Responsable</th>
-                        <th class="pb-3 px-3">Método / Canal</th>
-                        <th class="pb-3 px-3 text-right">Monto</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    <!-- 1. Ventas (Ingresos) -->
-                    @foreach($allSales as $sale)
-                    <tr class="mov-row mov-ingreso hover:bg-slate-50/60 transition">
-                        <td class="py-3 px-3 text-slate-500 whitespace-nowrap">
-                            {{ $sale->created_at->format('Y-m-d H:i') }}
-                        </td>
-                        <td class="py-3 px-3">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 w-fit">
-                                <i class="fa-solid fa-circle-arrow-down text-[9px]"></i> Ingreso Venta
-                            </span>
-                        </td>
-                        <td class="py-3 px-3">
-                            <div class="font-bold text-slate-800">
-                                Venta de {{ $sale->cheese_molds_quantity }} molde(s) de queso
-                            </div>
-                            <div class="text-[10px] text-slate-400">Recibo: {{ $sale->receipt_number ?: '#REC-' . str_pad($sale->id, 5, '0', STR_PAD_LEFT) }}</div>
-                        </td>
-                        <td class="py-3 px-3 text-slate-600">
-                            {{ $sale->customer ? $sale->customer->name : 'Cliente Mostrador' }}
-                            @if($sale->seller)
-                                <span class="text-[10px] text-slate-400 block">Cajero: {{ $sale->seller->name }}</span>
-                            @endif
-                        </td>
-                        <td class="py-3 px-3">
-                            @if($sale->payment_method === 'descuento_leche')
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                                    A Cuenta Leche
-                                </span>
-                            @else
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-200">
-                                    Efectivo Caja
-                                </span>
-                            @endif
-                        </td>
-                        <td class="py-3 px-3 text-right font-black text-emerald-700 text-sm whitespace-nowrap">
-                            + S/ {{ number_format($sale->total_amount, 2) }}
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    <!-- 2. Proveedores (Egresos Liquidación Leche) -->
-                    @foreach($settlements as $st)
-                    <tr class="mov-row mov-proveedor hover:bg-slate-50/60 transition">
-                        <td class="py-3 px-3 text-slate-500 whitespace-nowrap">
-                            {{ $st->paid_at ? $st->paid_at->format('Y-m-d H:i') : $st->created_at->format('Y-m-d H:i') }}
-                        </td>
-                        <td class="py-3 px-3">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1 w-fit">
-                                <i class="fa-solid fa-cow text-[9px]"></i> Pago Proveedor
-                            </span>
-                        </td>
-                        <td class="py-3 px-3">
-                            <div class="font-bold text-slate-800">
-                                Liquidación semanal: {{ $st->total_liters }} L de leche
-                            </div>
-                            <div class="text-[10px] text-slate-400">
-                                {{ $st->settlement_code ?: '#SOBRE-' . str_pad($st->id, 5, '0', STR_PAD_LEFT) }} · Desc: S/ {{ number_format($st->deductions_total, 2) }}
-                            </div>
-                        </td>
-                        <td class="py-3 px-3 text-slate-600">
-                            <strong>{{ $st->producer ? $st->producer->name : 'Productor Huata' }}</strong>
-                            <span class="text-[10px] text-slate-400 block">DNI: {{ $st->producer ? $st->producer->dni : '—' }}</span>
-                        </td>
-                        <td class="py-3 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                                Sobre Ruta Viernes
-                            </span>
-                        </td>
-                        <td class="py-3 px-3 text-right font-black text-amber-700 text-sm whitespace-nowrap">
-                            - S/ {{ number_format($st->net_total, 2) }}
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    <!-- 3. Personal y Gastos Operativos (Egresos) -->
-                    @foreach($allExpenses as $exp)
-                    <tr class="mov-row mov-personal hover:bg-slate-50/60 transition">
-                        <td class="py-3 px-3 text-slate-500 whitespace-nowrap">
-                            {{ $exp->expense_date->format('Y-m-d') }}
-                        </td>
-                        <td class="py-3 px-3">
-                            @if($exp->category === 'pago_personal')
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200 flex items-center gap-1 w-fit">
-                                    <i class="fa-solid fa-user-check text-[9px]"></i> Pago Personal
-                                </span>
-                            @else
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-900 border border-rose-200 flex items-center gap-1 w-fit">
-                                    <i class="fa-solid fa-gas-pump text-[9px]"></i> Gasto Operativo
-                                </span>
-                            @endif
-                        </td>
-                        <td class="py-3 px-3">
-                            <div class="font-bold text-slate-800">{{ $exp->description }}</div>
-                            @if($exp->receipt_number)
-                                <div class="text-[10px] text-slate-400">Comprobante: {{ $exp->receipt_number }}</div>
-                            @endif
-                            @if($exp->notes)
-                                <div class="text-[10px] text-slate-500 italic">{{ $exp->notes }}</div>
-                            @endif
-                        </td>
-                        <td class="py-3 px-3 text-slate-600">
-                            <strong>{{ $exp->beneficiary_name ?: ($exp->staff ? $exp->staff->name : 'Personal') }}</strong>
-                            @if($exp->staff)
-                                <span class="text-[10px] text-slate-400 block">Rol: {{ ucfirst($exp->staff->role) }}</span>
-                            @endif
-                        </td>
-                        <td class="py-3 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase">
-                                {{ $exp->payment_method }}
-                            </span>
-                        </td>
-                        <td class="py-3 px-3 text-right font-black text-rose-700 text-sm whitespace-nowrap">
-                            - S/ {{ number_format($exp->amount, 2) }}
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    @if($allSales->isEmpty() && $settlements->isEmpty() && $allExpenses->isEmpty())
-                    <tr>
-                        <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
-                            <i class="fa-solid fa-folder-open text-2xl text-slate-300 block mb-2"></i>
-                            No hay movimientos registrados para el período seleccionado.
-                        </td>
-                    </tr>
+        <x-slot:filtros>
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <form method="GET" action="{{ route('admin.finanzas.index') }}" class="flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="tipo" value="{{ $tipo }}">
+                    <input type="hidden" name="period" value="{{ $period }}">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                        <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Concepto o beneficiario..."
+                            class="w-60 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#bef264]">
+                    </div>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-[#bef264] font-bold text-[10px] uppercase">Buscar</button>
+                    @if(request('buscar'))
+                    <a href="{{ route('admin.finanzas.index', ['tipo' => $tipo, 'period' => $period]) }}" class="text-[11px] font-bold text-slate-500 underline">Quitar búsqueda</a>
                     @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
+                </form>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                    @php
+                        $tiposMovimiento = [
+                            'todos' => ['Todos', $allSales->count() + $settlements->count() + $allExpenses->count()],
+                            'ingreso' => ['Ingresos', $allSales->count()],
+                            'proveedor' => ['Proveedores', $settlements->count()],
+                            'personal' => ['Personal y ops', $allExpenses->count()],
+                        ];
+                    @endphp
+                    @foreach($tiposMovimiento as $clave => [$etiqueta, $cuantos])
+                    <a href="{{ route('admin.finanzas.index', array_merge(request()->except(['tipo', 'page']), ['tipo' => $clave])) }}"
+                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $tipo === $clave ? 'bg-[#0f1713] text-[#bef264]' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' }}">
+                        <span>{{ $etiqueta }}</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $tipo === $clave ? 'bg-white/20' : 'bg-slate-200 text-slate-700' }}">{{ $cuantos }}</span>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+        </x-slot:filtros>
+
+        <x-slot:encabezados>
+            <th class="text-left py-3 px-4 font-bold">Fecha</th>
+            <th class="text-left py-3 px-4 font-bold">Tipo / flujo</th>
+            <th class="text-left py-3 px-4 font-bold">Concepto</th>
+            <th class="text-left py-3 px-4 font-bold">Beneficiario</th>
+            <th class="text-left py-3 px-4 font-bold">Método / canal</th>
+            <th class="text-right py-3 px-4 font-bold">Monto</th>
+        </x-slot:encabezados>
+
+        @foreach($movimientos as $mov)
+        <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
+            <td class="py-3 px-4 font-mono text-slate-400">{{ $mov['id'] }}</td>
+            <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ $mov['fecha_texto'] }}</td>
+            <td class="py-3 px-4">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border flex items-center gap-1 w-fit {{ $mov['clase_etiqueta'] }}">
+                    <i class="fa-solid {{ $mov['icono'] }} text-[9px]"></i> {{ $mov['etiqueta'] }}
+                </span>
+            </td>
+            <td class="py-3 px-4">
+                <div class="font-bold text-slate-800">{{ $mov['concepto'] }}</div>
+                @if($mov['detalle'])
+                <div class="text-[10px] text-slate-400">{{ $mov['detalle'] }}</div>
+                @endif
+            </td>
+            <td class="py-3 px-4 text-slate-600">
+                <strong>{{ $mov['beneficiario'] }}</strong>
+                @if($mov['beneficiario_detalle'])
+                <span class="text-[10px] text-slate-400 block">{{ $mov['beneficiario_detalle'] }}</span>
+                @endif
+            </td>
+            <td class="py-3 px-4">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $mov['clase_metodo'] }}">{{ $mov['metodo'] }}</span>
+            </td>
+            <td class="py-3 px-4 text-right font-black text-sm whitespace-nowrap {{ $mov['clase_monto'] }}">
+                {{ $mov['signo'] }} S/ {{ number_format($mov['monto'], 2) }}
+            </td>
+        </tr>
+        @endforeach
+    </x-tabla>
+
 </div>
 
 <!-- Modal: Registrar Egreso / Pago de Personal -->
@@ -372,7 +286,7 @@
                     <select name="category" id="categorySelect" required onchange="handleCategoryChange()" class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 font-bold text-slate-800 focus:bg-white focus:border-[#0f1713] focus:ring-0">
                         <option value="pago_personal">Pago de Personal / Planilla</option>
                         <option value="combustible_ruta">Combustible Camioneta (Acopio 4:30 AM)</option>
-                        <option value="insumos_planta">Insumos de Quesería / Planta</option>
+                        <option value="insumos_planta">Insumos de planta</option>
                         <option value="mantenimiento">Mantenimiento de Equipos / Lactoscan</option>
                         <option value="otros">Otros Gastos Operativos</option>
                     </select>
@@ -437,34 +351,6 @@
 </div>
 
 <script>
-function filterTable(type) {
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.classList.remove('bg-[#0f1713]', 'text-[#bef264]');
-        tab.classList.add('text-slate-600');
-    });
-
-    const activeTab = document.getElementById('tab-' + type);
-    if (activeTab) {
-        activeTab.classList.remove('text-slate-600');
-        activeTab.classList.add('bg-[#0f1713]', 'text-[#bef264]');
-    }
-
-    const rows = document.querySelectorAll('.mov-row');
-    rows.forEach(row => {
-        if (type === 'todos') {
-            row.style.display = '';
-        } else if (type === 'ingreso' && row.classList.contains('mov-ingreso')) {
-            row.style.display = '';
-        } else if (type === 'proveedor' && row.classList.contains('mov-proveedor')) {
-            row.style.display = '';
-        } else if (type === 'personal' && row.classList.contains('mov-personal')) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
 function openExpenseModal() {
     document.getElementById('expenseModal').classList.remove('hidden');
 }

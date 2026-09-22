@@ -43,8 +43,7 @@ class SyncService
         private ZonaService $zonas,
         private LiquidacionService $liquidaciones,
         private SistemaService $sistema,
-    ) {
-    }
+    ) {}
 
     // ---------------------------------------------------------------- BAJADA
 
@@ -62,17 +61,17 @@ class SyncService
         $resultado = [];
 
         foreach ($orden as $entidad) {
-            if ($entidadesPedidas && !in_array($entidad, $entidadesPedidas, true)) {
+            if ($entidadesPedidas && ! in_array($entidad, $entidadesPedidas, true)) {
                 continue;
             }
 
             $config = $catalogo[$entidad] ?? null;
-            if (!$config) {
+            if (! $config) {
                 continue;
             }
 
             $consulta = $this->resolutor->consulta($config, $usuario);
-            if (!$consulta) {
+            if (! $consulta) {
                 continue;
             }
 
@@ -114,7 +113,7 @@ class SyncService
 
     private function iso($valor): ?string
     {
-        if (!$valor) {
+        if (! $valor) {
             return null;
         }
 
@@ -143,7 +142,7 @@ class SyncService
         $comando = $operacion['comando'] ?? '';
         $payload = $operacion['payload'] ?? [];
 
-        if (!$clientUuid) {
+        if (! $clientUuid) {
             return $this->rechazo('sin-uuid', $comando, 'La operación no trae client_uuid.');
         }
 
@@ -162,11 +161,11 @@ class SyncService
 
         $rolesPermitidos = config("sync.comandos.{$comando}");
 
-        if (!$rolesPermitidos) {
+        if (! $rolesPermitidos) {
             return $this->rechazo($clientUuid, $comando, "Comando desconocido: {$comando}.");
         }
 
-        if (!in_array($usuario->role, $rolesPermitidos, true)) {
+        if (! in_array($usuario->role, $rolesPermitidos, true)) {
             return $this->rechazo($clientUuid, $comando, "El rol {$usuario->role} no puede ejecutar {$comando}.");
         }
 
@@ -256,7 +255,6 @@ class SyncService
             'cerrar_ruta' => $this->cerrarRuta($usuario, $payload),
             'asignar_ruta' => $this->asignarRuta($payload),
             'verificar_recepcion' => $this->verificarRecepcion($usuario, $payload, $clientUuid),
-            'producir_queso' => $this->producirQueso($usuario, $payload, $clientUuid),
             'registrar_venta' => $this->registrarVenta($usuario, $payload, $clientUuid),
             'cerrar_caja' => $this->cerrarCaja($usuario, $payload, $clientUuid),
             'registrar_analisis' => $this->registrarAnalisis($usuario, $payload, $clientUuid),
@@ -293,9 +291,13 @@ class SyncService
      */
     private function resolverRuta(User $usuario, array $payload): CollectionRoute
     {
-        if (!empty($payload['ruta_id'])) {
+        if (! empty($payload['ruta_id'])) {
             $ruta = CollectionRoute::find($payload['ruta_id']);
             if ($ruta) {
+                if ($usuario->role === 'acopiador' && $ruta->collector_id !== $usuario->id) {
+                    throw new ReglaNegocioException('La ruta indicada no pertenece al acopiador.');
+                }
+
                 return $ruta;
             }
         }
@@ -305,6 +307,10 @@ class SyncService
         if ($uuidRuta) {
             $ruta = CollectionRoute::where('client_uuid', $uuidRuta)->first();
             if ($ruta) {
+                if ($usuario->role === 'acopiador' && $ruta->collector_id !== $usuario->id) {
+                    throw new ReglaNegocioException('La ruta indicada no pertenece al acopiador.');
+                }
+
                 return $ruta;
             }
         }
@@ -331,7 +337,7 @@ class SyncService
 
         $ruta = $this->acopio->rutaDelDia($usuario, $datos['fecha'] ?? null, $clientUuid);
 
-        if (!$ruta) {
+        if (! $ruta) {
             throw new ReglaNegocioException(
                 'Las cuatro zonas de Huata ya tienen acopiador asignado para esa fecha (turno de descanso).'
             );
@@ -429,25 +435,6 @@ class SyncService
         return ['entidad' => 'plant_receptions', 'id' => $recepcion->id, 'client_uuid' => $clientUuid];
     }
 
-    private function producirQueso(User $usuario, array $payload, string $clientUuid): array
-    {
-        $datos = $this->validar($payload, [
-            'cheese_molds_produced' => ['required', 'integer', 'min:1'],
-            'batch_number' => ['nullable', 'string', 'max:50'],
-            'production_date' => ['nullable', 'date'],
-        ]);
-
-        $produccion = $this->planta->producirQueso(
-            $usuario,
-            (int) $datos['cheese_molds_produced'],
-            $datos['batch_number'] ?? null,
-            $datos['production_date'] ?? null,
-            $clientUuid
-        );
-
-        return ['entidad' => 'cheese_productions', 'id' => $produccion->id, 'client_uuid' => $clientUuid];
-    }
-
     private function registrarVenta(User $usuario, array $payload, string $clientUuid): array
     {
         $datos = $this->validar($payload, [
@@ -458,7 +445,12 @@ class SyncService
             'new_dni_ruc' => ['nullable', 'string', 'max:20'],
             'new_phone' => ['nullable', 'string', 'max:30'],
             'new_type' => ['nullable', 'in:proveedor,mayorista,local'],
-            'cheese_molds_quantity' => ['required', 'integer', 'min:1'],
+            // Formato nuevo: renglones. Las apps ya instaladas siguen mandando
+            // «cheese_molds_quantity» a secas, y el servicio la entiende.
+            'items' => ['nullable', 'array', 'min:1'],
+            'items.*.product_id' => ['required_with:items', 'integer', 'exists:products,id'],
+            'items.*.quantity' => ['required_with:items', 'numeric', 'gt:0'],
+            'cheese_molds_quantity' => ['nullable', 'integer', 'min:1'],
             'payment_method' => ['nullable', 'in:efectivo,descuento_leche'],
             'sold_at' => ['nullable', 'date'],
         ]);
@@ -472,6 +464,13 @@ class SyncService
             'receipt_number' => $venta->receipt_number,
             'unit_price' => (float) $venta->unit_price,
             'total_amount' => (float) $venta->total_amount,
+            'items' => $venta->items->map(fn ($item) => [
+                'id' => $item->id,
+                'product_id' => $item->product_id,
+                'quantity' => (float) $item->quantity,
+                'unit_price' => (float) $item->unit_price,
+                'subtotal' => (float) $item->subtotal,
+            ])->values()->all(),
         ];
     }
 
@@ -544,15 +543,15 @@ class SyncService
 
     private function buscarAnalisis(array $datos): LactoscanAnalysis
     {
-        $analisis = !empty($datos['analysis_id'])
+        $analisis = ! empty($datos['analysis_id'])
             ? LactoscanAnalysis::find($datos['analysis_id'])
             : null;
 
-        if (!$analisis && !empty($datos['analysis_client_uuid'])) {
+        if (! $analisis && ! empty($datos['analysis_client_uuid'])) {
             $analisis = LactoscanAnalysis::where('client_uuid', $datos['analysis_client_uuid'])->first();
         }
 
-        if (!$analisis) {
+        if (! $analisis) {
             throw new ReglaNegocioException('El análisis Lactoscan indicado no existe en el servidor.');
         }
 
@@ -614,7 +613,7 @@ class SyncService
             'todos' => ['nullable', 'boolean'],
         ]);
 
-        if (!empty($datos['todos'])) {
+        if (! empty($datos['todos'])) {
             $productores = User::where('role', 'productor')->where('is_active', true)->get();
             $creadas = [];
 
@@ -635,7 +634,7 @@ class SyncService
         $productor = User::where('role', 'productor')->findOrFail($datos['producer_id']);
         $liquidacion = $this->liquidaciones->autorizar($productor, $usuario);
 
-        if (!$liquidacion) {
+        if (! $liquidacion) {
             throw new ReglaNegocioException("{$productor->name} no tiene litros ni deducciones que liquidar en el ciclo abierto.");
         }
 
@@ -690,9 +689,12 @@ class SyncService
             'price_milk_base' => ['required', 'numeric', 'min:0.5', 'max:10'],
             'price_milk_water_penalty_low' => ['required', 'numeric', 'min:0.5', 'max:10'],
             'price_milk_water_penalty_high' => ['required', 'numeric', 'min:0.1', 'max:10'],
-            'price_cheese_provider' => ['required', 'numeric', 'min:5', 'max:100'],
-            'price_cheese_wholesale' => ['required', 'numeric', 'min:5', 'max:100'],
-            'price_cheese_local' => ['required', 'numeric', 'min:5', 'max:100'],
+            // Opcionales: la web ya no las manda porque el precio del queso se
+            // pone en su producto. Las apps ya instaladas sí las siguen mandando
+            // y se respetan tal cual.
+            'price_cheese_provider' => ['nullable', 'numeric', 'min:5', 'max:100'],
+            'price_cheese_wholesale' => ['nullable', 'numeric', 'min:5', 'max:100'],
+            'price_cheese_local' => ['nullable', 'numeric', 'min:5', 'max:100'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 

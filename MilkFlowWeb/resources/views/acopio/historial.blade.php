@@ -95,193 +95,172 @@
         </div>
     </div>
 
-    <!-- Barra de Filtros Spark Style -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs font-bold text-slate-400 mr-2 uppercase tracking-wider">Período:</span>
-            <a href="{{ route('acopio.historial', ['period' => 'today']) }}" 
-               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'today' ? 'bg-[#0f1713] text-[#bef264]' : 'bg-slate-50 hover:bg-slate-100 text-slate-700' }}">
-                Hoy
-            </a>
-            <a href="{{ route('acopio.historial', ['period' => 'week']) }}" 
-               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'week' ? 'bg-[#0f1713] text-[#bef264]' : 'bg-slate-50 hover:bg-slate-100 text-slate-700' }}">
-                Esta Semana
-            </a>
-            <a href="{{ route('acopio.historial', ['period' => 'month']) }}" 
-               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'month' ? 'bg-[#0f1713] text-[#bef264]' : 'bg-slate-50 hover:bg-slate-100 text-slate-700' }}">
-                Este Mes
-            </a>
-            <a href="{{ route('acopio.historial', ['period' => 'all']) }}" 
-               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'all' ? 'bg-[#0f1713] text-[#bef264]' : 'bg-slate-50 hover:bg-slate-100 text-slate-700' }}">
-                Histórico Completo
-            </a>
-        </div>
+    <x-tabla
+        titulo="Registro de rutas y observaciones de planta"
+        descripcion="Fecha por fecha: los litros que anotó el acopiador en campo, los que midió el caudalímetro y la merma entre ambos."
+        :coleccion="$routes"
+        :columnas="9"
+        vacio="No se encontraron registros de rutas para los filtros seleccionados.">
 
-        <form action="{{ route('acopio.historial') }}" method="GET" class="flex flex-wrap items-center gap-2">
-            <input type="date" name="start_date" value="{{ request('start_date') }}" 
-                   class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700">
-            <span class="text-slate-400 text-xs">a</span>
-            <input type="date" name="end_date" value="{{ request('end_date') }}" 
-                   class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700">
-            <button type="submit" class="px-4 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-black transition cursor-pointer">
-                Filtrar
-            </button>
-        </form>
-    </div>
+        <x-slot:filtros>
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Período</span>
+                    @php
+                        $periodos = ['today' => 'Hoy', 'week' => 'Esta semana', 'month' => 'Este mes', 'all' => 'Histórico completo'];
+                    @endphp
+                    @foreach($periodos as $clave => $etiqueta)
+                    <a href="{{ route('acopio.historial', ['period' => $clave]) }}"
+                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === $clave ? 'bg-[#0f1713] text-[#bef264]' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700' }}">
+                        {{ $etiqueta }}
+                    </a>
+                    @endforeach
+                </div>
 
-    <!-- Tabla Detallada de Historial de Rutas -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-5">
-        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-            <div>
-                <h3 class="text-base font-black text-slate-900 tracking-tight">Registro de Rutas y Observaciones de Planta</h3>
-                <p class="text-xs text-slate-500">Muestra el detalle fecha por fecha, los litros auditados en caudalímetro y notas técnicas.</p>
+                <form action="{{ route('acopio.historial') }}" method="GET" class="flex flex-wrap items-center gap-2">
+                    <input type="date" name="start_date" value="{{ request('start_date') }}"
+                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700">
+                    <span class="text-slate-400 text-xs">a</span>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}"
+                        class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700">
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-[#bef264] font-bold text-[10px] uppercase">Filtrar</button>
+                    @if(request('start_date') || request('end_date'))
+                    <a href="{{ route('acopio.historial') }}" class="text-[11px] font-bold text-slate-500 underline">Quitar rango</a>
+                    @endif
+                </form>
             </div>
-            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
-                {{ $routes->count() }} registros
-            </span>
-        </div>
+        </x-slot:filtros>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider">
-                    <tr>
-                        <th class="p-3.5 rounded-l-xl">Fecha</th>
-                        <th class="p-3.5">Zona Asignada</th>
-                        <th class="p-3.5">Acopiador</th>
-                        <th class="p-3.5">Litros Campo</th>
-                        <th class="p-3.5">Caudalímetro Planta</th>
-                        <th class="p-3.5">Diferencia / Merma</th>
-                        <th class="p-3.5">Observaciones de Planta</th>
-                        <th class="p-3.5">Estado</th>
-                        <th class="p-3.5 rounded-r-xl text-center">Ver Detalle</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($routes as $route)
+        <x-slot:encabezados>
+            <th class="text-left py-3 px-4 font-bold">Fecha</th>
+            <th class="text-left py-3 px-4 font-bold">Zona asignada</th>
+            <th class="text-left py-3 px-4 font-bold">Acopiador</th>
+            <th class="text-left py-3 px-4 font-bold">Litros campo</th>
+            <th class="text-left py-3 px-4 font-bold">Caudalímetro planta</th>
+            <th class="text-left py-3 px-4 font-bold">Diferencia / merma</th>
+            <th class="text-left py-3 px-4 font-bold">Observaciones de planta</th>
+            <th class="text-left py-3 px-4 font-bold">Estado</th>
+            <th class="text-center py-3 px-4 font-bold">Ver detalle</th>
+        </x-slot:encabezados>
+
+        @foreach($routes as $route)
+                @php
+                    $rec = $route->reception;
+                    $fieldLiters = (float)$route->total_collected_liters;
+                    $plantLiters = $rec ? (float)$rec->flowmeter_liters : null;
+                    $diff = $plantLiters !== null ? ($plantLiters - $fieldLiters) : null;
+                @endphp
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="py-3 px-4 font-mono text-slate-400">{{ $route->id }}</td>
+                    <td class="p-3.5 font-mono text-slate-700 font-bold">
+                        {{ \Carbon\Carbon::parse($route->date)->format('d/m/Y') }}
+                    </td>
+                    <td class="p-3.5 font-bold text-slate-800">
+                        {{ $route->zone ? $route->zone->name : 'Zona Huata' }}
+                    </td>
+                    <td class="p-3.5 font-medium text-slate-600">
+                        {{ $route->collector ? $route->collector->name : '—' }}
+                    </td>
+                    <td class="p-3.5 font-black text-slate-900">
+                        {{ number_format($fieldLiters, 2) }} L
+                    </td>
+                    <td class="p-3.5 font-black">
+                        @if($plantLiters !== null)
+                            <span class="text-slate-900">{{ number_format($plantLiters, 2) }} L</span>
+                        @else
+                            <span class="text-slate-400 italic">Pendiente</span>
+                        @endif
+                    </td>
+                    <td class="p-3.5 font-bold">
+                        @if($diff !== null)
+                            @if($diff < -0.01)
+                                <span class="text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                    <i class="fa-solid fa-arrow-down text-[9px]"></i> {{ number_format($diff, 2) }} L (Merma)
+                                </span>
+                            @elseif($diff > 0.01)
+                                <span class="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                    <i class="fa-solid fa-arrow-up text-[9px]"></i> +{{ number_format($diff, 2) }} L
+                                </span>
+                            @else
+                                <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                    <i class="fa-solid fa-check text-[9px]"></i> 0.00 L (Exacto)
+                                </span>
+                            @endif
+                        @else
+                            <span class="text-slate-400 font-mono">—</span>
+                        @endif
+                    </td>
+                    <td class="p-3.5 text-slate-700 max-w-xs">
+                        @if($rec && $rec->observation)
+                            <span class="inline-flex items-center gap-1.5 text-xs text-slate-800 bg-slate-100/80 px-2.5 py-1 rounded-xl">
+                                <i class="fa-solid fa-comment-dots text-slate-500"></i>
+                                <span>{{ $rec->observation }}</span>
+                            </span>
+                        @elseif($rec)
+                            <span class="text-emerald-700 font-medium inline-flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i> Todo conforme
+                            </span>
+                        @else
+                            <span class="text-slate-400 italic text-[11px]">En espera de verificación</span>
+                        @endif
+                    </td>
+                    <td class="p-3.5">
+                        @if($rec && $rec->verification_status === 'incompleto')
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Incompleto
+                            </span>
+                        @elseif($rec && $rec->verification_status === 'con_observacion')
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200 inline-flex items-center gap-1">
+                                <i class="fa-solid fa-circle-exclamation"></i> Con Observación
+                            </span>
+                        @elseif($route->status === 'verificada')
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                                <i class="fa-solid fa-check-double"></i> Conforme
+                            </span>
+                        @elseif($route->status === 'descargada_planta')
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200 inline-flex items-center gap-1">
+                                <i class="fa-solid fa-clock-rotate-left"></i> En Planta
+                            </span>
+                        @else
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-lime-100 text-[#0f1713] border border-lime-300 inline-flex items-center gap-1">
+                                <i class="fa-solid fa-truck-fast"></i> En Ruta
+                            </span>
+                        @endif
+                    </td>
+                    <td class="p-3.5 text-center">
                         @php
-                            $rec = $route->reception;
-                            $fieldLiters = (float)$route->total_collected_liters;
-                            $plantLiters = $rec ? (float)$rec->flowmeter_liters : null;
-                            $diff = $plantLiters !== null ? ($plantLiters - $fieldLiters) : null;
-                        @endphp
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="p-3.5 font-mono text-slate-700 font-bold">
-                                {{ \Carbon\Carbon::parse($route->date)->format('d/m/Y') }}
-                            </td>
-                            <td class="p-3.5 font-bold text-slate-800">
-                                {{ $route->zone ? $route->zone->name : 'Zona Huata' }}
-                            </td>
-                            <td class="p-3.5 font-medium text-slate-600">
-                                {{ $route->collector ? $route->collector->name : '—' }}
-                            </td>
-                            <td class="p-3.5 font-black text-slate-900">
-                                {{ number_format($fieldLiters, 2) }} L
-                            </td>
-                            <td class="p-3.5 font-black">
-                                @if($plantLiters !== null)
-                                    <span class="text-slate-900">{{ number_format($plantLiters, 2) }} L</span>
-                                @else
-                                    <span class="text-slate-400 italic">Pendiente</span>
-                                @endif
-                            </td>
-                            <td class="p-3.5 font-bold">
-                                @if($diff !== null)
-                                    @if($diff < -0.01)
-                                        <span class="text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
-                                            <i class="fa-solid fa-arrow-down text-[9px]"></i> {{ number_format($diff, 2) }} L (Merma)
-                                        </span>
-                                    @elseif($diff > 0.01)
-                                        <span class="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
-                                            <i class="fa-solid fa-arrow-up text-[9px]"></i> +{{ number_format($diff, 2) }} L
-                                        </span>
-                                    @else
-                                        <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
-                                            <i class="fa-solid fa-check text-[9px]"></i> 0.00 L (Exacto)
-                                        </span>
-                                    @endif
-                                @else
-                                    <span class="text-slate-400 font-mono">—</span>
-                                @endif
-                            </td>
-                            <td class="p-3.5 text-slate-700 max-w-xs">
-                                @if($rec && $rec->observation)
-                                    <span class="inline-flex items-center gap-1.5 text-xs text-slate-800 bg-slate-100/80 px-2.5 py-1 rounded-xl">
-                                        <i class="fa-solid fa-comment-dots text-slate-500"></i>
-                                        <span>{{ $rec->observation }}</span>
-                                    </span>
-                                @elseif($rec)
-                                    <span class="text-emerald-700 font-medium inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i> Todo conforme
-                                    </span>
-                                @else
-                                    <span class="text-slate-400 italic text-[11px]">En espera de verificación</span>
-                                @endif
-                            </td>
-                            <td class="p-3.5">
-                                @if($rec && $rec->verification_status === 'incompleto')
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-triangle-exclamation"></i> Incompleto
-                                    </span>
-                                @elseif($rec && $rec->verification_status === 'con_observacion')
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200 inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Con Observación
-                                    </span>
-                                @elseif($route->status === 'verificada')
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-check-double"></i> Conforme
-                                    </span>
-                                @elseif($route->status === 'descargada_planta')
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200 inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-clock-rotate-left"></i> En Planta
-                                    </span>
-                                @else
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-lime-100 text-[#0f1713] border border-lime-300 inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-truck-fast"></i> En Ruta
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="p-3.5 text-center">
-                                @php
-                                    $detailData = [
-                                        'date' => \Carbon\Carbon::parse($route->date)->format('d/m/Y'),
-                                        'zone' => $route->zone ? $route->zone->name : 'Zona Huata',
-                                        'collector' => $route->collector ? $route->collector->name : 'Acopiador',
-                                        'status' => $rec ? $rec->verification_status : $route->status,
-                                        'field_liters' => number_format($fieldLiters, 2),
-                                        'plant_liters' => $plantLiters !== null ? number_format($plantLiters, 2) : 'Pendiente',
-                                        'difference' => $diff !== null ? number_format($diff, 2) . ' L' : 'Pendiente',
-                                        'observation' => ($rec && $rec->observation) ? $rec->observation : ($rec ? 'Todo conforme' : 'En espera de revisión en planta'),
-                                        'verifier' => ($rec && $rec->verifier) ? $rec->verifier->name : 'Jefe de Producción',
-                                        'records' => $route->records->map(function($r) {
-                                            return [
-                                                'producer_name' => $r->producer ? $r->producer->name : 'Proveedor Huata',
-                                                'producer_dni' => $r->producer ? ($r->producer->dni ?: '—') : '—',
-                                                'liters' => number_format($r->liters, 2),
-                                                'time' => $r->collected_at ?: '—',
-                                                'notes' => $r->notes ?: '—'
-                                            ];
-                                        })
+                            $detailData = [
+                                'date' => \Carbon\Carbon::parse($route->date)->format('d/m/Y'),
+                                'zone' => $route->zone ? $route->zone->name : 'Zona Huata',
+                                'collector' => $route->collector ? $route->collector->name : 'Acopiador',
+                                'status' => $rec ? $rec->verification_status : $route->status,
+                                'field_liters' => number_format($fieldLiters, 2),
+                                'plant_liters' => $plantLiters !== null ? number_format($plantLiters, 2) : 'Pendiente',
+                                'difference' => $diff !== null ? number_format($diff, 2) . ' L' : 'Pendiente',
+                                'observation' => ($rec && $rec->observation) ? $rec->observation : ($rec ? 'Todo conforme' : 'En espera de revisión en planta'),
+                                'verifier' => ($rec && $rec->verifier) ? $rec->verifier->name : 'Jefe de Producción',
+                                'records' => $route->records->map(function($r) {
+                                    return [
+                                        'producer_name' => $r->producer ? $r->producer->name : 'Proveedor Huata',
+                                        'producer_dni' => $r->producer ? ($r->producer->dni ?: '—') : '—',
+                                        'liters' => number_format($r->liters, 2),
+                                        'time' => $r->collected_at ?: '—',
+                                        'notes' => $r->notes ?: '—'
                                     ];
-                                @endphp
-                                <button type="button"
-                                    onclick="openHistoryModal({{ json_encode($detailData) }})"
-                                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#0f1713] hover:text-[#bef264] text-slate-700 transition flex items-center justify-center mx-auto cursor-pointer shadow-sm"
-                                    title="Ver desglose de proveedores">
-                                    <i class="fa-solid fa-eye text-xs"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="p-8 text-center text-slate-400">
-                                No se encontraron registros de rutas para los filtros seleccionados.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+                                })
+                            ];
+                        @endphp
+                        <button type="button"
+                            onclick="openHistoryModal({{ json_encode($detailData) }})"
+                            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#0f1713] hover:text-[#bef264] text-slate-700 transition flex items-center justify-center mx-auto cursor-pointer shadow-sm"
+                            title="Ver desglose de proveedores">
+                            <i class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </td>
+                </tr>
+        @endforeach
+    </x-tabla>
+
 </div>
 
 <!-- MODAL: DETALLE HISTÓRICO DE RUTA (OJITO) -->

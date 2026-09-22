@@ -8,7 +8,6 @@ import com.example.milkflowmovil.dominio.Descuento
 import com.example.milkflowmovil.dominio.Egreso
 import com.example.milkflowmovil.dominio.Entrega
 import com.example.milkflowmovil.dominio.Liquidacion
-import com.example.milkflowmovil.dominio.ProduccionQueso
 import com.example.milkflowmovil.dominio.Recepcion
 import com.example.milkflowmovil.dominio.Ruta
 import com.example.milkflowmovil.dominio.SolicitudZona
@@ -70,7 +69,6 @@ data class EstadoLocal(
     val rutas: List<Ruta> = emptyList(),
     val entregas: List<Entrega> = emptyList(),
     val recepciones: List<Recepcion> = emptyList(),
-    val producciones: List<ProduccionQueso> = emptyList(),
     val clientes: List<Cliente> = emptyList(),
     val ventas: List<Venta> = emptyList(),
     val cierresCaja: List<CierreCaja> = emptyList(),

@@ -2,30 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
 use App\Exceptions\ReglaNegocioException;
 use App\Models\CollectionRoute;
-use App\Models\PlantReception;
 use App\Models\InventoryStock;
+use App\Models\PlantReception;
+use App\Services\Acopio\JornadaOperativa;
 use App\Services\Planta\PlantaService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PlantReceptionController extends Controller
 {
-    public function __construct(private PlantaService $planta)
-    {
-    }
+    public function __construct(private PlantaService $planta) {}
 
     // Mostrar interfaz de verificación en planta
     public function index()
     {
-        $today = date('Y-m-d');
+        $today = app(JornadaOperativa::class)->fecha();
         $routes = CollectionRoute::where('date', $today)
             ->with(['zone', 'collector', 'records.producer', 'reception'])
             ->get();
 
-        $stockLeche = InventoryStock::getStock('MILK_RAW_LITERS');
+        $stockLeche = InventoryStock::getStock(config('huata.codigos.leche'));
 
         return view('planta.verificacion', compact('routes', 'stockLeche', 'today'));
     }
@@ -43,7 +41,7 @@ class PlantReceptionController extends Controller
         $flowmeterLiters = (float) $validated['flowmeter_liters'];
 
         $previousReception = PlantReception::where('collection_route_id', $route->id)->first();
-        $previousFlowmeter = $previousReception ? (float)$previousReception->flowmeter_liters : 0.0;
+        $previousFlowmeter = $previousReception ? (float) $previousReception->flowmeter_liters : 0.0;
 
         try {
             $this->planta->verificarRecepcion(
@@ -60,7 +58,7 @@ class PlantReceptionController extends Controller
         $deltaStock = $flowmeterLiters - $previousFlowmeter;
 
         $msg = $previousReception
-            ? "Medición corregida: se registraron {$flowmeterLiters} L en caudalímetro (ajuste neto: " . ($deltaStock >= 0 ? "+{$deltaStock}" : "{$deltaStock}") . " L en stock)."
+            ? "Medición corregida: se registraron {$flowmeterLiters} L en caudalímetro (ajuste neto: ".($deltaStock >= 0 ? "+{$deltaStock}" : "{$deltaStock}").' L en stock).'
             : "Recepción verificada con caudalímetro. Ingresaron {$flowmeterLiters} L al stock de leche.";
 
         return back()->with('success', $msg);

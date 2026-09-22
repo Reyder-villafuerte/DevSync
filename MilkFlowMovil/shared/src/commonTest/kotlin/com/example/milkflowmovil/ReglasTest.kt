@@ -38,13 +38,6 @@ class ReglasTest {
     )
 
     @Test
-    fun un_molde_de_queso_consume_diez_litros() {
-        assertEquals(10.0, Reglas.litrosParaMoldes(1))
-        assertEquals(15, Reglas.moldesPosibles(155.0), "155 L alcanzan para 15 moldes, no 16")
-        assertEquals(0, Reglas.moldesPosibles(9.9))
-    }
-
-    @Test
     fun el_precio_del_queso_sigue_el_tipo_de_cliente() {
         val proveedor = Cliente(id = 1, apellidos = "Quispe", type = "proveedor", usuarioVinculadoId = 7)
         val mayorista = Cliente(id = 2, apellidos = "Mamani", type = "mayorista")
@@ -171,7 +164,7 @@ class ReglasTest {
     fun cada_rol_solo_alcanza_sus_pantallas() {
         assertTrue(Rol.ACOPIADOR.puedeVer(Pantalla.ACOPIO))
         assertFalse(Rol.ACOPIADOR.puedeVer(Pantalla.AUTORIZAR_PAGOS))
-        assertFalse(Rol.PRODUCTOR.puedeVer(Pantalla.QUESERIA))
+        assertFalse(Rol.PRODUCTOR.puedeVer(Pantalla.CAUDALIMETRO))
         assertTrue(Rol.PRODUCTOR.puedeVer(Pantalla.MI_ACOPIO))
         assertTrue(Rol.JEFE_GENERAL.puedeVer(Pantalla.CAUDALIMETRO))
         assertEquals(Pantalla.ACOPIO, Rol.ACOPIADOR.inicio)

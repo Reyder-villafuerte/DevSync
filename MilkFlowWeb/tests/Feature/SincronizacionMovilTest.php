@@ -6,11 +6,14 @@ use App\Models\CollectionRecord;
 use App\Models\CollectionRoute;
 use App\Models\InventoryStock;
 use App\Models\LactoscanAnalysis;
+use App\Models\ProducerDeduction;
 use App\Models\ProducerSettlement;
 use App\Models\Sale;
 use App\Models\SyncOperation;
 use App\Models\User;
 use App\Models\Zone;
+use App\Services\Acopio\JornadaOperativa;
+use Database\Seeders\MilkFlowHuataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -29,7 +32,7 @@ class SincronizacionMovilTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\MilkFlowHuataSeeder::class);
+        $this->seed(MilkFlowHuataSeeder::class);
     }
 
     private function acopiador(): User
@@ -81,7 +84,7 @@ class SincronizacionMovilTest extends TestCase
         $zona = Zone::first();
 
         $ruta = CollectionRoute::updateOrCreate(
-            ['date' => date('Y-m-d'), 'zone_id' => $zona->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'zone_id' => $zona->id],
             [
                 'collector_id' => $this->acopiador()->id,
                 'start_time' => '04:30:00',
@@ -160,7 +163,7 @@ class SincronizacionMovilTest extends TestCase
             'operaciones' => [
                 $this->operacion('registrar_entrega', [
                     'ruta_client_uuid' => $uuidRuta,
-                    'fecha' => date('Y-m-d'),
+                    'fecha' => app(JornadaOperativa::class)->fecha(),
                     'producer_id' => $productor->id,
                     'liters' => 18.5,
                     'collected_at' => '04:45:00',
@@ -187,7 +190,7 @@ class SincronizacionMovilTest extends TestCase
         $productor = $this->productor();
         $operacion = $this->operacion('registrar_entrega', [
             'ruta_client_uuid' => (string) Str::uuid(),
-            'fecha' => date('Y-m-d'),
+            'fecha' => app(JornadaOperativa::class)->fecha(),
             'producer_id' => $productor->id,
             'liters' => 22.0,
         ]);
@@ -206,29 +209,44 @@ class SincronizacionMovilTest extends TestCase
 
     public function test_un_rol_no_puede_ejecutar_comandos_de_otro(): void
     {
+        // Verificar el caudalímetro es del jefe de planta, no del productor.
         $respuesta = $this->actingAs($this->productor(), 'sanctum')->postJson('/api/sync/push', [
             'operaciones' => [
-                $this->operacion('producir_queso', ['cheese_molds_produced' => 5]),
+                $this->operacion('verificar_recepcion', [
+                    'flowmeter_liters' => 50.0,
+                    'verification_status' => 'verificado',
+                ]),
             ],
         ]);
 
         $respuesta->assertOk();
         $respuesta->assertJsonPath('resultados.0.estado', 'rechazada');
-        $this->assertDatabaseCount('cheese_productions', 0);
+        $this->assertDatabaseCount('plant_receptions', 0);
     }
 
-    public function test_produccion_sin_stock_se_rechaza_y_no_se_reintenta(): void
+    public function test_una_venta_sin_stock_se_rechaza_y_no_se_reintenta(): void
     {
-        $jefe = User::where('role', 'jefe_produccion')->first();
-        InventoryStock::adjustStock('MILK_RAW_LITERS', -InventoryStock::getStock('MILK_RAW_LITERS'));
+        $vendedor = User::where('role', 'personal_venta')->first();
+        InventoryStock::adjustStock('CHEESE_MOLD_UNITS', -InventoryStock::getStock('CHEESE_MOLD_UNITS'));
 
-        $respuesta = $this->actingAs($jefe, 'sanctum')->postJson('/api/sync/push', [
-            'operaciones' => [$this->operacion('producir_queso', ['cheese_molds_produced' => 3])],
+        $respuesta = $this->actingAs($vendedor, 'sanctum')->postJson('/api/sync/push', [
+            'operaciones' => [
+                $this->operacion('registrar_venta', [
+                    'new_first_name' => 'Cliente',
+                    'new_last_name' => 'Sin Suerte',
+                    'new_type' => 'local',
+                    'cheese_molds_quantity' => 3,
+                    'payment_method' => 'efectivo',
+                ]),
+            ],
         ]);
 
         $respuesta->assertOk();
+        // Rechazo de negocio: el móvil no debe reintentarlo, no hay nada que
+        // reintentar mientras el almacén siga vacío.
         $respuesta->assertJsonPath('resultados.0.estado', 'rechazada');
-        $this->assertStringContainsString('Stock de leche insuficiente', $respuesta->json('resultados.0.mensaje'));
+        $this->assertStringContainsString('Stock insuficiente', $respuesta->json('resultados.0.mensaje'));
+        $this->assertSame(0, Sale::count());
     }
 
     public function test_la_venta_desde_el_movil_descuenta_stock_y_emite_recibo(): void
@@ -281,11 +299,11 @@ class SincronizacionMovilTest extends TestCase
         $zona = Zone::first();
 
         CollectionRecord::where('producer_id', $productor->id)->delete();
-        \App\Models\ProducerDeduction::where('producer_id', $productor->id)->delete();
+        ProducerDeduction::where('producer_id', $productor->id)->delete();
         LactoscanAnalysis::where('producer_id', $productor->id)->delete();
 
         $ruta = CollectionRoute::updateOrCreate(
-            ['date' => date('Y-m-d'), 'zone_id' => $zona->id],
+            ['date' => app(JornadaOperativa::class)->fecha(), 'zone_id' => $zona->id],
             [
                 'collector_id' => $this->acopiador()->id,
                 'start_time' => '04:30:00',

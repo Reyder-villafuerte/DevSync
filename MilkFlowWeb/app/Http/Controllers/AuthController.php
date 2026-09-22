@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
 use App\Models\Announcement;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -14,19 +13,37 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
+
         return view('auth.login');
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        // El acceso es por DNI, igual que en la app móvil. Se acepta también el
+        // correo para no romper los accesos antiguos del personal de oficina.
+        $request->validate([
+            'dni' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $identificador = trim($request->input('dni'));
+        $campo = str_contains($identificador, '@') ? 'email' : 'dni';
+
+        $credenciales = [$campo => $identificador, 'password' => $request->input('password')];
+
+        if (Auth::attempt($credenciales, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $user = Auth::user();
+
+            if (! $user->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'dni' => 'Tu cuenta está desactivada. Comunícate con administración.',
+                ])->onlyInput('dni');
+            }
 
             // Buscar anuncios vigentes para este usuario o su rol
             $announcements = Announcement::activeForUser($user)->get();
@@ -38,8 +55,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Las credenciales ingresadas no coinciden con nuestros registros.',
-        ])->onlyInput('email');
+            'dni' => 'Las credenciales ingresadas no coinciden con nuestros registros.',
+        ])->onlyInput('dni');
     }
 
     public function logout(Request $request)

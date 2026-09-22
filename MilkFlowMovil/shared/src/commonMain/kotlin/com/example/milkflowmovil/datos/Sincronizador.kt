@@ -18,7 +18,6 @@ import com.example.milkflowmovil.dominio.Descuento
 import com.example.milkflowmovil.dominio.Egreso
 import com.example.milkflowmovil.dominio.Entrega
 import com.example.milkflowmovil.dominio.Liquidacion
-import com.example.milkflowmovil.dominio.ProduccionQueso
 import com.example.milkflowmovil.dominio.Recepcion
 import com.example.milkflowmovil.dominio.Ruta
 import com.example.milkflowmovil.dominio.SolicitudZona
@@ -211,12 +210,6 @@ class Sincronizador(
                 }
             )
 
-            "cheese_productions" -> estado.copy(
-                producciones = estado.producciones.map {
-                    if (it.clientUuid == uuid) it.copy(id = idServidor ?: it.id, pendiente = false) else it
-                }
-            )
-
             "sales" -> estado.copy(
                 ventas = estado.ventas.map { venta ->
                     if (venta.clientUuid != uuid) venta
@@ -282,7 +275,6 @@ class Sincronizador(
         entregas = estado.entregas.filterNot { it.clientUuid == uuid && it.pendiente },
         rutas = estado.rutas.filterNot { it.clientUuid == uuid && it.pendiente },
         recepciones = estado.recepciones.filterNot { it.clientUuid == uuid && it.pendiente },
-        producciones = estado.producciones.filterNot { it.clientUuid == uuid && it.pendiente },
         ventas = estado.ventas.filterNot { it.clientUuid == uuid && it.pendiente },
         cierresCaja = estado.cierresCaja.filterNot { it.clientUuid == uuid && it.pendiente },
         analisis = estado.analisis.filterNot { it.clientUuid == uuid && it.pendiente },
@@ -333,7 +325,6 @@ class Sincronizador(
             "collection_routes" -> estado.copy(rutas = fusionar(estado.rutas, decodificar<Ruta>(filas)) { it.id })
             "collection_records" -> estado.copy(entregas = fusionar(estado.entregas, decodificar<Entrega>(filas)) { it.id })
             "plant_receptions" -> estado.copy(recepciones = fusionar(estado.recepciones, decodificar<Recepcion>(filas)) { it.id })
-            "cheese_productions" -> estado.copy(producciones = fusionar(estado.producciones, decodificar<ProduccionQueso>(filas)) { it.id })
             "customers" -> estado.copy(clientes = fusionar(estado.clientes, decodificar<Cliente>(filas)) { it.id })
             "sales" -> estado.copy(ventas = fusionar(estado.ventas, decodificar<Venta>(filas)) { it.id })
             "daily_cash_closures" -> estado.copy(cierresCaja = fusionar(estado.cierresCaja, decodificar<CierreCaja>(filas)) { it.id })

@@ -4,108 +4,177 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl shadow-sm">
-                <i class="fa-solid fa-map-location-dot"></i>
-            </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-xl font-black text-slate-900 tracking-tight">Zonas de Acopio - Distrito de Huata</h1>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50 uppercase tracking-wide">4 Sectores</span>
-                </div>
-                <p class="text-xs text-slate-500 mt-0.5">Distribución territorial de productores y gestión de solicitudes de cambio de zona por rotación de pastoreo.</p>
-            </div>
-        </div>
-    </div>
 
-    <!-- Zonas 1 a 4 Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <x-tabla
+        titulo="Zonas de Acopio · Distrito de Huata"
+        descripcion="Los cuatro sectores en que se reparte el distrito y cuántos productores tiene cada uno. Son fijos: la rotación se maneja asignando el acopiador del día."
+        :coleccion="$zones"
+        :columnas="4"
+        vacio="No hay zonas configuradas.">
+
+        <x-slot:encabezados>
+            <th class="text-left py-3 px-4 font-bold">Código</th>
+            <th class="text-left py-3 px-4 font-bold">Zona</th>
+            <th class="text-left py-3 px-4 font-bold">Sectores que cubre</th>
+            <th class="text-right py-3 px-4 font-bold">Productores</th>
+        </x-slot:encabezados>
+
         @foreach($zones as $zone)
-        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-md transition">
-            <div>
-                <div class="flex items-center justify-between mb-3">
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-[#0f1713] text-[#bef264]">{{ $zone->code }}</span>
-                    <div class="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 text-xs">
-                        <i class="fa-solid fa-mountain-sun"></i>
-                    </div>
-                </div>
-                <h3 class="text-base font-bold text-slate-900">{{ $zone->name }}</h3>
-                <p class="text-xs text-slate-500 mt-2 leading-relaxed">{{ $zone->description }}</p>
+        <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
+            <td class="py-3 px-4 font-mono text-slate-400">{{ $zone->id }}</td>
+            <td class="py-3 px-4">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-[#0f1713] text-[#bef264]">{{ $zone->code }}</span>
+            </td>
+            <td class="py-3 px-4 font-bold text-slate-900">{{ $zone->name }}</td>
+            <td class="py-3 px-4 text-slate-500">{{ $zone->description }}</td>
+            <td class="py-3 px-4 text-right font-black text-slate-800">{{ $zone->producers->count() }}</td>
+        </tr>
+        @endforeach
+    </x-tabla>
+
+    @if(in_array(Auth::user()->role, ['admin', 'jefe_general']))
+    <x-tabla
+        titulo="Asignación de zonas de hoy"
+        descripcion="Qué acopiador cubre cada zona el {{ $today }}. Son 4 zonas y 5 acopiadores: el que queda fuera descansa."
+        :coleccion="$zones"
+        :columnas="5"
+        vacio="No hay zonas configuradas.">
+
+        <x-slot:acciones>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400 font-medium whitespace-nowrap">Asignadas: {{ $rutasDeHoy->count() }} de {{ $zones->count() }}</span>
+                @if(Auth::user()->role === 'admin')
+                <button type="button" data-abrir="modalAsignarZona"
+                    class="px-4 py-2.5 rounded-xl bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">
+                    <i class="fa-solid fa-calendar-check mr-1"></i> Asignar zona
+                </button>
+                @endif
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-xs text-slate-400 font-medium">Productores</span>
-                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800">
-                    {{ $zone->producers->count() }} registrados
+        </x-slot:acciones>
+
+        <x-slot:encabezados>
+            <th class="text-left py-3 px-4 font-bold">Zona</th>
+            <th class="text-left py-3 px-4 font-bold">Acopiador asignado</th>
+            <th class="text-left py-3 px-4 font-bold">Hora de salida</th>
+            <th class="text-right py-3 px-4 font-bold">Litros anotados</th>
+            <th class="text-right py-3 px-4 font-bold">Estado</th>
+        </x-slot:encabezados>
+
+        @foreach($zones as $zone)
+        @php($ruta = $rutasDeHoy->firstWhere('zone_id', $zone->id))
+        <tr class="border-b border-slate-50 hover:bg-slate-50/60 transition">
+            <td class="py-3 px-4 font-mono text-slate-400">{{ $ruta?->id ?? '—' }}</td>
+            <td class="py-3 px-4 font-bold text-slate-900">{{ $zone->name }}</td>
+            <td class="py-3 px-4 text-slate-700 font-medium">{{ $ruta?->collector?->name ?? '—' }}</td>
+            <td class="py-3 px-4 font-mono text-slate-500 font-bold">{{ $ruta?->start_time ?? '—' }}</td>
+            <td class="py-3 px-4 text-right font-extrabold text-[#0f1713]">
+                @if($ruta)
+                {{ number_format($ruta->total_collected_liters, 2) }} L
+                @else
+                <span class="font-medium text-slate-300">—</span>
+                @endif
+            </td>
+            <td class="py-3 px-4 text-right">
+                @if($ruta)
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+                    {{ $ruta->status === 'descargado' ? 'bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
+                    {{ $ruta->status }}
+                </span>
+                @else
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
+                    Sin asignar
+                </span>
+                @endif
+            </td>
+        </tr>
+        @endforeach
+    </x-tabla>
+    @endif
+
+</div>
+
+@if(Auth::user()->role === 'admin')
+{{-- Modal: asignar un acopiador a una zona --}}
+<div id="modalAsignarZona" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl">
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Asignar acopiador a zona</h3>
+                <p class="text-[11px] text-slate-500">La salida del camión es a las 4:30 AM.</p>
+            </div>
+            <button type="button" data-cerrar class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+        </div>
+
+        <form action="{{ route('acopio.assign') }}" method="POST" class="space-y-3 text-xs">
+            @csrf
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Fecha de salida</label>
+                <input type="date" name="date" value="{{ old('date', $today) }}" required
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:bg-white">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Zona de Huata</label>
+                <select name="zone_id" required
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:bg-white">
+                    @foreach($zones as $zone)
+                    <option value="{{ $zone->id }}" @selected(old('zone_id') == $zone->id)>{{ $zone->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Acopiador responsable</label>
+                <select name="collector_id" required
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:bg-white">
+                    @foreach($collectors as $collector)
+                    <option value="{{ $collector->id }}" @selected(old('collector_id') == $collector->id)>
+                        {{ $collector->name }}{{ $collector->phone ? ' ('.$collector->phone.')' : '' }}
+                    </option>
+                    @endforeach
+                </select>
+                <span class="text-[10px] text-slate-400 mt-1 block">
+                    Un acopiador solo puede tener una ruta por día.
                 </span>
             </div>
-        </div>
-        @endforeach
-    </div>
-
-    <!-- Solicitudes de cambio de zona pendientes (Para Admin) -->
-    @if(in_array(Auth::user()->role, ['admin', 'jefe_general']))
-    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-        <div class="flex items-center justify-between mb-5">
-            <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-arrows-split-up-and-left"></i>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900">Solicitudes de Rotación de Zona Pendientes</h3>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Hora de salida</label>
+                <input type="time" name="start_time" value="{{ old('start_time', '04:30') }}" required
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:bg-white">
             </div>
-            <span class="text-xs text-slate-400 font-medium">Pendientes: {{ $pendingRequests->count() }}</span>
-        </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                        <th class="pb-3 px-3">Fecha</th>
-                        <th class="pb-3 px-3">Productor</th>
-                        <th class="pb-3 px-3">Zona Actual</th>
-                        <th class="pb-3 px-3">Zona Solicitada</th>
-                        <th class="pb-3 px-3">Motivo</th>
-                        <th class="pb-3 px-3 text-right">Decisión</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @forelse($pendingRequests as $req)
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="py-3.5 px-3 text-slate-500 font-medium">{{ $req->created_at->format('Y-m-d') }}</td>
-                        <td class="py-3.5 px-3 font-bold text-slate-800">{{ $req->producer->name }}</td>
-                        <td class="py-3.5 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">
-                                {{ $req->currentZone->name }}
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/40 text-[#0f1713] border border-[#bef264]/60">
-                                {{ $req->requestedZone->name }}
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-3 text-slate-600 max-w-xs truncate">{{ $req->reason ?: 'Sin detalle' }}</td>
-                        <td class="py-3.5 px-3 text-right">
-                            <form action="{{ route('zonas.review-request', $req->id) }}" method="POST" class="inline-flex items-center gap-2">
-                                @csrf
-                                <button type="submit" name="decision" value="aprobado" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0f1713] hover:bg-slate-900 text-[#bef264] transition">
-                                    Aprobar
-                                </button>
-                                <button type="submit" name="decision" value="rechazado" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 transition">
-                                    Rechazar
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="p-8 text-center text-slate-400 font-medium">No hay solicitudes de cambio de zona pendientes en este momento.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
+                <button type="submit" class="flex-1 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar asignación</button>
+            </div>
+        </form>
     </div>
-    @endif
 </div>
+
+<script>
+(function () {
+    const modal = document.getElementById('modalAsignarZona');
+
+    document.querySelectorAll('[data-abrir="modalAsignarZona"]').forEach(function (boton) {
+        boton.addEventListener('click', function () { modal.hidden = false; });
+    });
+
+    modal.querySelectorAll('[data-cerrar]').forEach(function (boton) {
+        boton.addEventListener('click', function () { modal.hidden = true; });
+    });
+
+    modal.addEventListener('click', function (evento) {
+        if (evento.target === modal) { modal.hidden = true; }
+    });
+
+    document.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Escape') { modal.hidden = true; }
+    });
+
+    // Si la asignación fue rechazada, el formulario vuelve con errores:
+    // que el modal siga abierto en vez de esconder el motivo.
+    @if($errors->any())
+    modal.hidden = false;
+    @endif
+})();
+</script>
+@endif
 @endsection

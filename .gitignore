@@ -1,0 +1,18 @@
+# Local workspace caches and IDE settings
+/.gradle/
+/.idea/
+
+# Machine-specific configuration and credentials
+**/.env
+**/.env.backup
+**/.env.production
+**/auth.json
+**/local.properties
+
+# Artefactos de trabajo del agente y entregables compilados
+**/.artifacts/
+/entrega/
+
+# Salidas de compilacion
+**/build/
+**/local.properties
