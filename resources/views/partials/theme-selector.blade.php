@@ -1,0 +1,1 @@
+<label class="huata-theme">Apariencia<select class="form-select" data-huata-theme aria-label="Apariencia"><option value="sistema">Sistema</option><option value="claro">Claro</option><option value="oscuro">Oscuro</option></select></label>
