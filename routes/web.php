@@ -19,19 +19,23 @@ use App\Http\Controllers\ProductorController;
 use App\Http\Controllers\QualityController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SistemaController;
+use App\Http\Controllers\TiempoRealController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ZoneController;
 
 // Rutas públicas de autenticación
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('home');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Rutas autenticadas protegidas
 Route::middleware('auth')->group(function () {
     // Dashboard principal con despacho por rol
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Huella de datos: la web se actualiza sola cuando el móvil sube cambios
+    Route::get('/tiempo-real/version', [TiempoRealController::class, 'version'])->name('tiempo-real.version');
 
     // 1. Acopio en ruta (4:30 AM)
     Route::prefix('acopio')->name('acopio.')->group(function () {
@@ -44,8 +48,8 @@ Route::middleware('auth')->group(function () {
 
     // 2. Planta y Verificación de Caudalímetro
     Route::prefix('planta')->name('planta.')->group(function () {
-        Route::get('/verificacion', [PlantReceptionController::class, 'index'])->name('verificacion');
-        Route::post('/verificar/{route}', [PlantReceptionController::class, 'verifyReception'])->name('verify');
+        Route::get('/verificacion', [PlantReceptionController::class, 'index'])->middleware('rol:jefe_produccion,admin,jefe_general')->name('verificacion');
+        Route::post('/verificar/{route}', [PlantReceptionController::class, 'verifyReception'])->middleware('rol:jefe_produccion,jefe_general')->name('verify');
     });
 
     // 3. Elaboración de Queso (1 molde = 10 L stock leche)
@@ -83,10 +87,10 @@ Route::middleware('auth')->group(function () {
     // 4. Ventas y Despacho (Tarifas S/ 18, 19, 20 + Solo efectivo + Recibos)
     Route::prefix('ventas')->name('ventas.')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('index');
-        Route::post('/cierre-caja', [SalesController::class, 'closeCashRegister'])->name('close-cash');
+        Route::post('/cierre-caja', [SalesController::class, 'closeCashRegister'])->middleware('rol:personal_venta,admin,jefe_general')->name('close-cash');
         Route::get('/recibos', [SalesController::class, 'receiptsHistory'])->name('receipts');
         Route::get('/nueva', [SalesController::class, 'create'])->name('create');
-        Route::post('/', [SalesController::class, 'store'])->name('store');
+        Route::post('/', [SalesController::class, 'store'])->middleware('rol:personal_venta,admin,jefe_general')->name('store');
         Route::get('/recibo/{sale}', [SalesController::class, 'showReceipt'])->name('receipt');
         // Endpoints auxiliares para cálculo y autocompletado en caja
         Route::get('/clientes/buscar', [SalesController::class, 'searchCustomer'])->name('customers.search');
@@ -98,21 +102,21 @@ Route::middleware('auth')->group(function () {
     Route::prefix('calidad')->name('calidad.')->group(function () {
         Route::get('/', [QualityController::class, 'index'])->name('index');
         Route::get('/analisis', fn () => redirect()->route('calidad.index'));
-        Route::post('/analisis', [QualityController::class, 'storeAnalysis'])->name('analysis.store');
-        Route::post('/analisis/{analysis}/cita', [QualityController::class, 'scheduleVisit'])->name('visit.schedule');
-        Route::post('/cita/{visit}/completar', [QualityController::class, 'completeVisit'])->name('visit.complete');
+        Route::post('/analisis', [QualityController::class, 'storeAnalysis'])->middleware('rol:inspector_calidad,admin,jefe_general')->name('analysis.store');
+        Route::post('/analisis/{analysis}/cita', [QualityController::class, 'scheduleVisit'])->middleware('rol:inspector_calidad,jefe_general')->name('visit.schedule');
+        Route::post('/cita/{visit}/completar', [QualityController::class, 'completeVisit'])->middleware('rol:inspector_calidad,jefe_general')->name('visit.complete');
     });
 
     // 6. Zonas de Huata y Solicitudes de Cambio
     Route::prefix('zonas')->name('zonas.')->group(function () {
         Route::get('/', [ZoneController::class, 'index'])->name('index');
         Route::get('/solicitudes', [ZoneController::class, 'solicitudes'])->name('solicitudes');
-        Route::post('/solicitar-cambio', [ZoneController::class, 'requestChange'])->name('request-change');
-        Route::post('/solicitud/{zoneChangeRequest}/revisar', [ZoneController::class, 'reviewRequest'])->name('review-request');
+        Route::post('/solicitar-cambio', [ZoneController::class, 'requestChange'])->middleware('rol:productor')->name('request-change');
+        Route::post('/solicitud/{zoneChangeRequest}/revisar', [ZoneController::class, 'reviewRequest'])->middleware('rol:admin,jefe_general')->name('review-request');
     });
 
     // 7. Anuncios y Avisos en Login
-    Route::prefix('anuncios')->name('anuncios.')->group(function () {
+    Route::prefix('anuncios')->name('anuncios.')->middleware('rol:admin,jefe_general')->group(function () {
         Route::get('/', [AnnouncementController::class, 'index'])->name('index');
         Route::post('/', [AnnouncementController::class, 'store'])->name('store');
     });
@@ -121,12 +125,12 @@ Route::middleware('auth')->group(function () {
     Route::prefix('productor')->name('productor.')->group(function () {
         Route::get('/acopio', [ProductorController::class, 'acopio'])->name('acopio');
         Route::get('/zonas', [ProductorController::class, 'zonas'])->name('zonas');
-        Route::post('/zonas/solicitar', [ProductorController::class, 'solicitarCambioZona'])->name('zonas.solicitar');
+        Route::post('/zonas/solicitar', [ProductorController::class, 'solicitarCambioZona'])->middleware('rol:productor')->name('zonas.solicitar');
         Route::get('/descuentos', [ProductorController::class, 'descuentos'])->name('descuentos');
         Route::get('/pagos', [ProductorController::class, 'pagos'])->name('pagos');
         Route::get('/pagos/{id}/recibo', [ProductorController::class, 'reciboPago'])->name('pagos.recibo');
         Route::get('/calidad', [ProductorController::class, 'calidad'])->name('calidad');
-        Route::post('/liquidar/{user}', [ProductorController::class, 'liquidarSemana'])->name('liquidar');
+        Route::post('/liquidar/{user}', [ProductorController::class, 'liquidarSemana'])->middleware('rol:personal_pago,admin,jefe_general')->name('liquidar');
     });
 
     // 9. Administración: Tarifas y Precios de Temporada
@@ -156,14 +160,14 @@ Route::middleware('auth')->group(function () {
     });
 
     // 10. Administración: Panel de Autorización y Liquidación de Pagos
-    Route::prefix('admin/pagos')->name('admin.pagos.')->group(function () {
+    Route::prefix('admin/pagos')->name('admin.pagos.')->middleware('rol:personal_pago,admin,jefe_general')->group(function () {
         Route::get('/autorizacion', [PaymentAuthorizationController::class, 'index'])->name('autorizacion');
         Route::post('/autorizar/{producer}', [PaymentAuthorizationController::class, 'authorizeSingle'])->name('authorize-single');
         Route::post('/autorizar-todos', [PaymentAuthorizationController::class, 'authorizeAll'])->name('authorize-all');
     });
 
     // 11. Rol Pagador de Campo: Entrega de Sobres en Efectivo (Viernes en Ruta)
-    Route::prefix('pagos/ruta')->name('pagos.ruta.')->group(function () {
+    Route::prefix('pagos/ruta')->name('pagos.ruta.')->middleware('rol:pagador_campo,personal_pago,admin,jefe_general')->group(function () {
         Route::get('/', [FieldPaymentController::class, 'index'])->name('index');
         Route::post('/pagar/{producer}', [FieldPaymentController::class, 'payProducer'])->name('pay');
         Route::get('/recibo/{settlement}', [FieldPaymentController::class, 'receipt'])->name('receipt');
@@ -171,7 +175,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // 12. Administración: Flujo de Caja y Control Financiero (Ingresos vs Egresos)
-    Route::prefix('admin/finanzas')->name('admin.finanzas.')->group(function () {
+    Route::prefix('admin/finanzas')->name('admin.finanzas.')->middleware('rol:admin,jefe_general')->group(function () {
         Route::get('/', [FinancialController::class, 'index'])->name('index');
         Route::post('/egreso', [FinancialController::class, 'storeExpense'])->name('expense.store');
     });

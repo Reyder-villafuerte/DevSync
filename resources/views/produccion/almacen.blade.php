@@ -37,7 +37,7 @@
                     <span class="text-sm font-black text-slate-800">S/ {{ number_format($valorAlmacen, 2) }}</span>
                 </div>
                 <button type="button" data-abrir="modalInsumo"
-                    class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                    class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                     <i class="fa-solid fa-plus mr-1"></i> Agregar
                 </button>
             </div>
@@ -48,7 +48,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar insumo..."
-                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <select name="entrada" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                     <option value="">Cómo entra: todos</option>
@@ -157,7 +157,7 @@
             <td class="py-3 px-4 text-right font-bold text-slate-900">
                 {{ $tarifa === null ? 'sin tarifa' : 'S/ '.number_format($tarifa, 2) }}
             </td>
-            <td class="py-3 px-4 text-right font-black {{ $margen !== null && $margen < 0 ? 'text-rose-600' : 'text-spark-limeText' }}">
+            <td class="py-3 px-4 text-right font-black {{ $margen !== null && $margen < 0 ? 'text-[#C62828]' : 'text-spark-limeText' }}">
                 {{ $margen === null ? '—' : 'S/ '.number_format($margen, 2) }}
             </td>
             <td class="py-3 px-4 text-right text-slate-600">
@@ -190,7 +190,7 @@
             <td class="py-3 px-4 text-slate-500">{{ $mov->created_at->format('d/m H:i') }}</td>
             <td class="py-3 px-4 font-bold text-slate-800">{{ $mov->supply->name }}</td>
             <td class="py-3 px-4 text-slate-600">{{ $mov->etiqueta() }}</td>
-            <td class="py-3 px-4 text-right font-black {{ $mov->quantity < 0 ? 'text-rose-600' : 'text-spark-limeText' }}">
+            <td class="py-3 px-4 text-right font-black {{ $mov->quantity < 0 ? 'text-[#C62828]' : 'text-spark-limeText' }}">
                 {{ $mov->quantity > 0 ? '+' : '' }}{{ rtrim(rtrim(number_format($mov->quantity, 3, '.', ''), '0'), '.') }}
                 {{ $mov->supply->unit }}
             </td>
@@ -206,7 +206,7 @@
 </div>
 
 {{-- Modal: alta de insumo --}}
-<div id="modalInsumo" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalInsumo" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-xl">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -271,7 +271,7 @@
             </div>
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar insumo</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar insumo</button>
             </div>
         </form>
     </div>

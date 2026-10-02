@@ -7,13 +7,13 @@
     <!-- Header Banner -->
     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-[#1565C0] text-white flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-money-bill-wave"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-xl font-black text-slate-900 tracking-tight">Pagos de Sueldos en Ruta (Viernes)</h1>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50 uppercase tracking-wide">Efectivo en Mano</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20 uppercase tracking-wide">Efectivo en Mano</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">
                     <strong>Ciclo Semanal de Huata:</strong> Miércoles (Cierre de caja) · Jueves (Conteo de sobres) · Viernes (Pago en ruta junto al acopiador).
@@ -41,13 +41,13 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl p-6 border border-emerald-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between">
+        <div class="bg-white rounded-3xl p-6 border border-[#2E7D32]/25 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between">
             <div>
-                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Sobres Entregados Hoy</span>
-                <div class="text-2xl font-black text-emerald-700 mt-1">S/ {{ number_format($montoEntregado, 2) }}</div>
-                <span class="text-xs text-emerald-600 font-medium mt-0.5 block">{{ $sobresEntregados }} productores pagados</span>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-[#2E7D32]">Sobres Entregados Hoy</span>
+                <div class="text-2xl font-black text-[#2E7D32] mt-1">S/ {{ number_format($montoEntregado, 2) }}</div>
+                <span class="text-xs text-[#2E7D32] font-medium mt-0.5 block">{{ $sobresEntregados }} productores pagados</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+            <div class="w-12 h-12 rounded-2xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center text-xl">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
         </div>
@@ -71,15 +71,15 @@
                 <!-- Selector de Zonas -->
                 <div class="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
                     <span class="text-xs font-bold text-slate-700 mr-2 flex items-center gap-1">
-                        <i class="fa-solid fa-location-dot text-[#0f1713]"></i> Zona de Ruta:
+                        <i class="fa-solid fa-location-dot text-[#1565C0]"></i> Zona de Ruta:
                     </span>
                     <a href="{{ route('pagos.ruta.index', array_merge(request()->except('zone_id'), [])) }}" 
-                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ !$selectedZoneId ? 'bg-[#0f1713] text-[#bef264]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ !$selectedZoneId ? 'bg-[#2E7D32] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                         Todas las Zonas
                     </a>
                     @foreach($zones as $z)
                         <a href="{{ route('pagos.ruta.index', array_merge(request()->except('zone_id'), ['zone_id' => $z->id])) }}" 
-                           class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $selectedZoneId == $z->id ? 'bg-[#0f1713] text-[#bef264]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                           class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $selectedZoneId == $z->id ? 'bg-[#2E7D32] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                             {{ $z->name }}
                         </a>
                     @endforeach
@@ -92,7 +92,7 @@
                         Todos
                     </a>
                     <a href="{{ route('pagos.ruta.index', array_merge(request()->except('status'), ['status' => 'autorizados'])) }}" 
-                       class="px-3 py-1.5 rounded-xl transition {{ $selectedStatus === 'autorizados' ? 'bg-[#0f1713] text-[#bef264] shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                       class="px-3 py-1.5 rounded-xl transition {{ $selectedStatus === 'autorizados' ? 'bg-[#2E7D32] text-white shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
                         Listos en Sobre ({{ $sobresPendientes }})
                     </a>
                     <a href="{{ route('pagos.ruta.index', array_merge(request()->except('status'), ['status' => 'pendientes'])) }}" 
@@ -100,7 +100,7 @@
                         Sin Autorizar
                     </a>
                     <a href="{{ route('pagos.ruta.index', array_merge(request()->except('status'), ['status' => 'pagados'])) }}" 
-                       class="px-3 py-1.5 rounded-xl transition {{ $selectedStatus === 'pagados' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-emerald-700' }}">
+                       class="px-3 py-1.5 rounded-xl transition {{ $selectedStatus === 'pagados' ? 'bg-[#2E7D32] text-white shadow-sm' : 'text-slate-500 hover:text-[#2E7D32]' }}">
                         Pagados ({{ $sobresEntregados }})
                     </a>
                 </div>
@@ -109,9 +109,9 @@
             <div class="flex gap-2">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar productor por nombre o DNI..." class="w-full text-xs pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar productor por nombre o DNI..." class="w-full text-xs pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                 </div>
-                <button type="submit" class="px-5 py-2.5 bg-[#0f1713] text-[#bef264] text-xs font-bold rounded-2xl hover:bg-slate-900 transition flex items-center gap-1.5">
+                <button type="submit" class="px-5 py-2.5 bg-[#E65100] text-white text-xs font-bold rounded-2xl hover:bg-[#A33C00] transition flex items-center gap-1.5">
                     <i class="fa-solid fa-filter text-[10px]"></i> Filtrar
                 </button>
                 @if($search || $selectedZoneId || $selectedStatus !== 'todos')
@@ -174,7 +174,7 @@
                         <td class="py-3.5 px-3">
                             @if($item['is_authorized'])
                                 @if($item['deductions'] > 0)
-                                    <span class="text-rose-600 font-bold">-S/ {{ number_format($item['deductions'], 2) }}</span>
+                                    <span class="text-[#C62828] font-bold">-S/ {{ number_format($item['deductions'], 2) }}</span>
                                 @else
                                     <span class="text-slate-400">S/ 0.00</span>
                                 @endif
@@ -184,7 +184,7 @@
                         </td>
                         <td class="py-3.5 px-3 text-right">
                             @if($item['is_authorized'])
-                                <span class="text-sm font-black text-slate-900 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl text-emerald-800">
+                                <span class="text-sm font-black text-slate-900 bg-[#E8F5E9] border border-[#2E7D32]/25 px-3 py-1 rounded-xl text-[#1B5E20]">
                                     S/ {{ number_format($item['net'], 2) }}
                                 </span>
                             @else
@@ -195,11 +195,11 @@
                         </td>
                         <td class="py-3.5 px-3 text-center">
                             @if($item['status'] === 'pagado')
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-[#1B5E20] border border-[#2E7D32]/25">
                                     <i class="fa-solid fa-circle-check text-[9px]"></i> Sobre Entregado
                                 </span>
                             @elseif($item['status'] === 'autorizado')
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#bef264]/40 text-[#0f1713] border border-[#bef264]">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#DCD3C4]">
                                     <i class="fa-solid fa-envelope-circle-check text-[9px]"></i> Listo en Sobre
                                 </span>
                             @else
@@ -219,7 +219,7 @@
                                     <input type="hidden" name="zone_id" value="{{ $selectedZoneId }}">
                                     <input type="hidden" name="status" value="{{ $selectedStatus }}">
                                     <input type="hidden" name="search" value="{{ $search }}">
-                                    <button type="submit" class="px-3.5 py-1.5 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] rounded-xl text-[11px] font-black transition inline-flex items-center gap-1.5 shadow-sm">
+                                    <button type="submit" class="px-3.5 py-1.5 bg-[#E65100] hover:bg-[#A33C00] text-white rounded-xl text-[11px] font-black transition inline-flex items-center gap-1.5 shadow-sm">
                                         <i class="fa-solid fa-hand-holding-dollar"></i> Entregar Sobre
                                     </button>
                                 </form>

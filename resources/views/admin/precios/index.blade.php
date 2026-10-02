@@ -14,7 +14,7 @@
 
         <x-slot:acciones>
             <button type="button" data-nueva-tarifa
-                class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </button>
         </x-slot:acciones>
@@ -37,7 +37,7 @@
                 {{ $regla->name }}
             </td>
             <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">{{ $regla->etiquetaCondicion() }}</td>
-            <td class="py-3 px-4 text-right font-black text-[#0f1713]">S/ {{ number_format($regla->price_per_unit, 2) }}</td>
+            <td class="py-3 px-4 text-right font-black text-[#1565C0]">S/ {{ number_format($regla->price_per_unit, 2) }}</td>
             <td class="py-3 px-4 text-center">
                 @if($regla->applies_to_whole_cycle)
                 <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Sí</span>
@@ -69,7 +69,7 @@
                         onsubmit="return confirm('¿Eliminar la tarifa {{ $regla->name }}?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
                             Eliminar
                         </button>
                     </form>
@@ -89,7 +89,7 @@
 
         <x-slot:acciones>
             <button type="button" data-cerrar-temporada
-                class="px-4 py-2.5 rounded-xl bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-white font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-floppy-disk mr-1"></i> Cerrar temporada
             </button>
         </x-slot:acciones>
@@ -108,7 +108,7 @@
             <td class="py-3 px-4 font-bold text-slate-800">
                 {{ $item->season_name }}
                 @if($item->is_active)
-                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-lime-100 text-spark-limeText ml-1">Vigente</span>
+                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#1565C0]/10 text-spark-limeText ml-1">Vigente</span>
                 @endif
             </td>
             <td class="py-3 px-4 text-right font-mono text-slate-700">S/ {{ number_format($item->price_milk_base, 2) }}</td>
@@ -124,7 +124,7 @@
 </div>
 
 {{-- Modal: cerrar temporada --}}
-<div id="modalTemporada" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalTemporada" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -149,7 +149,7 @@
             </div>
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Cerrar temporada</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-white font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Cerrar temporada</button>
             </div>
         </form>
     </div>
@@ -174,7 +174,7 @@
 </script>
 
 {{-- Modal: crear o editar una tarifa de acopio --}}
-<div id="modalTarifa" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalTarifa" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -270,7 +270,7 @@
 
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-white font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
             </div>
         </form>
     </div>

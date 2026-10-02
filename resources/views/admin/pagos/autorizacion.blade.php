@@ -7,13 +7,13 @@
     <!-- Header Banner -->
     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-[#1565C0] text-white flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-money-check-dollar"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-xl font-black text-slate-900 tracking-tight">Panel de Autorización de Pagos a Proveedores</h1>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50 uppercase tracking-wide">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20 uppercase tracking-wide">
                         Liquidaciones Huata
                     </span>
                 </div>
@@ -25,13 +25,13 @@
 
         <div class="flex items-center gap-3">
             <a href="{{ route('admin.precios.index') }}" class="px-3.5 py-2 rounded-2xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition inline-flex items-center gap-2">
-                <i class="fa-solid fa-tags text-emerald-600"></i> Ajustar Tarifas
+                <i class="fa-solid fa-tags text-[#2E7D32]"></i> Ajustar Tarifas
             </a>
 
             @if(count($pendientesList) > 0)
             <form action="{{ route('admin.pagos.authorize-all') }}" method="POST" onsubmit="return confirm('¿Confirmas autorizar y liquidar el pago de TODOS los productores pendientes? Todos los acumuladores semanales se reiniciarán.')">
                 @csrf
-                <button type="submit" class="px-4 py-2 rounded-2xl bg-[#0f1713] text-[#bef264] text-xs font-bold hover:bg-slate-900 transition inline-flex items-center gap-2 shadow-sm">
+                <button type="submit" class="px-4 py-2 rounded-2xl bg-[#E65100] text-white text-xs font-bold hover:bg-[#A33C00] transition inline-flex items-center gap-2 shadow-sm">
                     <i class="fa-solid fa-bolt"></i> Autorizar Todos ({{ count($pendientesList) }})
                 </button>
             </form>
@@ -45,7 +45,7 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Productores por Liquidar</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-[#0f1713]">{{ count($pendientesList) }}</span>
+                <span class="text-3xl font-black text-[#1565C0]">{{ count($pendientesList) }}</span>
                 <span class="text-xs font-bold text-slate-400">proveedores</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Con entregas o deducciones activas.</p>
@@ -55,7 +55,7 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Litros Pendientes</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-[#0f1713]">{{ number_format($totalLitrosPendientes, 1) }}</span>
+                <span class="text-3xl font-black text-[#1565C0]">{{ number_format($totalLitrosPendientes, 1) }}</span>
                 <span class="text-xs font-bold text-slate-400">Litros</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Acopio acumulado en el ciclo abierto.</p>
@@ -63,19 +63,19 @@
 
         <!-- Deducciones / Quesos y Calidad -->
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-            <span class="text-[10px] uppercase font-bold text-rose-600 tracking-wider">Deducciones a Aplicar</span>
+            <span class="text-[10px] uppercase font-bold text-[#C62828] tracking-wider">Deducciones a Aplicar</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-rose-600">S/ {{ number_format($totalDeduccionesPendientes, 2) }}</span>
+                <span class="text-3xl font-black text-[#C62828]">S/ {{ number_format($totalDeduccionesPendientes, 2) }}</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Compras de queso a cuenta y penalidades por calidad.</p>
         </div>
 
         <!-- Total Neto a Desembolsar -->
-        <div class="bg-[#0f1713] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between">
+        <div class="bg-[#1565C0] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between">
             <div>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264] text-[#0f1713] uppercase tracking-wider">Desembolso Neto</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E3F2FD] text-[#1565C0] uppercase tracking-wider">Desembolso Neto</span>
                 <div class="flex items-baseline gap-1.5 mt-2">
-                    <span class="text-3xl font-black text-[#bef264]">S/ {{ number_format($totalNetoPendiente, 2) }}</span>
+                    <span class="text-3xl font-black text-white">S/ {{ number_format($totalNetoPendiente, 2) }}</span>
                 </div>
             </div>
             <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">Pago directo en efectivo en planta de Huata.</p>
@@ -115,7 +115,7 @@
                             <div class="flex items-center gap-2">
                                 <button type="button" 
                                         onclick="toggleDetail('row-detail-{{ $item->producer->id }}')" 
-                                        class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-[#bef264] text-slate-600 hover:text-[#0f1713] transition inline-flex items-center justify-center font-bold shadow-xs cursor-pointer"
+                                        class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-[#EEE7DB] text-slate-600 hover:text-[#1565C0] transition inline-flex items-center justify-center font-bold shadow-xs cursor-pointer"
                                         title="Ver detalles despejados">
                                     <i class="fa-solid fa-eye text-xs"></i>
                                 </button>
@@ -140,11 +140,11 @@
                         <!-- Tarifa Base y Calidad -->
                         <td class="py-3.5 px-3">
                             <div class="flex flex-col gap-1">
-                                <span class="font-bold text-[#0f1713]">
+                                <span class="font-bold text-[#1565C0]">
                                     S/ {{ number_format($item->effective_price, 2) }} / L
                                 </span>
                                 @if($item->price_info['penalty_type'] === 'grave_expulsion')
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-100 text-rose-800 border border-rose-300 w-fit">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-100 text-[#C62828] border border-[#C62828]/25 w-fit">
                                         Agua > 5% (Expulsión)
                                     </span>
                                 @elseif($item->price_info['penalty_type'] === 'leve_descuento')
@@ -152,7 +152,7 @@
                                         Agua &le; 5% (-S/ {{ number_format($item->base_price - $item->effective_price, 2) }}/L)
                                     </span>
                                 @else
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-medium bg-[#E8F5E9] text-[#2E7D32] border border-[#2E7D32]/25 w-fit">
                                         Leche Conforme
                                     </span>
                                 @endif
@@ -168,7 +168,7 @@
                         <td class="py-3.5 px-3">
                             @if($item->total_deductions > 0)
                                 <div class="space-y-0.5">
-                                    <span class="font-bold text-rose-600 block text-xs">- S/ {{ number_format($item->total_deductions, 2) }}</span>
+                                    <span class="font-bold text-[#C62828] block text-xs">- S/ {{ number_format($item->total_deductions, 2) }}</span>
                                     @if($item->adulteration_found)
                                     <span class="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 block truncate max-w-xs font-semibold">
                                         • Penalidad agua ({{ $item->adulteration_details->water_percentage }}% el {{ $item->adulteration_details->day_name }}): -S/ {{ number_format($item->water_penalty_total, 2) }}
@@ -187,7 +187,7 @@
 
                         <!-- Neto a Liquidar -->
                         <td class="py-3.5 px-3 whitespace-nowrap">
-                            <span class="text-sm font-black text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
+                            <span class="text-sm font-black text-[#1B5E20] bg-[#E8F5E9] px-2.5 py-1 rounded-xl border border-[#2E7D32]/25">
                                 S/ {{ number_format($item->net, 2) }}
                             </span>
                         </td>
@@ -197,7 +197,7 @@
                             <div class="inline-flex items-center gap-2">
                                 <button type="button" 
                                         onclick="toggleDetail('row-detail-{{ $item->producer->id }}')" 
-                                        class="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-[#bef264] text-slate-700 hover:text-[#0f1713] transition inline-flex items-center gap-1.5"
+                                        class="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-[#EEE7DB] text-slate-700 hover:text-[#1565C0] transition inline-flex items-center gap-1.5"
                                         title="Ver detalles despejados">
                                     <i class="fa-solid fa-eye text-[11px]"></i>
                                     <span>Ver</span>
@@ -205,7 +205,7 @@
 
                                 <form action="{{ route('admin.pagos.authorize-single', $item->producer->id) }}" method="POST" onsubmit="return confirm('¿Autorizar y liquidar el pago de S/ {{ number_format($item->net, 2) }} a {{ $item->producer->name }}?')">
                                     @csrf
-                                    <button type="submit" class="px-3 py-2 rounded-xl text-xs font-bold bg-[#0f1713] hover:bg-slate-900 text-[#bef264] transition shadow-sm inline-flex items-center gap-1.5">
+                                    <button type="submit" class="px-3 py-2 rounded-xl text-xs font-bold bg-[#E65100] hover:bg-[#A33C00] text-white transition shadow-sm inline-flex items-center gap-1.5">
                                         <i class="fa-solid fa-money-bill-wave text-[11px]"></i>
                                         <span>Autorizar</span>
                                     </button>
@@ -221,7 +221,7 @@
                                 <!-- Cabecera del desglose -->
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
                                     <div class="flex items-center gap-2">
-                                        <span class="w-8 h-8 rounded-xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xs">
+                                        <span class="w-8 h-8 rounded-xl bg-[#1565C0] text-white flex items-center justify-center text-xs">
                                             <i class="fa-solid fa-receipt"></i>
                                         </span>
                                         <div>
@@ -244,9 +244,9 @@
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                            <i class="fa-solid fa-calendar-week text-emerald-600"></i> Entregas Diarias de Leche (Acopio por Día)
+                                            <i class="fa-solid fa-calendar-week text-[#2E7D32]"></i> Entregas Diarias de Leche (Acopio por Día)
                                         </span>
-                                        <span class="text-xs font-black text-[#0f1713] bg-[#bef264]/40 px-2.5 py-0.5 rounded-full border border-[#bef264]">
+                                        <span class="text-xs font-black text-[#1565C0] bg-[#1565C0]/10 px-2.5 py-0.5 rounded-full border border-[#DCD3C4]">
                                             Total: {{ number_format($item->liters, 2) }} Litros
                                         </span>
                                     </div>
@@ -254,13 +254,13 @@
                                     @if(count($item->daily_breakdown) > 0)
                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
                                         @foreach($item->daily_breakdown as $rec)
-                                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/70 hover:border-emerald-300 transition">
+                                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/70 hover:border-[#2E7D32]/25 transition">
                                             <div class="flex items-center justify-between">
                                                 <span class="text-[11px] font-black text-slate-800 uppercase">{{ $rec->day_name }}</span>
                                                 <span class="text-[9px] text-slate-400 font-mono">{{ $rec->date_formatted }}</span>
                                             </div>
                                             <div class="mt-2 text-center">
-                                                <span class="text-lg font-black text-[#0f1713]">{{ number_format($rec->liters, 2) }}</span>
+                                                <span class="text-lg font-black text-[#1565C0]">{{ number_format($rec->liters, 2) }}</span>
                                                 <span class="text-[10px] text-slate-400 font-bold">L</span>
                                             </div>
                                             <div class="mt-1.5 pt-1.5 border-t border-slate-200/50 text-[9px] text-slate-500 space-y-0.5">
@@ -283,7 +283,7 @@
                                             <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                                                 <i class="fa-solid fa-cheese text-amber-500"></i> Compras de Queso a Cuenta de Leche
                                             </span>
-                                            <span class="text-xs font-bold text-rose-600">
+                                            <span class="text-xs font-bold text-[#C62828]">
                                                 - S/ {{ number_format($item->cheese_deductions_total, 2) }}
                                             </span>
                                         </div>
@@ -296,7 +296,7 @@
                                                     <span class="font-bold text-slate-800 block">{{ $cd->concept }}</span>
                                                     <span class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($cd->date)->format('d/m/Y') }} • Cargo directo a liquidación</span>
                                                 </div>
-                                                <span class="font-black text-rose-600">- S/ {{ number_format($cd->amount, 2) }}</span>
+                                                <span class="font-black text-[#C62828]">- S/ {{ number_format($cd->amount, 2) }}</span>
                                             </div>
                                             @endforeach
                                         </div>
@@ -313,33 +313,33 @@
                                             <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                                                 <i class="fa-solid fa-vial-circle-check text-indigo-600"></i> Calidad Lactoscan & Penalidad Semanal
                                             </span>
-                                            <span class="text-xs font-bold {{ $item->water_penalty_total > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                                            <span class="text-xs font-bold {{ $item->water_penalty_total > 0 ? 'text-[#C62828]' : 'text-[#2E7D32]' }}">
                                                 {{ $item->water_penalty_total > 0 ? '- S/ ' . number_format($item->water_penalty_total, 2) : 'S/ 0.00' }}
                                             </span>
                                         </div>
 
                                         @if($item->adulteration_found)
-                                        <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs space-y-1.5">
-                                            <div class="flex items-center gap-2 text-rose-800 font-bold">
-                                                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                                        <div class="bg-[#FFEBEE] border border-[#C62828]/25 rounded-xl p-3 text-xs space-y-1.5">
+                                            <div class="flex items-center gap-2 text-[#C62828] font-bold">
+                                                <i class="fa-solid fa-triangle-exclamation text-[#C62828]"></i>
                                                 <span>Adulteración detectada el {{ $item->adulteration_details->day_name }} {{ $item->adulteration_details->date_formatted }}</span>
                                             </div>
-                                            <p class="text-[11px] text-rose-700 leading-relaxed">
+                                            <p class="text-[11px] text-[#C62828] leading-relaxed">
                                                 El análisis Lactoscan arrojó <strong>{{ $item->adulteration_details->water_percentage }}% de agua añadida</strong>.
                                             </p>
-                                            <div class="p-2 bg-white/80 rounded-lg text-[10px] text-rose-900 space-y-0.5 border border-rose-200/60 font-medium">
+                                            <div class="p-2 bg-white/80 rounded-lg text-[10px] text-[#C62828] space-y-0.5 border border-[#C62828]/25 font-medium">
                                                 <div><strong>📌 Regla Distrital de Huata:</strong> Si se detecta leche adulterada en cualquier día del rango, la penalidad se descuenta a <strong>TODA LA SEMANA ({{ number_format($item->liters, 2) }} L)</strong>.</div>
                                                 <div>• Tarifa base vigente: S/ {{ number_format($item->base_price, 2) }} / L</div>
                                                 <div>• Tarifa penalizada aplicada: <strong>S/ {{ number_format($item->effective_price, 2) }} / L</strong> (-S/ {{ number_format($item->adulteration_details->penalty_per_liter, 2) }}/L)</div>
-                                                <div class="text-rose-700 font-bold">• Descuento semanal: {{ number_format($item->liters, 2) }} L × S/ {{ number_format($item->adulteration_details->penalty_per_liter, 2) }} = <strong>- S/ {{ number_format($item->water_penalty_total, 2) }}</strong></div>
+                                                <div class="text-[#C62828] font-bold">• Descuento semanal: {{ number_format($item->liters, 2) }} L × S/ {{ number_format($item->adulteration_details->penalty_per_liter, 2) }} = <strong>- S/ {{ number_format($item->water_penalty_total, 2) }}</strong></div>
                                             </div>
                                         </div>
                                         @else
-                                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-start gap-2 text-emerald-800">
-                                            <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
+                                        <div class="bg-[#E8F5E9] border border-[#2E7D32]/25 rounded-xl p-3 text-xs flex items-start gap-2 text-[#1B5E20]">
+                                            <i class="fa-solid fa-circle-check text-[#2E7D32] mt-0.5"></i>
                                             <div>
                                                 <span class="font-bold block">Leche 100% Conforme y Pura</span>
-                                                <p class="text-[11px] text-emerald-700 mt-0.5 leading-relaxed">
+                                                <p class="text-[11px] text-[#2E7D32] mt-0.5 leading-relaxed">
                                                     Sin adulteración de agua (0.0%). Se liquida la totalidad de los <strong>{{ number_format($item->liters, 2) }} litros</strong> a la tarifa plena de <strong>S/ {{ number_format($item->base_price, 2) }} / L</strong> sin penalizaciones.
                                                 </p>
                                             </div>
@@ -349,7 +349,7 @@
                                 </div>
 
                                 <!-- SECCIÓN 3: BALANCE FINAL DE LIQUIDACIÓN -->
-                                <div class="bg-[#0f1713] text-white rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div class="bg-[#1565C0] text-white rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                                     <div class="flex flex-wrap items-center gap-4 text-xs">
                                         <div>
                                             <span class="text-[10px] text-slate-400 block uppercase">Subtotal Base</span>
@@ -373,12 +373,12 @@
 
                                     <div class="flex items-center gap-3 self-end sm:self-auto">
                                         <div class="text-right">
-                                            <span class="text-[10px] text-[#bef264] uppercase font-bold block">Neto a Desembolsar</span>
-                                            <span class="text-xl font-black text-[#bef264]">S/ {{ number_format($item->net, 2) }}</span>
+                                            <span class="text-[10px] text-white uppercase font-bold block">Neto a Desembolsar</span>
+                                            <span class="text-xl font-black text-white">S/ {{ number_format($item->net, 2) }}</span>
                                         </div>
                                         <form action="{{ route('admin.pagos.authorize-single', $item->producer->id) }}" method="POST" onsubmit="return confirm('¿Confirmas autorizar y liquidar el pago de S/ {{ number_format($item->net, 2) }} a {{ $item->producer->name }}?')">
                                             @csrf
-                                            <button type="submit" class="px-4 py-2.5 rounded-xl bg-[#bef264] text-[#0f1713] text-xs font-black hover:bg-lime-400 transition shadow-sm inline-flex items-center gap-1.5">
+                                            <button type="submit" class="px-4 py-2.5 rounded-xl bg-[#E3F2FD] text-[#1565C0] text-xs font-black hover:bg-[#EEE7DB] transition shadow-sm inline-flex items-center gap-1.5">
                                                 <i class="fa-solid fa-check"></i> Autorizar Ahora
                                             </button>
                                         </form>
@@ -390,7 +390,7 @@
                     @empty
                     <tr>
                         <td colspan="8" class="p-8 text-center text-slate-400 font-medium">
-                            <i class="fa-solid fa-circle-check text-2xl text-emerald-500 block mb-2"></i>
+                            <i class="fa-solid fa-circle-check text-2xl text-[#2E7D32] block mb-2"></i>
                             No hay pagos semanales pendientes. Todos los proveedores están al día.
                         </td>
                     </tr>

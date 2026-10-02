@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
 
-    <div class="bg-blue-50/70 border border-blue-200 rounded-3xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div class="bg-[#E3F2FD]/70 border border-blue-200 rounded-3xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="text-xs text-blue-900">
             <strong class="block text-[11px] uppercase tracking-wider">Esto no es el padrón de proveedores</strong>
             <span class="text-[11px] text-blue-800/90">
@@ -38,7 +38,7 @@
                     <span class="text-sm font-black text-spark-limeText">S/ {{ number_format($resumen['gasto_mes'], 2) }}</span>
                 </div>
                 <button type="button" data-nueva-compra
-                    class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                    class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                     <i class="fa-solid fa-plus mr-1"></i> Agregar
                 </button>
             </div>
@@ -49,7 +49,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Nombre o documento..."
-                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-spark-lime font-bold text-[10px] uppercase">Buscar</button>
                 @if(request('buscar'))
@@ -119,7 +119,7 @@
                         onsubmit="return confirm('¿Anular esta compra? Se devolverá su mercadería al almacén.');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
                             Anular
                         </button>
                     </form>
@@ -132,7 +132,7 @@
 </div>
 
 {{-- Modal: registrar o corregir compra --}}
-<div id="modalCompra" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalCompra" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-3xl rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -212,7 +212,7 @@
 
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar compra</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar compra</button>
             </div>
         </form>
     </div>
@@ -233,7 +233,7 @@
             class="col-span-2 p-2 bg-slate-50 border border-slate-200 rounded-xl text-right font-semibold text-xs">
         <span class="col-span-2 text-right text-xs font-bold text-slate-700">S/ <span data-renglon-subtotal>0.00</span></span>
         <button type="button" data-quitar-renglon
-            class="col-span-1 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+            class="col-span-1 py-2 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>

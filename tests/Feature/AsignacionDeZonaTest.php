@@ -32,9 +32,9 @@ class AsignacionDeZonaTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('zonas.index'))
             ->assertOk()
-            ->assertSee('Asignación de zonas de hoy')
+            ->assertSee('Zonas de acopio')
             ->assertSee('Asignar zona')
-            ->assertSee('Acopiador asignado')
+            ->assertSee('Asignar acopiador a zona')
             ->assertViewHas('collectors', fn ($collectors) => $collectors->isNotEmpty());
     }
 

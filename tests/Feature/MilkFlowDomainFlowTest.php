@@ -97,34 +97,6 @@ class MilkFlowDomainFlowTest extends TestCase
         $this->assertEquals(190.00, (float) $wholesaleSale->total_amount);
     }
 
-    public function test_mobile_login_and_route_sync_api()
-    {
-        $acopiador = User::where('role', 'acopiador')->first();
-        $zona = Zone::first();
-
-        // Asegurar ruta asignada hoy
-        CollectionRoute::firstOrCreate(
-            ['date' => app(JornadaOperativa::class)->fecha(), 'collector_id' => $acopiador->id],
-            ['zone_id' => $zona->id, 'start_time' => '04:30:00', 'status' => 'asignada']
-        );
-
-        // 1. Login API
-        $response = $this->postJson('/api/mobile/login', [
-            'email' => $acopiador->email,
-            'password' => 'password',
-        ]);
-        $response->assertStatus(200);
-        $response->assertJsonStructure(['token', 'user', 'announcements']);
-
-        $token = $response->json('token');
-
-        // 2. Descargar ruta para trabajo offline
-        $routeResponse = $this->withHeader('Authorization', 'Bearer '.$token)
-            ->getJson('/api/mobile/collector/route');
-        $routeResponse->assertStatus(200);
-        $routeResponse->assertJsonStructure(['route_id', 'date', 'zone', 'producers']);
-    }
-
     public function test_producer_acopio_view_shows_today_liters_and_weekly_accumulator()
     {
         $producer = User::where('role', 'productor')->first();

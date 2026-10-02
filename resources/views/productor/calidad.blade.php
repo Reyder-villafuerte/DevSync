@@ -7,13 +7,13 @@
     <!-- Header Banner -->
     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-[#1565C0] text-white flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-vial-circle-check"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-xl font-black text-slate-900 tracking-tight">Reporte de Calidad e Inspección de Leche</h1>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50 uppercase tracking-wide">Analizador Lactoscan</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20 uppercase tracking-wide">Analizador Lactoscan</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">
                     Resultados de las pruebas de laboratorio tomadas en ruta o planta. Si se detecta acidez alta, se programa visita de asistencia técnica en tu establo.
@@ -55,7 +55,7 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Grasa Promedio</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-[#0f1713]">{{ number_format($promedioGrasa, 2) }}%</span>
+                <span class="text-3xl font-black text-[#1565C0]">{{ number_format($promedioGrasa, 2) }}%</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Estándar mínimo óptimo: ≥ 3.2%</p>
         </div>
@@ -64,7 +64,7 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Densidad Promedio</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-[#0f1713]">{{ number_format($promedioDensidad, 3) }}</span>
+                <span class="text-3xl font-black text-[#1565C0]">{{ number_format($promedioDensidad, 3) }}</span>
                 <span class="text-xs text-slate-400">g/cm³</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Rango normal: 1.028 - 1.033 g/cm³</p>
@@ -74,7 +74,7 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Acidez Promedio</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black {{ $promedioAcidez > 18 ? 'text-rose-600' : 'text-emerald-700' }}">{{ number_format($promedioAcidez, 1) }}°D</span>
+                <span class="text-3xl font-black {{ $promedioAcidez > 18 ? 'text-[#C62828]' : 'text-[#2E7D32]' }}">{{ number_format($promedioAcidez, 1) }}°D</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Rango óptimo para queso: 14°D - 18°D</p>
         </div>
@@ -118,21 +118,21 @@
                         <td class="py-3.5 px-3 text-slate-600">{{ number_format($ana->protein_percentage, 2) }}%</td>
                         <td class="py-3.5 px-3">
                             @if($ana->water_addition_percentage > 0)
-                                <span class="font-bold text-rose-600">{{ number_format($ana->water_addition_percentage, 1) }}%</span>
+                                <span class="font-bold text-[#C62828]">{{ number_format($ana->water_addition_percentage, 1) }}%</span>
                             @else
                                 <span class="text-slate-400">0.0%</span>
                             @endif
                         </td>
-                        <td class="py-3.5 px-3 font-bold {{ $ana->ph_or_acidity > 18 ? 'text-rose-600' : 'text-slate-800' }}">
+                        <td class="py-3.5 px-3 font-bold {{ $ana->ph_or_acidity > 18 ? 'text-[#C62828]' : 'text-slate-800' }}">
                             {{ number_format($ana->ph_or_acidity, 1) }}°D
                         </td>
                         <td class="py-3.5 px-3 text-right">
                             @if($ana->verdict === 'conforme')
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-[#bef264]/40 text-[#0f1713] border border-[#bef264]/60">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20">
                                     Conforme
                                 </span>
                             @else
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-rose-50 text-rose-700 border border-rose-200">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-[#FFEBEE] text-[#C62828] border border-[#C62828]/25">
                                     {{ str_replace('_', ' ', $ana->verdict) }}
                                 </span>
                             @endif

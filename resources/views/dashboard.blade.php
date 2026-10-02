@@ -36,7 +36,7 @@
                         @forelse($misEntregas as $entrega)
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="p-3 font-semibold text-slate-800">{{ $entrega->route->date }}</td>
-                            <td class="p-3 font-black text-emerald-700 text-sm">{{ $entrega->liters }} L</td>
+                            <td class="p-3 font-black text-[#2E7D32] text-sm">{{ $entrega->liters }} L</td>
                             <td class="p-3 text-slate-500">{{ $entrega->collected_at ?: '05:00 AM' }}</td>
                             <td class="p-3 font-medium text-slate-600">{{ $entrega->route->zone->name }}</td>
                             <td class="p-3 text-slate-400 italic">{{ $entrega->notes ?: 'Sin novedad' }}</td>
@@ -63,7 +63,7 @@
                     @csrf
                     <div>
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Zona Destino</label>
-                        <select name="requested_zone_id" required class="w-full text-xs p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-spark-lime">
+                        <select name="requested_zone_id" required class="w-full text-xs p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-[#1565C0]/30">
                             @foreach($zonasDisponibles as $z)
                                 @if(!$user->zone_id || $user->zone_id != $z->id)
                                 <option value="{{ $z->id }}">{{ $z->name }}</option>
@@ -75,7 +75,7 @@
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Motivo</label>
                         <textarea name="reason" rows="2" placeholder="Ej. Rotación de pastos a sector Joche" class="w-full text-xs p-2 bg-slate-50 border rounded-xl"></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-spark-dark hover:bg-black text-spark-lime font-bold py-2 rounded-xl text-xs transition shadow-sm">
+                    <button type="submit" class="w-full bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-bold py-2 rounded-xl text-xs transition shadow-sm">
                         Enviar Solicitud
                     </button>
                 </form>
@@ -87,10 +87,10 @@
                     <i class="fa-solid fa-microscope text-purple-600"></i> Pruebas de Calidad Recientes
                 </h4>
                 @forelse($misAnalisis as $ana)
-                <div class="p-3 mb-2 rounded-2xl border {{ $ana->verdict === 'conforme' ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200' }}">
+                <div class="p-3 mb-2 rounded-2xl border {{ $ana->verdict === 'conforme' ? 'bg-[#E8F5E9]/60 border-[#2E7D32]/25' : 'bg-[#FFEBEE]/60 border-[#C62828]/25' }}">
                     <div class="flex justify-between items-center text-xs font-bold">
                         <span class="text-slate-700">{{ $ana->analysis_date }}</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-black {{ $ana->verdict === 'conforme' ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900' }}">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-black {{ $ana->verdict === 'conforme' ? 'bg-emerald-200 text-[#1B5E20]' : 'bg-rose-200 text-[#C62828]' }}">
                             {{ str_replace('_', ' ', $ana->verdict) }}
                         </span>
                     </div>
@@ -112,11 +112,11 @@
     <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-                <span class="text-[10px] uppercase font-bold text-spark-limeText bg-lime-100 px-2.5 py-1 rounded-full">Turno Matutino 4:30 AM</span>
+                <span class="text-[10px] uppercase font-bold text-spark-limeText bg-[#1565C0]/10 px-2.5 py-1 rounded-full">Turno Matutino 4:30 AM</span>
                 <h3 class="text-xl font-extrabold text-slate-900 mt-1">Ruta de Acopio Huata</h3>
                 <p class="text-xs text-slate-500">Recorre tu lista asignada de proveedores y anota los litros entregados.</p>
             </div>
-            <a href="{{ route('acopio.index') }}" class="bg-spark-dark hover:bg-black text-spark-lime font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm">
+            <a href="{{ route('acopio.index') }}" class="bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm">
                 Abrir Planilla de Campo
             </a>
         </div>
@@ -133,7 +133,7 @@
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                 <span class="text-[10px] font-bold text-slate-400 uppercase block">Litros Anotados</span>
-                <span class="text-xl font-black text-emerald-700">{{ $miRutaHoy->total_collected_liters }} L</span>
+                <span class="text-xl font-black text-[#2E7D32]">{{ $miRutaHoy->total_collected_liters }} L</span>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                 <span class="text-[10px] font-bold text-slate-400 uppercase block">Estado</span>
@@ -164,7 +164,7 @@
                     <p class="text-xs text-slate-500 mt-0.5">Productores que solicitan traslado de ganado entre sectores de Huata.</p>
                 </div>
             </div>
-            <a href="{{ route('zonas.solicitudes') }}" class="text-xs font-bold text-[#0f1713] hover:text-emerald-700 inline-flex items-center gap-1.5 transition">
+            <a href="{{ route('zonas.solicitudes') }}" class="text-xs font-bold text-[#1565C0] hover:text-[#2E7D32] inline-flex items-center gap-1.5 transition">
                 <span>Gestionar Todas</span>
                 <i class="fa-solid fa-arrow-right text-[10px]"></i>
             </a>
@@ -193,7 +193,7 @@
                             </span>
                         </td>
                         <td class="py-3 px-3">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/40 text-[#0f1713] border border-[#bef264]/60">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20">
                                 {{ $req->requestedZone->name }}
                             </span>
                         </td>
@@ -201,10 +201,10 @@
                         <td class="py-3 px-3 text-right whitespace-nowrap">
                             <form action="{{ route('zonas.review-request', $req->id) }}" method="POST" class="inline-flex items-center gap-2">
                                 @csrf
-                                <button type="submit" name="decision" value="aprobado" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0f1713] hover:bg-slate-900 text-[#bef264] transition shadow-sm inline-flex items-center gap-1">
+                                <button type="submit" name="decision" value="aprobado" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#E65100] hover:bg-[#A33C00] text-white transition shadow-sm inline-flex items-center gap-1">
                                     <i class="fa-solid fa-check text-[10px]"></i> Aprobar
                                 </button>
-                                <button type="submit" name="decision" value="rechazado" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 transition inline-flex items-center gap-1">
+                                <button type="submit" name="decision" value="rechazado" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] transition inline-flex items-center gap-1">
                                     <i class="fa-solid fa-xmark text-[10px]"></i> Rechazar
                                 </button>
                             </form>
@@ -219,73 +219,73 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <a href="{{ route('acopio.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-spark-lime hover:shadow-md transition">
+        <a href="{{ route('acopio.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-[#1565C0] hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-spark-dark group-hover:text-spark-lime text-slate-700 flex items-center justify-center text-xl transition">
                     <i class="fa-solid fa-truck-fast"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-emerald-900 transition">Acopio 4:30 AM</h4>
+                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-[#1B5E20] transition">Acopio 4:30 AM</h4>
                     <p class="text-xs text-slate-500">Planillas de 5 acopiadores en las 4 zonas.</p>
                 </div>
             </div>
         </a>
 
-        <a href="{{ route('planta.verificacion') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-spark-lime hover:shadow-md transition">
+        <a href="{{ route('planta.verificacion') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-[#1565C0] hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-spark-dark group-hover:text-spark-lime text-slate-700 flex items-center justify-center text-xl transition">
                     <i class="fa-solid fa-water"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-emerald-900 transition">Caudalímetro de Planta</h4>
+                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-[#1B5E20] transition">Caudalímetro de Planta</h4>
                     <p class="text-xs text-slate-500">Verificación y contraste de leche descargada.</p>
                 </div>
             </div>
         </a>
 
-        <a href="{{ route('produccion.lotes.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-spark-lime hover:shadow-md transition">
+        <a href="{{ route('produccion.lotes.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-[#1565C0] hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-spark-dark group-hover:text-spark-lime text-slate-700 flex items-center justify-center text-xl transition">
                     <i class="fa-solid fa-industry"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-emerald-900 transition">Lotes de Producción</h4>
+                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-[#1B5E20] transition">Lotes de Producción</h4>
                     <p class="text-xs text-slate-500">Queso, yogur y lo que la planta sepa hacer.</p>
                 </div>
             </div>
         </a>
 
-        <a href="{{ route('ventas.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-spark-lime hover:shadow-md transition">
+        <a href="{{ route('ventas.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-[#1565C0] hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-spark-dark group-hover:text-spark-lime text-slate-700 flex items-center justify-center text-xl transition">
                     <i class="fa-solid fa-cash-register"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-emerald-900 transition">Ventas & Recibos</h4>
+                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-[#1B5E20] transition">Ventas & Recibos</h4>
                     <p class="text-xs text-slate-500">Tarifas S/18, S/19 y S/20 (Solo Efectivo).</p>
                 </div>
             </div>
         </a>
 
-        <a href="{{ route('calidad.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-spark-lime hover:shadow-md transition">
+        <a href="{{ route('calidad.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-[#1565C0] hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-spark-dark group-hover:text-spark-lime text-slate-700 flex items-center justify-center text-xl transition">
                     <i class="fa-solid fa-microscope"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-emerald-900 transition">Calidad Lactoscan</h4>
+                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-[#1B5E20] transition">Calidad Lactoscan</h4>
                     <p class="text-xs text-slate-500">Análisis y agendamiento de visitas técnicas.</p>
                 </div>
             </div>
         </a>
 
-        <a href="{{ route('zonas.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-spark-lime hover:shadow-md transition">
+        <a href="{{ route('zonas.index') }}" class="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:border-[#1565C0] hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-spark-dark group-hover:text-spark-lime text-slate-700 flex items-center justify-center text-xl transition">
                     <i class="fa-solid fa-map-location-dot"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-emerald-900 transition">Zonas Huata 1 a 4</h4>
+                    <h4 class="font-bold text-slate-900 text-sm group-hover:text-[#1B5E20] transition">Zonas Huata 1 a 4</h4>
                     <p class="text-xs text-slate-500">Mapeo y aprobación de rotación de pastoreo.</p>
                 </div>
             </div>

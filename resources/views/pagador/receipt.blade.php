@@ -13,7 +13,7 @@
             <a href="{{ route('pagos.ruta.history') }}" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition shadow-sm">
                 Ver Historial de Pagos
             </a>
-            <button onclick="window.print()" class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition shadow flex items-center gap-1.5">
+            <button onclick="window.print()" class="px-4 py-1.5 text-xs font-bold text-white bg-[#2E7D32] rounded-lg hover:bg-[#1B5E20] transition shadow flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
@@ -25,7 +25,7 @@
     <!-- Comprobante / Recibo Térmico de Sobre -->
     <div class="bg-white border-2 border-slate-300 rounded-2xl p-6 sm:p-8 shadow-md print:border-none print:shadow-none print:p-2">
         <div class="text-center pb-5 border-b border-dashed border-slate-300">
-            <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-50 text-emerald-700 rounded-2xl mb-2 font-black text-xl">
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-[#E8F5E9] text-[#2E7D32] rounded-2xl mb-2 font-black text-xl">
                 🥛
             </div>
             <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">Planta de Lácteos - Huata</h1>
@@ -51,7 +51,7 @@
                 <span class="text-slate-800 font-semibold">
                     {{ $settlement->start_date ? \Carbon\Carbon::parse($settlement->start_date)->format('d/m/Y') : '-' }} al {{ $settlement->end_date ? \Carbon\Carbon::parse($settlement->end_date)->format('d/m/Y') : '-' }}
                 </span>
-                <span class="text-xs text-emerald-700 font-medium block">Cierre Miércoles / Sobre Jueves</span>
+                <span class="text-xs text-[#2E7D32] font-medium block">Cierre Miércoles / Sobre Jueves</span>
             </div>
             <div class="text-right">
                 <span class="text-slate-500 block uppercase font-medium">Fecha y Hora de Pago</span>
@@ -88,12 +88,12 @@
                             @if(stripos($deduction->concept, 'queso') !== false)
                                 <span class="block text-[11px] font-normal text-amber-600">Descuento por Compra de Quesos</span>
                             @elseif(stripos($deduction->concept, 'agua') !== false)
-                                <span class="block text-[11px] font-normal text-rose-500">Penalidad por Adulteración de Agua</span>
+                                <span class="block text-[11px] font-normal text-[#C62828]">Penalidad por Adulteración de Agua</span>
                             @endif
                         </td>
                         <td class="py-2 text-center text-slate-500">-</td>
                         <td class="py-2 text-right text-slate-500">-</td>
-                        <td class="py-2 text-right font-semibold text-rose-700">- S/ {{ number_format($deduction->amount, 2) }}</td>
+                        <td class="py-2 text-right font-semibold text-[#C62828]">- S/ {{ number_format($deduction->amount, 2) }}</td>
                     </tr>
                     @empty
                     @endforelse
@@ -105,10 +105,10 @@
             <div class="flex items-center justify-between text-base">
                 <div>
                     <span class="font-black text-slate-900 uppercase">Total Neto en Sobre</span>
-                    <span class="block text-xs text-emerald-700 font-semibold">Monto pagado en mano (Efectivo)</span>
+                    <span class="block text-xs text-[#2E7D32] font-semibold">Monto pagado en mano (Efectivo)</span>
                 </div>
                 <div class="text-right">
-                    <span class="text-2xl font-black text-emerald-800">S/ {{ number_format($settlement->net_total, 2) }}</span>
+                    <span class="text-2xl font-black text-[#1B5E20]">S/ {{ number_format($settlement->net_total, 2) }}</span>
                     <span class="block text-[10px] text-slate-500 uppercase tracking-wider font-semibold">SOLES EXACTOS</span>
                 </div>
             </div>

@@ -29,7 +29,7 @@
                 <span>Ir a Planilla Activa</span>
             </a>
             <button type="button" onclick="window.print()" 
-               class="px-5 py-2.5 rounded-2xl bg-[#0f1713] hover:bg-black text-[#bef264] text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer">
+               class="px-5 py-2.5 rounded-2xl bg-[#E65100] hover:bg-[#A33C00] text-white text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer">
                 <i class="fa-solid fa-print"></i>
                 <span>Imprimir Reporte</span>
             </button>
@@ -57,7 +57,7 @@
                 <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($totalFieldLiters, 1) }} <span class="text-xs font-bold text-slate-400">L</span></span>
                 <span class="text-[10px] text-slate-500 block mt-0.5">Declarado en porongos</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-[#bef264]/20 border border-[#bef264]/30 flex items-center justify-center text-[#0f1713] text-lg">
+            <div class="w-12 h-12 rounded-2xl bg-[#1565C0]/10 border border-[#1565C0]/20 flex items-center justify-center text-[#1565C0] text-lg">
                 <i class="fa-solid fa-bottle-droplet"></i>
             </div>
         </div>
@@ -66,10 +66,10 @@
         <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex items-center justify-between">
             <div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Caudalímetro (Planta)</span>
-                <span class="text-2xl font-black text-emerald-800 tracking-tight">{{ number_format($totalFlowmeterLiters, 1) }} <span class="text-xs font-bold text-slate-400">L</span></span>
+                <span class="text-2xl font-black text-[#1B5E20] tracking-tight">{{ number_format($totalFlowmeterLiters, 1) }} <span class="text-xs font-bold text-slate-400">L</span></span>
                 <span class="text-[10px] text-slate-500 block mt-0.5">Medición real validada</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 text-lg">
+            <div class="w-12 h-12 rounded-2xl bg-[#E8F5E9] border border-[#2E7D32]/25 flex items-center justify-center text-[#2E7D32] text-lg">
                 <i class="fa-solid fa-gauge-high"></i>
             </div>
         </div>
@@ -79,17 +79,17 @@
             <div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Balance Neto (Merma)</span>
                 @if($totalLossLiters < -0.01)
-                    <span class="text-2xl font-black text-rose-600 tracking-tight">{{ number_format($totalLossLiters, 1) }} <span class="text-xs font-bold text-rose-400">L</span></span>
-                    <span class="text-[10px] text-rose-600 font-bold block mt-0.5">Merma en descarga</span>
+                    <span class="text-2xl font-black text-[#C62828] tracking-tight">{{ number_format($totalLossLiters, 1) }} <span class="text-xs font-bold text-rose-400">L</span></span>
+                    <span class="text-[10px] text-[#C62828] font-bold block mt-0.5">Merma en descarga</span>
                 @elseif($totalLossLiters > 0.01)
                     <span class="text-2xl font-black text-sky-600 tracking-tight">+{{ number_format($totalLossLiters, 1) }} <span class="text-xs font-bold text-sky-400">L</span></span>
                     <span class="text-[10px] text-sky-600 font-bold block mt-0.5">Favorable a planta</span>
                 @else
-                    <span class="text-2xl font-black text-emerald-700 tracking-tight">0.0 <span class="text-xs font-bold text-emerald-500">L</span></span>
-                    <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Cuadre exacto</span>
+                    <span class="text-2xl font-black text-[#2E7D32] tracking-tight">0.0 <span class="text-xs font-bold text-[#2E7D32]">L</span></span>
+                    <span class="text-[10px] text-[#2E7D32] font-bold block mt-0.5">Cuadre exacto</span>
                 @endif
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 text-lg">
+            <div class="w-12 h-12 rounded-2xl bg-[#FFEBEE] border border-[#C62828]/25 flex items-center justify-center text-[#C62828] text-lg">
                 <i class="fa-solid fa-scale-balanced"></i>
             </div>
         </div>
@@ -111,7 +111,7 @@
                     @endphp
                     @foreach($periodos as $clave => $etiqueta)
                     <a href="{{ route('acopio.historial', ['period' => $clave]) }}"
-                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === $clave ? 'bg-[#0f1713] text-[#bef264]' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700' }}">
+                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === $clave ? 'bg-[#2E7D32] text-white' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700' }}">
                         {{ $etiqueta }}
                     </a>
                     @endforeach
@@ -123,7 +123,7 @@
                     <span class="text-slate-400 text-xs">a</span>
                     <input type="date" name="end_date" value="{{ request('end_date') }}"
                         class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700">
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-[#bef264] font-bold text-[10px] uppercase">Filtrar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-[10px] uppercase">Filtrar</button>
                     @if(request('start_date') || request('end_date'))
                     <a href="{{ route('acopio.historial') }}" class="text-[11px] font-bold text-slate-500 underline">Quitar rango</a>
                     @endif
@@ -174,15 +174,15 @@
                     <td class="p-3.5 font-bold">
                         @if($diff !== null)
                             @if($diff < -0.01)
-                                <span class="text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                <span class="text-[#C62828] bg-[#FFEBEE] border border-[#C62828]/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
                                     <i class="fa-solid fa-arrow-down text-[9px]"></i> {{ number_format($diff, 2) }} L (Merma)
                                 </span>
                             @elseif($diff > 0.01)
-                                <span class="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                <span class="text-sky-700 bg-[#E3F2FD] border border-sky-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
                                     <i class="fa-solid fa-arrow-up text-[9px]"></i> +{{ number_format($diff, 2) }} L
                                 </span>
                             @else
-                                <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                <span class="text-[#2E7D32] bg-[#E8F5E9] border border-[#2E7D32]/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
                                     <i class="fa-solid fa-check text-[9px]"></i> 0.00 L (Exacto)
                                 </span>
                             @endif
@@ -197,8 +197,8 @@
                                 <span>{{ $rec->observation }}</span>
                             </span>
                         @elseif($rec)
-                            <span class="text-emerald-700 font-medium inline-flex items-center gap-1">
-                                <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i> Todo conforme
+                            <span class="text-[#2E7D32] font-medium inline-flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-[#2E7D32] text-xs"></i> Todo conforme
                             </span>
                         @else
                             <span class="text-slate-400 italic text-[11px]">En espera de verificación</span>
@@ -206,7 +206,7 @@
                     </td>
                     <td class="p-3.5">
                         @if($rec && $rec->verification_status === 'incompleto')
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-[#C62828] border border-[#C62828]/25 inline-flex items-center gap-1">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Incompleto
                             </span>
                         @elseif($rec && $rec->verification_status === 'con_observacion')
@@ -214,7 +214,7 @@
                                 <i class="fa-solid fa-circle-exclamation"></i> Con Observación
                             </span>
                         @elseif($route->status === 'verificada')
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-[#1B5E20] border border-[#2E7D32]/25 inline-flex items-center gap-1">
                                 <i class="fa-solid fa-check-double"></i> Conforme
                             </span>
                         @elseif($route->status === 'descargada_planta')
@@ -222,7 +222,7 @@
                                 <i class="fa-solid fa-clock-rotate-left"></i> En Planta
                             </span>
                         @else
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-lime-100 text-[#0f1713] border border-lime-300 inline-flex items-center gap-1">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/25 inline-flex items-center gap-1">
                                 <i class="fa-solid fa-truck-fast"></i> En Ruta
                             </span>
                         @endif
@@ -252,7 +252,7 @@
                         @endphp
                         <button type="button"
                             onclick="openHistoryModal({{ json_encode($detailData) }})"
-                            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#0f1713] hover:text-[#bef264] text-slate-700 transition flex items-center justify-center mx-auto cursor-pointer shadow-sm"
+                            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#E65100] hover:text-white text-slate-700 transition flex items-center justify-center mx-auto cursor-pointer shadow-sm"
                             title="Ver desglose de proveedores">
                             <i class="fa-solid fa-eye text-xs"></i>
                         </button>
@@ -265,14 +265,14 @@
 
 <!-- MODAL: DETALLE HISTÓRICO DE RUTA (OJITO) -->
 <div id="historyModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="history-modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeHistoryModal()"></div>
+    <div class="fixed inset-0 bg-[rgba(32,30,29,0.55)] backdrop-blur-xs transition-opacity" onclick="closeHistoryModal()"></div>
 
     <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
         <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-slate-200">
             <!-- Header Modal Historial -->
             <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-[#bef264]/20 border border-[#bef264]/30 flex items-center justify-center text-[#bef264]">
+                    <div class="w-10 h-10 rounded-2xl bg-[#1565C0]/10 border border-[#1565C0]/20 flex items-center justify-center text-white">
                         <i class="fa-solid fa-clipboard-list text-lg"></i>
                     </div>
                     <div>
@@ -358,23 +358,23 @@
         const diffElem = document.getElementById('histDifference');
         diffElem.textContent = data.difference;
         if (data.difference.startsWith('-')) {
-            diffElem.className = 'text-lg font-black text-rose-600';
+            diffElem.className = 'text-lg font-black text-[#C62828]';
         } else if (data.difference.startsWith('+')) {
             diffElem.className = 'text-lg font-black text-sky-600';
         } else {
-            diffElem.className = 'text-lg font-black text-emerald-700';
+            diffElem.className = 'text-lg font-black text-[#2E7D32]';
         }
 
         const verdictElem = document.getElementById('histVerdictBadge');
         if (data.status === 'incompleto') {
             verdictElem.textContent = 'INCOMPLETO / MERMA';
-            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500 text-white';
+            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-[#C62828] text-white';
         } else if (data.status === 'con_observacion') {
             verdictElem.textContent = 'CON OBSERVACIÓN';
             verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500 text-white';
         } else if (data.status === 'verificado' || data.status === 'verificada') {
             verdictElem.textContent = 'CONFORME';
-            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500 text-white';
+            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-[#2E7D32] text-white';
         } else {
             verdictElem.textContent = 'EN RUTA';
             verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-lime-400 text-slate-900';
@@ -393,7 +393,7 @@
                 tr.innerHTML = `
                     <td class="p-2.5 font-bold text-slate-800">${r.producer_name}</td>
                     <td class="p-2.5 font-mono text-slate-600">${r.producer_dni}</td>
-                    <td class="p-2.5 font-black text-emerald-700">${r.liters} L</td>
+                    <td class="p-2.5 font-black text-[#2E7D32]">${r.liters} L</td>
                     <td class="p-2.5 font-mono text-slate-500">${r.time}</td>
                     <td class="p-2.5 text-slate-500 italic truncate max-w-xs">${r.notes}</td>
                 `;

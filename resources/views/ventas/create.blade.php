@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto space-y-6">
     <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm flex justify-between items-center">
         <div>
-            <span class="text-[10px] bg-emerald-100 text-emerald-900 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Punto de Cobro</span>
+            <span class="text-[10px] bg-emerald-100 text-[#1B5E20] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Punto de Cobro</span>
             <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-1">Caja de Despacho</h1>
             <p class="text-xs text-slate-500">Búsqueda rápida por apellido o DNI y tarifa automática por producto.</p>
         </div>
@@ -41,7 +41,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" id="customerSearch" placeholder="Empieza a escribir el apellido del cliente..."
-                        class="w-full text-xs pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-spark-lime focus:border-transparent transition">
+                        class="w-full text-xs pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-[#1565C0]/30 focus:border-transparent transition">
                     <div id="searchResults" class="absolute z-10 left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl hidden max-h-48 overflow-y-auto"></div>
                 </div>
             </div>
@@ -49,13 +49,13 @@
             <!-- Cliente Seleccionado Badge -->
             <input type="hidden" name="customer_id" id="selectedCustomerId" value="">
 
-            <div id="selectedCustomerBadge" class="hidden p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 mb-4 flex justify-between items-center">
+            <div id="selectedCustomerBadge" class="hidden p-4 bg-[#E8F5E9]/60 rounded-2xl border border-[#2E7D32]/25 mb-4 flex justify-between items-center">
                 <div>
-                    <span class="text-[10px] text-emerald-700 uppercase font-bold tracking-wider">Cliente Seleccionado</span>
+                    <span class="text-[10px] text-[#2E7D32] uppercase font-bold tracking-wider">Cliente Seleccionado</span>
                     <h4 id="selectedCustomerName" class="font-bold text-slate-900 text-sm mt-0.5"></h4>
-                    <span id="selectedCustomerType" class="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-black uppercase mt-1 inline-block"></span>
+                    <span id="selectedCustomerType" class="text-[10px] bg-emerald-200 text-[#1B5E20] px-2 py-0.5 rounded-full font-black uppercase mt-1 inline-block"></span>
                 </div>
-                <button type="button" id="clearCustomerBtn" class="text-xs text-rose-600 hover:text-rose-800 font-bold p-1">
+                <button type="button" id="clearCustomerBtn" class="text-xs text-[#C62828] hover:text-[#C62828] font-bold p-1">
                     <i class="fa-solid fa-xmark mr-1"></i> Quitar
                 </button>
             </div>
@@ -73,7 +73,7 @@
                     <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Apellidos</label>
                     <input type="text" name="new_last_name" id="newLastName" class="w-full p-2 bg-white border rounded-xl" placeholder="Ej. Mamani Quispe">
                 </div>
-                <div id="clienteConocido" class="hidden md:col-span-2 p-3 rounded-xl bg-blue-50 border border-blue-200 text-[11px] text-blue-900">
+                <div id="clienteConocido" class="hidden md:col-span-2 p-3 rounded-xl bg-[#E3F2FD] border border-blue-200 text-[11px] text-blue-900">
                     <strong>Ya está registrado.</strong>
                     <span id="clienteConocidoTexto"></span>
                 </div>
@@ -129,24 +129,24 @@
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">Modalidad de Pago:</label>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-[#0f1713] transition">
-                    <input type="radio" name="payment_method" value="efectivo" checked class="text-[#0f1713] focus:ring-0">
+                <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-[#1565C0] transition">
+                    <input type="radio" name="payment_method" value="efectivo" checked class="text-[#1565C0] focus:ring-0">
                     <div>
-                        <span class="text-xs font-bold text-slate-800 block"><i class="fa-solid fa-money-bill-wave text-emerald-600 mr-1"></i> Pago en Efectivo</span>
+                        <span class="text-xs font-bold text-slate-800 block"><i class="fa-solid fa-money-bill-wave text-[#2E7D32] mr-1"></i> Pago en Efectivo</span>
                         <span class="text-[10px] text-slate-400">Cobro directo contra entrega en caja</span>
                     </div>
                 </label>
-                <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-[#0f1713] transition">
-                    <input type="radio" name="payment_method" value="descuento_leche" class="text-[#0f1713] focus:ring-0">
+                <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-[#1565C0] transition">
+                    <input type="radio" name="payment_method" value="descuento_leche" class="text-[#1565C0] focus:ring-0">
                     <div>
-                        <span class="text-xs font-bold text-emerald-800 block"><i class="fa-solid fa-cheese text-amber-500 mr-1"></i> A cuenta de Leche (Proveedor)</span>
+                        <span class="text-xs font-bold text-[#1B5E20] block"><i class="fa-solid fa-cheese text-amber-500 mr-1"></i> A cuenta de Leche (Proveedor)</span>
                         <span class="text-[10px] text-slate-500">Se deduce automáticamente de su liquidación</span>
                     </div>
                 </label>
             </div>
         </div>
 
-        <button type="submit" class="w-full bg-spark-dark hover:bg-black text-spark-lime font-black py-3.5 rounded-2xl text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2">
+        <button type="submit" class="w-full bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-3.5 rounded-2xl text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2">
             <i class="fa-solid fa-receipt text-sm"></i>
             <span>Cobrar y Emitir Recibo de Venta</span>
         </button>
@@ -163,7 +163,7 @@
         <span class="col-span-2 text-right text-xs text-slate-500">S/ <span data-line-price>0.00</span></span>
         <span class="col-span-2 text-right text-xs font-black text-slate-800">S/ <span data-line-subtotal>0.00</span></span>
         <button type="button" data-line-remove
-            class="col-span-1 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+            class="col-span-1 py-2 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>

@@ -35,7 +35,7 @@
         </div>
 
         <div class="pt-2 flex justify-center gap-3">
-            <a href="{{ route('acopio.index') }}" class="px-5 py-2.5 rounded-2xl bg-[#0f1713] text-[#bef264] text-xs font-bold hover:bg-black transition inline-flex items-center gap-2 shadow-sm">
+            <a href="{{ route('acopio.index') }}" class="px-5 py-2.5 rounded-2xl bg-[#E65100] text-white text-xs font-bold hover:bg-[#A33C00] transition inline-flex items-center gap-2 shadow-sm">
                 <i class="fa-solid fa-arrows-rotate"></i> Actualizar Planilla
             </a>
         </div>
@@ -81,11 +81,11 @@
                             <td class="p-3 font-bold">
                                 @if($diff !== null)
                                     @if($diff < -0.01)
-                                        <span class="text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full text-[10px]">{{ number_format($diff, 2) }} L</span>
+                                        <span class="text-[#C62828] bg-[#FFEBEE] border border-[#C62828]/25 px-2 py-0.5 rounded-full text-[10px]">{{ number_format($diff, 2) }} L</span>
                                     @elseif($diff > 0.01)
-                                        <span class="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full text-[10px]">+{{ number_format($diff, 2) }} L</span>
+                                        <span class="text-sky-700 bg-[#E3F2FD] border border-sky-200 px-2 py-0.5 rounded-full text-[10px]">+{{ number_format($diff, 2) }} L</span>
                                     @else
-                                        <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px]">0.00 L</span>
+                                        <span class="text-[#2E7D32] bg-[#E8F5E9] border border-[#2E7D32]/25 px-2 py-0.5 rounded-full text-[10px]">0.00 L</span>
                                     @endif
                                 @else
                                     <span class="text-slate-400 font-mono">—</span>
@@ -96,11 +96,11 @@
                             </td>
                             <td class="p-3">
                                 @if($histRoute->status === 'verificada')
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Verificada</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-[#1B5E20]">Verificada</span>
                                 @elseif($histRoute->status === 'descargada_planta')
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900">En Planta</span>
                                 @else
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-lime-100 text-slate-900">En Ruta</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-slate-900">En Ruta</span>
                                 @endif
                             </td>
                         </tr>

@@ -16,7 +16,7 @@
 <body class="bg-slate-100 min-h-screen p-4 sm:p-8 flex flex-col items-center justify-center font-sans antialiased text-slate-800">
 
     <div class="no-print mb-6 flex gap-3">
-        <button onclick="window.print()" class="bg-[#0f1713] text-[#bef264] px-5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg hover:bg-slate-900 transition">
+        <button onclick="window.print()" class="bg-[#E65100] text-white px-5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg hover:bg-[#A33C00] transition">
             <i class="fa-solid fa-print"></i> Imprimir Liquidación
         </button>
         <button onclick="window.close()" class="bg-white border border-slate-300 text-slate-700 px-5 py-2.5 rounded-2xl font-bold text-xs hover:bg-slate-50 transition">
@@ -28,7 +28,7 @@
     <div class="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
         <!-- Encabezado -->
         <div class="text-center pb-6 border-b border-dashed border-slate-300">
-            <div class="w-12 h-12 mx-auto mb-2 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl">
+            <div class="w-12 h-12 mx-auto mb-2 rounded-2xl bg-[#1565C0] text-white flex items-center justify-center text-xl">
                 <i class="fa-solid fa-asterisk"></i>
             </div>
             <h2 class="text-lg font-black text-slate-900 tracking-tight">MILKFLOW HUATA</h2>
@@ -70,7 +70,7 @@
                     <span class="font-bold text-slate-800 block">Total Leche Fresca Entregada</span>
                     <span class="text-[10px] text-slate-400">Tarifa fija por litro: S/ {{ number_format($settlement->price_per_liter, 2) }}</span>
                 </div>
-                <span class="text-sm font-black text-[#0f1713]">{{ number_format($settlement->total_liters, 2) }} L</span>
+                <span class="text-sm font-black text-[#1565C0]">{{ number_format($settlement->total_liters, 2) }} L</span>
             </div>
             <div class="flex justify-between text-slate-600 pt-1">
                 <span>Subtotal Bruto:</span>
@@ -79,14 +79,14 @@
             
             @if($settlement->deductions->count() > 0)
             <div class="pt-2 border-t border-slate-100">
-                <span class="text-[10px] uppercase font-bold text-rose-600 block mb-1">Deducciones Aplicadas:</span>
+                <span class="text-[10px] uppercase font-bold text-[#C62828] block mb-1">Deducciones Aplicadas:</span>
                 @foreach($settlement->deductions as $d)
-                <div class="flex justify-between text-[11px] text-rose-600">
+                <div class="flex justify-between text-[11px] text-[#C62828]">
                     <span>- {{ $d->concept }}:</span>
                     <span>S/ {{ number_format($d->amount, 2) }}</span>
                 </div>
                 @endforeach
-                <div class="flex justify-between text-xs font-bold text-rose-700 pt-1">
+                <div class="flex justify-between text-xs font-bold text-[#C62828] pt-1">
                     <span>Total Descuentos:</span>
                     <span>- S/ {{ number_format($settlement->deductions_total, 2) }}</span>
                 </div>
@@ -100,7 +100,7 @@
             <span class="text-3xl font-black text-slate-900 mt-1 block">
                 S/ {{ number_format($settlement->net_total, 2) }}
             </span>
-            <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
+            <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-[#1B5E20]">
                 Cancelado en Planta
             </span>
         </div>

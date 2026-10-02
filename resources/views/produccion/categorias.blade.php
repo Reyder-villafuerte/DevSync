@@ -14,7 +14,7 @@
 
         <x-slot:acciones>
             <button type="button" data-abrir="modalCategoria"
-                class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </button>
         </x-slot:acciones>
@@ -24,7 +24,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar categoría..."
-                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <select name="estado" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                     <option value="">Todas</option>
@@ -70,7 +70,7 @@
                         onsubmit="return confirm('¿Eliminar la categoría {{ $categoria->name }}?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
                             Eliminar
                         </button>
                     </form>
@@ -89,7 +89,7 @@
 
         <x-slot:acciones>
             <button type="button" data-abrir="modalUnidad"
-                class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </button>
         </x-slot:acciones>
@@ -99,7 +99,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar_unidad" value="{{ request('buscar_unidad') }}" placeholder="Buscar unidad..."
-                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-spark-lime font-bold text-[10px] uppercase">Filtrar</button>
                 @if(request('buscar_unidad'))
@@ -137,7 +137,7 @@
                         onsubmit="return confirm('¿Eliminar la unidad {{ $unidad->name }}?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
                             Eliminar
                         </button>
                     </form>
@@ -150,7 +150,7 @@
 </div>
 
 {{-- Modal: crear o editar categoría --}}
-<div id="modalCategoria" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalCategoria" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-xl">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -168,12 +168,12 @@
             <div>
                 <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Nombre</label>
                 <input type="text" name="name" required maxlength="80" placeholder="Ej. Envases" data-campo="name"
-                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-spark-lime">
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#1565C0]/30">
             </div>
             <div>
                 <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Descripción (opcional)</label>
                 <input type="text" name="description" maxlength="255" data-campo="description"
-                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-spark-lime">
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#1565C0]/30">
             </div>
             <label class="flex items-center gap-2 text-[11px] font-bold text-slate-600" data-solo-edicion>
                 <input type="checkbox" name="is_active" value="1" data-campo="is_active" checked>
@@ -181,14 +181,14 @@
             </label>
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
             </div>
         </form>
     </div>
 </div>
 
 {{-- Modal: crear o editar unidad --}}
-<div id="modalUnidad" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalUnidad" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -215,7 +215,7 @@
             </div>
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
             </div>
         </form>
     </div>

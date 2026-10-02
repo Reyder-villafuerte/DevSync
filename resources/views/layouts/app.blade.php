@@ -180,7 +180,7 @@
                                 $pendingDischargeCount = \App\Models\CollectionRoute::where('date', date('Y-m-d'))->where('status', 'descargada_planta')->count();
                                 @endphp
                                 @if($pendingDischargeCount > 0)
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ request()->routeIs('planta.*') ? 'bg-spark-dark text-spark-lime' : 'bg-[#bef264] text-[#0f1713]' }}" title="{{ $pendingDischargeCount }} ruta(s) descargada(s) esperando caudalímetro">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ request()->routeIs('planta.*') ? 'bg-spark-dark text-spark-lime' : 'bg-[#E3F2FD] text-[#1565C0]' }}" title="{{ $pendingDischargeCount }} ruta(s) descargada(s) esperando caudalímetro">
                                     {{ $pendingDischargeCount }}
                                 </span>
                                 @endif
@@ -288,7 +288,7 @@
                                     <i class="fa-solid fa-money-check-dollar text-sm"></i>
                                     <span>Autorizar Pagos</span>
                                 </div>
-                                <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#bef264] text-[#0f1713]">
+                                <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#E3F2FD] text-[#1565C0]">
                                     Semana
                                 </span>
                             </a>
@@ -396,7 +396,7 @@
         <header class="huata-header no-print">
             <button class="btn huata-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#huataMenu" aria-controls="huataMenu"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menú</button>
             <img class="huata-wordmark" src="{{ asset('brand/huata-letras.png') }}" alt="Ecolácteos Huata, productivo y sostenible">
-            <div class="huata-header-actions"><span class="hidden md:inline">{{ Auth::user()->name }}</span>@include('partials.theme-selector')</div>
+            <div class="huata-header-actions"><span class="huata-live" id="huataEnVivo" title="La pantalla se actualiza sola con lo que registran los acopiadores"><span class="huata-live-dot"></span>En vivo</span><span class="hidden md:inline">{{ Auth::user()->name }}</span>@include('partials.theme-selector')</div>
         </header>
         @endauth
 
@@ -405,18 +405,18 @@
 
             <!-- Mensajes Flash / Alertas -->
             @if(session('success'))
-            <div class="p-4 mb-6 text-xs text-emerald-900 rounded-2xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-between shadow-sm">
+            <div class="p-4 mb-6 text-xs text-[#1B5E20] rounded-2xl bg-[#E8F5E9] border border-[#2E7D32]/25 flex items-center justify-between shadow-sm">
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+                    <i class="fa-solid fa-circle-check text-[#2E7D32] text-base"></i>
                     <span class="font-semibold">{{ session('success') }}</span>
                 </div>
             </div>
             @endif
 
             @if($errors->any())
-            <div class="p-4 mb-6 text-xs text-rose-900 rounded-2xl bg-rose-50 border border-rose-200/60 shadow-sm">
+            <div class="p-4 mb-6 text-xs text-[#C62828] rounded-2xl bg-[#FFEBEE] border border-[#C62828]/25 shadow-sm">
                 <div class="font-bold flex items-center gap-2 mb-1 text-sm">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Atención:
+                    <i class="fa-solid fa-triangle-exclamation text-[#C62828]"></i> Atención:
                 </div>
                 <ul class="list-disc list-inside space-y-0.5 text-slate-700">
                     @foreach($errors->all() as $err)
@@ -454,6 +454,55 @@
     </div>
 
     @stack('scripts')
+
+    @auth
+    <script>
+        /*
+         * Tiempo real web <-> móvil.
+         * Cada 8 s se pregunta al servidor si cambiaron los datos compartidos
+         * con la app. Si cambiaron, la pantalla se recarga sola, salvo que el
+         * usuario esté escribiendo o tenga un formulario o modal abierto.
+         */
+        (function () {
+            const url = @json(route('tiempo-real.version'));
+            const indicador = document.getElementById('huataEnVivo');
+            let version = null;
+            let escribiendo = false;
+
+            document.addEventListener('input', function (e) {
+                if (e.target.closest('form')) { escribiendo = true; }
+            });
+
+            function ocupado() {
+                const activo = document.activeElement;
+                if (escribiendo) { return true; }
+                if (activo && ['INPUT', 'TEXTAREA', 'SELECT'].includes(activo.tagName)) { return true; }
+                if (document.querySelector('[id^="modal"]:not([hidden]), .modal.show, dialog[open]')) { return true; }
+                return document.hidden;
+            }
+
+            async function revisar() {
+                try {
+                    const r = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                    if (!r.ok) { throw new Error(r.status); }
+                    const datos = await r.json();
+                    indicador && indicador.classList.remove('is-off');
+
+                    if (version !== null && datos.version !== version && !ocupado()) {
+                        location.reload();
+                        return;
+                    }
+                    if (version === null || !ocupado()) { version = datos.version; }
+                } catch (e) {
+                    indicador && indicador.classList.add('is-off');
+                }
+            }
+
+            revisar();
+            setInterval(revisar, 8000);
+        })();
+    </script>
+    @endauth
 </body>
 
 </html>

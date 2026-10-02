@@ -20,7 +20,7 @@
                 Acopiador asignado: <strong class="text-slate-800">{{ $route->collector->name }}</strong> | 
                 Estado: 
                 @if($route->status === 'verificada')
-                    <span class="uppercase font-bold text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span class="uppercase font-bold text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#1B5E20] border border-[#2E7D32]/25">
                         <i class="fa-solid fa-check-double mr-1"></i> Verificada en Caudalímetro
                     </span>
                 @elseif($route->status === 'descargada_planta')
@@ -28,7 +28,7 @@
                         <i class="fa-solid fa-clock-rotate-left mr-1"></i> Cerrada • En Verificación por Planta
                     </span>
                 @else
-                    <span class="uppercase font-bold text-xs px-2.5 py-0.5 rounded-full bg-lime-100 text-[#0f1713] border border-lime-300">
+                    <span class="uppercase font-bold text-xs px-2.5 py-0.5 rounded-full bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/25">
                         <i class="fa-solid fa-truck-fast mr-1"></i> En Ruta (Campo)
                     </span>
                 @endif
@@ -38,14 +38,14 @@
         <div class="flex items-center gap-4">
             <div class="bg-slate-50 border border-slate-200/80 px-5 py-3 rounded-2xl text-right">
                 <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Total Acopiado Hoy</span>
-                <span class="text-2xl font-black text-emerald-800 tracking-tight" id="headerTotalLiters">{{ number_format($route->total_collected_liters, 2) }} <span class="text-xs font-bold text-slate-500">L</span></span>
+                <span class="text-2xl font-black text-[#1B5E20] tracking-tight" id="headerTotalLiters">{{ number_format($route->total_collected_liters, 2) }} <span class="text-xs font-bold text-slate-500">L</span></span>
             </div>
 
             @if($route->status !== 'descargada_planta' && $route->status !== 'verificada')
             <form action="{{ route('acopio.discharge', $route->id) }}" method="POST">
                 @csrf
                 <button type="submit" onclick="return confirm('¿Confirmas cerrar la ruta de hoy con {{ number_format($route->total_collected_liters, 2) }} L y enviar la leche a planta para verificación por caudalímetro?')"
-                    class="bg-[#0f1713] hover:bg-black text-[#bef264] font-bold px-5 py-3 rounded-2xl shadow-sm text-xs transition flex items-center gap-2 cursor-pointer">
+                    class="bg-[#2E7D32] hover:bg-[#A33C00] text-white font-bold px-5 py-3 rounded-2xl shadow-sm text-xs transition flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-flag-checkered text-sm"></i>
                     <span>Cerrar Ruta</span>
                 </button>
@@ -56,8 +56,8 @@
                 <span>Ruta Cerrada • Esperando Caudalímetro</span>
             </span>
             @else
-            <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2">
-                <i class="fa-solid fa-check-double text-emerald-600"></i>
+            <span class="bg-[#E8F5E9] text-[#1B5E20] border border-[#2E7D32]/25 px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <i class="fa-solid fa-check-double text-[#2E7D32]"></i>
                 <span>Verificada por Caudalímetro ({{ $route->reception ? $route->reception->flowmeter_liters : $route->total_collected_liters }} L)</span>
             </span>
             @endif
@@ -82,7 +82,7 @@
                 <span class="text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200/60 px-3 py-1 rounded-full">
                     <i class="fa-solid fa-hourglass-half mr-1"></i> <span id="counterPending">{{ $pendingCount }}</span> pendientes
                 </span>
-                <span class="text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-3 py-1 rounded-full">
+                <span class="text-xs font-bold bg-[#E8F5E9] text-[#1B5E20] border border-[#2E7D32]/25 px-3 py-1 rounded-full">
                     <i class="fa-solid fa-circle-check mr-1"></i> <span id="counterRecorded">{{ $recordedCount }}</span> acopiados
                 </span>
                 <span class="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
@@ -98,7 +98,7 @@
             </div>
             <input type="text" id="producerSearchInput" onkeyup="filterProducers()"
                 placeholder="Buscar proveedor por nombre completo o número de DNI..."
-                class="w-full pl-10 pr-10 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-spark-lime focus:border-transparent transition">
+                class="w-full pl-10 pr-10 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30 focus:border-transparent transition">
             <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
@@ -133,7 +133,7 @@
                                 <div class="flex items-center gap-2">
                                     <span>{{ $producer->name }}</span>
                                     @if($isRecorded)
-                                        <i class="fa-solid fa-circle-check text-emerald-500 text-xs" title="Entrega registrada"></i>
+                                        <i class="fa-solid fa-circle-check text-[#2E7D32] text-xs" title="Entrega registrada"></i>
                                     @endif
                                 </div>
                             </td>
@@ -142,7 +142,7 @@
                             
                             <td class="p-3.5 font-black text-sm">
                                 @if($record)
-                                    <span class="text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2.5 py-1 rounded-xl">
+                                    <span class="text-[#2E7D32] bg-[#E8F5E9] border border-[#2E7D32]/25 px-2.5 py-1 rounded-xl">
                                         {{ number_format($record->liters, 2) }} L
                                     </span>
                                 @else
@@ -163,11 +163,11 @@
                             <td class="p-3.5 text-right">
                                 @if($route->status !== 'descargada_planta' && $route->status !== 'verificada')
                                     @if($isRecorded)
-                                        <span class="text-xs font-bold text-emerald-700">Acopiado</span>
+                                        <span class="text-xs font-bold text-[#2E7D32]">Acopiado</span>
                                     @else
                                         <button type="button" 
                                             onclick="openRecordModal({{ $producer->id }}, '{{ addslashes($producer->name) }}', '{{ $producer->dni ?? '' }}', '', '')"
-                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#bef264] hover:bg-lime-400 text-[#0f1713] transition cursor-pointer shadow-sm">
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#E3F2FD] hover:bg-[#EEE7DB] text-[#1565C0] transition cursor-pointer shadow-sm">
                                             <i class="fa-solid fa-plus text-xs"></i>
                                             <span>Registrar</span>
                                         </button>
@@ -264,15 +264,15 @@
                             <td class="p-3.5 font-bold">
                                 @if($diff !== null)
                                     @if($diff < -0.01)
-                                        <span class="text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                        <span class="text-[#C62828] bg-[#FFEBEE] border border-[#C62828]/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
                                             <i class="fa-solid fa-arrow-down text-[9px]"></i> {{ number_format($diff, 2) }} L (Merma)
                                         </span>
                                     @elseif($diff > 0.01)
-                                        <span class="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                        <span class="text-sky-700 bg-[#E3F2FD] border border-sky-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
                                             <i class="fa-solid fa-arrow-up text-[9px]"></i> +{{ number_format($diff, 2) }} L
                                         </span>
                                     @else
-                                        <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
+                                        <span class="text-[#2E7D32] bg-[#E8F5E9] border border-[#2E7D32]/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono text-[11px]">
                                             <i class="fa-solid fa-check text-[9px]"></i> 0.00 L (Exacto)
                                         </span>
                                     @endif
@@ -287,8 +287,8 @@
                                         <span>{{ $reception->observation }}</span>
                                     </span>
                                 @elseif($reception)
-                                    <span class="text-emerald-700 font-medium inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i> Todo conforme
+                                    <span class="text-[#2E7D32] font-medium inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-circle-check text-[#2E7D32] text-xs"></i> Todo conforme
                                     </span>
                                 @else
                                     <span class="text-slate-400 italic text-[11px]">En espera de verificación</span>
@@ -296,7 +296,7 @@
                             </td>
                             <td class="p-3.5">
                                 @if($reception && $reception->verification_status === 'incompleto')
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-[#C62828] border border-[#C62828]/25 inline-flex items-center gap-1">
                                         <i class="fa-solid fa-triangle-exclamation"></i> Incompleto
                                     </span>
                                 @elseif($reception && $reception->verification_status === 'con_observacion')
@@ -304,7 +304,7 @@
                                         <i class="fa-solid fa-circle-exclamation"></i> Con Observación
                                     </span>
                                 @elseif($histRoute->status === 'verificada')
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-[#1B5E20] border border-[#2E7D32]/25 inline-flex items-center gap-1">
                                         <i class="fa-solid fa-check-double"></i> Conforme
                                     </span>
                                 @elseif($histRoute->status === 'descargada_planta')
@@ -312,7 +312,7 @@
                                         <i class="fa-solid fa-clock-rotate-left"></i> En Planta
                                     </span>
                                 @else
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-lime-100 text-[#0f1713] border border-lime-300 inline-flex items-center gap-1">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/25 inline-flex items-center gap-1">
                                         <i class="fa-solid fa-truck-fast"></i> En Ruta
                                     </span>
                                 @endif
@@ -341,7 +341,7 @@
                                 @endphp
                                 <button type="button"
                                     onclick="openHistoryModal({{ json_encode($detailData) }})"
-                                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#0f1713] hover:text-[#bef264] text-slate-700 transition flex items-center justify-center mx-auto cursor-pointer shadow-sm"
+                                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-[#E65100] hover:text-white text-slate-700 transition flex items-center justify-center mx-auto cursor-pointer shadow-sm"
                                     title="Ver detalle de la ruta">
                                     <i class="fa-solid fa-eye text-xs"></i>
                                 </button>
@@ -360,14 +360,14 @@
 
 <!-- MODAL: REGISTRAR / ACTUALIZAR LITROS -->
 <div id="recordModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeRecordModal()"></div>
+    <div class="fixed inset-0 bg-[rgba(32,30,29,0.55)] backdrop-blur-xs transition-opacity" onclick="closeRecordModal()"></div>
 
     <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
         <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-slate-200">
             <!-- Header Modal -->
             <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-[#bef264]/20 border border-[#bef264]/30 flex items-center justify-center text-[#bef264]">
+                    <div class="w-10 h-10 rounded-2xl bg-[#1565C0]/10 border border-[#1565C0]/20 flex items-center justify-center text-white">
                         <i class="fa-solid fa-bottle-droplet text-lg"></i>
                     </div>
                     <div>
@@ -395,12 +395,12 @@
                 <!-- Campo Litros -->
                 <div>
                     <label for="modalLitersInput" class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-                        Cantidad de Leche (Litros) <span class="text-rose-500">*</span>
+                        Cantidad de Leche (Litros) <span class="text-[#C62828]">*</span>
                     </label>
                     <div class="relative">
                         <input type="number" step="0.1" min="0.1" name="liters" id="modalLitersInput" required
                             placeholder="Ej. 25.5"
-                            class="w-full px-4 py-3 bg-slate-50 focus:bg-white border-2 border-slate-200 focus:border-spark-lime rounded-2xl text-xl font-black text-slate-900 focus:ring-0 transition">
+                            class="w-full px-4 py-3 bg-slate-50 focus:bg-white border-2 border-slate-200 focus:border-[#1565C0] rounded-2xl text-xl font-black text-slate-900 focus:ring-0 transition">
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-sm font-bold text-slate-400">
                             Litros (L)
                         </div>
@@ -415,7 +415,7 @@
                     </label>
                     <input type="text" name="notes" id="modalNotesInput" maxlength="255"
                         placeholder="Ej. Porongo de aluminio, acopio en tranquera..."
-                        class="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-spark-lime rounded-xl text-xs text-slate-800 transition">
+                        class="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#1565C0] rounded-xl text-xs text-slate-800 transition">
                 </div>
 
                 <!-- Botones Acción -->
@@ -425,7 +425,7 @@
                         Cancelar
                     </button>
                     <button type="submit" id="modalSubmitBtn"
-                        class="px-6 py-2.5 rounded-xl text-xs font-black bg-[#0f1713] hover:bg-black text-[#bef264] transition shadow-md flex items-center gap-2 cursor-pointer">
+                        class="px-6 py-2.5 rounded-xl text-xs font-black bg-[#E65100] hover:bg-[#A33C00] text-white transition shadow-md flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-floppy-disk text-xs"></i>
                         <span id="modalSubmitText">Guardar Entrega</span>
                     </button>
@@ -437,14 +437,14 @@
 
 <!-- MODAL: DETALLE HISTÓRICO DE RUTA (OJITO) -->
 <div id="historyModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="history-modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeHistoryModal()"></div>
+    <div class="fixed inset-0 bg-[rgba(32,30,29,0.55)] backdrop-blur-xs transition-opacity" onclick="closeHistoryModal()"></div>
 
     <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
         <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-slate-200">
             <!-- Header Modal Historial -->
             <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-[#bef264]/20 border border-[#bef264]/30 flex items-center justify-center text-[#bef264]">
+                    <div class="w-10 h-10 rounded-2xl bg-[#1565C0]/10 border border-[#1565C0]/20 flex items-center justify-center text-white">
                         <i class="fa-solid fa-clipboard-list text-lg"></i>
                     </div>
                     <div>
@@ -641,23 +641,23 @@
         const diffElem = document.getElementById('histDifference');
         diffElem.textContent = data.difference;
         if (data.difference.startsWith('-')) {
-            diffElem.className = 'text-lg font-black text-rose-600';
+            diffElem.className = 'text-lg font-black text-[#C62828]';
         } else if (data.difference.startsWith('+')) {
             diffElem.className = 'text-lg font-black text-sky-600';
         } else {
-            diffElem.className = 'text-lg font-black text-emerald-700';
+            diffElem.className = 'text-lg font-black text-[#2E7D32]';
         }
 
         const verdictElem = document.getElementById('histVerdictBadge');
         if (data.status === 'incompleto') {
             verdictElem.textContent = 'INCOMPLETO / MERMA';
-            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500 text-white';
+            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-[#C62828] text-white';
         } else if (data.status === 'con_observacion') {
             verdictElem.textContent = 'CON OBSERVACIÓN';
             verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500 text-white';
         } else if (data.status === 'verificado' || data.status === 'verificada') {
             verdictElem.textContent = 'CONFORME';
-            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500 text-white';
+            verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-[#2E7D32] text-white';
         } else {
             verdictElem.textContent = 'EN RUTA';
             verdictElem.className = 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-lime-400 text-slate-900';
@@ -676,7 +676,7 @@
                 tr.innerHTML = `
                     <td class="p-2.5 font-bold text-slate-800">${r.producer_name}</td>
                     <td class="p-2.5 font-mono text-slate-600">${r.producer_dni}</td>
-                    <td class="p-2.5 font-black text-emerald-700">${r.liters} L</td>
+                    <td class="p-2.5 font-black text-[#2E7D32]">${r.liters} L</td>
                     <td class="p-2.5 font-mono text-slate-500">${r.time}</td>
                     <td class="p-2.5 text-slate-500 italic truncate max-w-xs">${r.notes}</td>
                 `;

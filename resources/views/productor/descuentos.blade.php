@@ -7,13 +7,13 @@
     <!-- Header Banner -->
     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-[#1565C0] text-white flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-receipt"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-xl font-black text-slate-900 tracking-tight">Descuentos, Anticipos e Insumos</h1>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50 uppercase tracking-wide">Deducciones</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20 uppercase tracking-wide">Deducciones</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">
                     Registro transparente de adelantos en efectivo, alimentos balanceados, medicinas o servicios aplicados a tus pagos de leche.
@@ -32,7 +32,7 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Pendiente de Deducción</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-rose-600">S/ {{ number_format($totalPendiente, 2) }}</span>
+                <span class="text-3xl font-black text-[#C62828]">S/ {{ number_format($totalPendiente, 2) }}</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Se deducirá del pago de tu semana activa actual.</p>
         </div>
@@ -41,20 +41,20 @@
         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Ya Descontado</span>
             <div class="flex items-baseline gap-2 mt-2">
-                <span class="text-3xl font-black text-[#0f1713]">S/ {{ number_format($totalDescontado, 2) }}</span>
+                <span class="text-3xl font-black text-[#1565C0]">S/ {{ number_format($totalDescontado, 2) }}</span>
             </div>
             <p class="text-xs text-slate-400 mt-2">Deducido y conciliado en liquidaciones cerradas.</p>
         </div>
 
         <!-- Info / Ayuda -->
-        <div class="bg-[#0f1713] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between">
+        <div class="bg-[#1565C0] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between">
             <div>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264] text-[#0f1713] uppercase tracking-wider">Transparencia</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E3F2FD] text-[#1565C0] uppercase tracking-wider">Transparencia</span>
                 <p class="text-xs text-slate-300 mt-3 leading-relaxed">
                     Cualquier adelanto solicitado en oficina o alimento retirado en almacén se registra aquí de forma inmediata.
                 </p>
             </div>
-            <span class="text-[11px] text-[#bef264] font-medium mt-3">Huata Gestión Lechera</span>
+            <span class="text-[11px] text-white font-medium mt-3">Huata Gestión Lechera</span>
         </div>
     </div>
 
@@ -93,7 +93,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-slate-900 block text-xs">{{ $desc->concept }}</span>
                                 @if($sale)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#2E7D32]/25">
                                     <i class="fa-solid fa-receipt text-[9px]"></i> {{ $sale->receipt_number }}
                                 </span>
                                 @endif
@@ -102,7 +102,7 @@
                             <span class="text-[10px] text-slate-400 block">{{ $desc->notes }}</span>
                             @endif
                         </td>
-                        <td class="py-3.5 px-3 font-black text-rose-600 text-sm">
+                        <td class="py-3.5 px-3 font-black text-[#C62828] text-sm">
                             - S/ {{ number_format($desc->amount, 2) }}
                         </td>
                         <td class="py-3.5 px-3 font-mono text-slate-500">
@@ -124,7 +124,7 @@
                             <div class="flex items-center justify-end gap-1.5">
                                 <button type="button" 
                                     onclick="openReceiptModal('{{ $sale->receipt_number }}', '{{ $sale->sold_at }}', '{{ $sale->seller ? $sale->seller->name : 'Planta Huata' }}', '{{ $sale->cheese_molds_quantity }}', '{{ number_format($sale->unit_price, 2) }}', '{{ number_format($sale->total_amount, 2) }}', '{{ route('ventas.receipt', $sale->id) }}')"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-black font-bold text-xs shadow-sm transition"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-[#A33C00] font-bold text-xs shadow-sm transition"
                                     title="Previsualizar recibo térmico">
                                     <i class="fa-solid fa-eye text-xs"></i>
                                     <span>Ver Recibo</span>
@@ -152,7 +152,7 @@
 </div>
 
 <!-- MODAL DE RECIBO DE VENTA (ESTILO TÉRMICO SPARK) -->
-<div id="receiptModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeReceiptModal()">
+<div id="receiptModal" class="fixed inset-0 z-50 bg-[rgba(32,30,29,0.55)] backdrop-blur-sm hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeReceiptModal()">
     <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 font-mono text-slate-800 text-xs relative max-h-[90vh] overflow-y-auto">
         <!-- Botón cerrar X -->
         <button onclick="closeReceiptModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition font-sans text-sm">
@@ -217,7 +217,7 @@
         <div class="pt-4 space-y-1.5">
             <div class="flex justify-between text-sm font-black text-slate-900">
                 <span class="font-sans">TOTAL CARGADO:</span>
-                <span id="modalReceiptTotal" class="text-rose-600 font-mono"></span>
+                <span id="modalReceiptTotal" class="text-[#C62828] font-mono"></span>
             </div>
             <div class="flex justify-between text-[10px] text-slate-500 font-sans">
                 <span>FORMA DE PAGO:</span>
@@ -227,7 +227,7 @@
 
         <!-- Acciones -->
         <div class="mt-6 pt-4 border-t border-slate-100 flex gap-2 font-sans">
-            <a id="modalReceiptFullLink" href="#" class="flex-1 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition">
+            <a id="modalReceiptFullLink" href="#" class="flex-1 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition">
                 <i class="fa-solid fa-print"></i> <span>Imprimir Comprobante</span>
             </a>
             <button onclick="closeReceiptModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs transition">

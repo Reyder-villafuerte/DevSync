@@ -45,13 +45,13 @@
                         </div>
                         <div class="text-right">
                             <span class="text-[10px] text-slate-400 block uppercase font-bold">Diferencia / Merma</span>
-                            <span class="font-bold {{ $route->reception->difference_liters < 0 ? 'text-rose-600' : ($route->reception->difference_liters > 0 ? 'text-sky-600' : 'text-emerald-600') }}">
+                            <span class="font-bold {{ $route->reception->difference_liters < 0 ? 'text-[#C62828]' : ($route->reception->difference_liters > 0 ? 'text-sky-600' : 'text-[#2E7D32]') }}">
                                 {{ $route->reception->difference_liters > 0 ? '+' : '' }}{{ number_format($route->reception->difference_liters, 2) }} L
                             </span>
                         </div>
                         
                         @if($route->reception->verification_status === 'incompleto')
-                            <span class="px-2.5 py-1 rounded-full text-[10px] uppercase font-black bg-rose-100 text-rose-900 border border-rose-200">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] uppercase font-black bg-rose-100 text-[#C62828] border border-[#C62828]/25">
                                 <i class="fa-solid fa-triangle-exclamation mr-1"></i> Incompleto
                             </span>
                         @elseif($route->reception->verification_status === 'con_observacion')
@@ -59,7 +59,7 @@
                                 <i class="fa-solid fa-circle-exclamation mr-1"></i> Con Observación
                             </span>
                         @else
-                            <span class="px-2.5 py-1 rounded-full text-[10px] uppercase font-black bg-emerald-100 text-emerald-900 border border-emerald-200">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] uppercase font-black bg-emerald-100 text-[#1B5E20] border border-[#2E7D32]/25">
                                 <i class="fa-solid fa-check-double mr-1"></i> Verificado
                             </span>
                         @endif
@@ -90,7 +90,7 @@
                             <input type="number" step="0.1" min="0" name="flowmeter_liters" id="flowmeter-{{ $route->id }}"
                                 oninput="calcDifference({{ $route->id }}, {{ (float)$route->total_collected_liters }})"
                                 placeholder="Ej. 150.0"
-                                required class="w-full text-base font-black p-2.5 bg-white border-2 border-slate-200 focus:border-spark-lime rounded-xl text-slate-900 transition">
+                                required class="w-full text-base font-black p-2.5 bg-white border-2 border-slate-200 focus:border-[#1565C0] rounded-xl text-slate-900 transition">
                         </div>
 
                         <div>
@@ -108,7 +108,7 @@
                         </div>
 
                         <div>
-                            <button type="submit" class="w-full bg-[#0f1713] hover:bg-black text-[#bef264] font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">
+                            <button type="submit" class="w-full bg-[#E65100] hover:bg-[#A33C00] text-white font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">
                                 Confirmar Ingreso a Stock
                             </button>
                         </div>
@@ -116,13 +116,13 @@
                 </div>
                 @elseif($route->status === 'verificada')
                 <!-- Estado verificado con banner dinámico según estatus real -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl border text-xs {{ $route->reception && $route->reception->verification_status === 'incompleto' ? 'bg-rose-50 border-rose-200 text-rose-950' : ($route->reception && $route->reception->verification_status === 'con_observacion' ? 'bg-amber-50 border-amber-200 text-amber-950' : 'bg-emerald-50 border-emerald-200 text-emerald-950') }}">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl border text-xs {{ $route->reception && $route->reception->verification_status === 'incompleto' ? 'bg-[#FFEBEE] border-[#C62828]/25 text-rose-950' : ($route->reception && $route->reception->verification_status === 'con_observacion' ? 'bg-amber-50 border-amber-200 text-amber-950' : 'bg-[#E8F5E9] border-[#2E7D32]/25 text-[#1B5E20]') }}">
                     <div class="flex items-start sm:items-center gap-2.5">
                         @if($route->reception && $route->reception->verification_status === 'incompleto')
-                            <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base mt-0.5 sm:mt-0"></i>
+                            <i class="fa-solid fa-triangle-exclamation text-[#C62828] text-base mt-0.5 sm:mt-0"></i>
                             <div>
                                 <strong>Descarga Incompleta con Merma:</strong> Se confirmaron e ingresaron <strong>{{ number_format($route->reception->flowmeter_liters, 2) }} L</strong> al tanque. 
-                                Merma registrada: <strong class="text-rose-700">{{ number_format($route->reception->difference_liters, 2) }} L</strong> frente a los {{ number_format($route->total_collected_liters, 2) }} L de campo.
+                                Merma registrada: <strong class="text-[#C62828]">{{ number_format($route->reception->difference_liters, 2) }} L</strong> frente a los {{ number_format($route->total_collected_liters, 2) }} L de campo.
                                 @if($route->reception->observation)
                                     <span class="block sm:inline text-slate-600 italic mt-0.5 sm:mt-0">"{{ $route->reception->observation }}"</span>
                                 @endif
@@ -134,7 +134,7 @@
                                 Observación: <span class="italic text-slate-700">"{{ $route->reception->observation }}"</span>
                             </div>
                         @else
-                            <i class="fa-solid fa-circle-check text-emerald-600 text-base mt-0.5 sm:mt-0"></i>
+                            <i class="fa-solid fa-circle-check text-[#2E7D32] text-base mt-0.5 sm:mt-0"></i>
                             <div>
                                 <strong>Descarga Conforme:</strong> Se confirmó el ingreso de <strong>{{ number_format($route->reception ? $route->reception->flowmeter_liters : $route->total_collected_liters, 2) }} L</strong> al tanque de leche.
                                 @if($route->reception && $route->reception->observation)
@@ -172,7 +172,7 @@
                             <input type="number" step="0.1" min="0" name="flowmeter_liters" id="flowmeter-edit-{{ $route->id }}"
                                 value="{{ $route->reception ? $route->reception->flowmeter_liters : $route->total_collected_liters }}"
                                 oninput="calcDifferenceEdit({{ $route->id }}, {{ (float)$route->total_collected_liters }})"
-                                required class="w-full text-base font-black p-2.5 bg-white border-2 border-slate-200 focus:border-spark-lime rounded-xl text-slate-900 transition">
+                                required class="w-full text-base font-black p-2.5 bg-white border-2 border-slate-200 focus:border-[#1565C0] rounded-xl text-slate-900 transition">
                         </div>
 
                         <div>
@@ -191,7 +191,7 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="w-full bg-[#0f1713] hover:bg-black text-[#bef264] font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">
+                            <button type="submit" class="w-full bg-[#E65100] hover:bg-[#A33C00] text-white font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">
                                 Actualizar y Ajustar Stock
                             </button>
                         </div>
@@ -228,7 +228,7 @@
         const diff = val - fieldLiters;
         if (diff < -0.01) {
             badge.textContent = 'Merma: ' + diff.toFixed(2) + ' L';
-            badge.className = 'text-[10px] font-mono font-bold text-rose-600';
+            badge.className = 'text-[10px] font-mono font-bold text-[#C62828]';
             if (statusSelect) statusSelect.value = 'incompleto';
         } else if (diff > 0.01) {
             badge.textContent = '+' + diff.toFixed(2) + ' L';
@@ -236,7 +236,7 @@
             if (statusSelect) statusSelect.value = 'verificado';
         } else {
             badge.textContent = 'Exacto (0.00 L)';
-            badge.className = 'text-[10px] font-mono font-bold text-emerald-600';
+            badge.className = 'text-[10px] font-mono font-bold text-[#2E7D32]';
             if (statusSelect) statusSelect.value = 'verificado';
         }
     }
@@ -256,7 +256,7 @@
         const diff = val - fieldLiters;
         if (diff < -0.01) {
             badge.textContent = 'Merma: ' + diff.toFixed(2) + ' L';
-            badge.className = 'text-[10px] font-mono font-bold text-rose-600';
+            badge.className = 'text-[10px] font-mono font-bold text-[#C62828]';
             if (statusSelect) statusSelect.value = 'incompleto';
         } else if (diff > 0.01) {
             badge.textContent = '+' + diff.toFixed(2) + ' L';
@@ -264,7 +264,7 @@
             if (statusSelect) statusSelect.value = 'verificado';
         } else {
             badge.textContent = 'Exacto (0.00 L)';
-            badge.className = 'text-[10px] font-mono font-bold text-emerald-600';
+            badge.className = 'text-[10px] font-mono font-bold text-[#2E7D32]';
             if (statusSelect) statusSelect.value = 'verificado';
         }
     }

@@ -39,7 +39,7 @@
                 <span class="text-xl font-black text-slate-800 tracking-tight">{{ (int) $unidadesEnAlmacen }} <span class="text-xs font-bold text-slate-400">Unidades</span></span>
             </div>
 
-            <a href="{{ route('ventas.create') }}" class="bg-spark-dark hover:bg-black text-spark-lime font-black px-5 py-3 rounded-2xl shadow-sm text-xs transition flex items-center gap-2">
+            <a href="{{ route('ventas.create') }}" class="bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black px-5 py-3 rounded-2xl shadow-sm text-xs transition flex items-center gap-2">
                 <i class="fa-solid fa-cart-plus text-sm"></i>
                 <span>+ Nueva Venta en Caja</span>
             </a>
@@ -47,7 +47,7 @@
             <!-- Botón Cierre de Caja -->
             <button type="button" id="btnToggleCierre" onclick="toggleCierreCaja()" 
                 class="px-5 py-3 rounded-2xl text-xs font-bold transition flex items-center gap-2 shadow-sm border border-slate-300 bg-white hover:bg-slate-100 text-slate-800">
-                <i class="fa-solid fa-calculator text-sm text-emerald-700"></i>
+                <i class="fa-solid fa-calculator text-sm text-[#2E7D32]"></i>
                 <span id="txtBtnCierre">Cierre de Caja</span>
             </button>
         </div>
@@ -75,7 +75,7 @@
                 @endif
                 <label for="fecha" class="text-xs font-bold text-slate-500">Fecha:</label>
                 <input type="date" id="fecha" name="fecha" value="{{ $fechaCierre }}" onchange="this.form.submit()"
-                    class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-spark-lime font-mono font-bold text-slate-800">
+                    class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#1565C0]/30 font-mono font-bold text-slate-800">
                 <button type="button" onclick="window.print()" class="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition no-print" title="Imprimir hoja de arqueo">
                     <i class="fa-solid fa-print text-xs"></i> <span>Imprimir Cierre</span>
                 </button>
@@ -88,18 +88,18 @@
         <!-- TARJETAS DE MÉTODOS DE PAGO Y DINERO REAL -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <!-- 1. Dinero Efectivo Real en Caja -->
-            <div class="p-6 rounded-3xl bg-emerald-50 border-2 border-emerald-300/80 shadow-sm relative overflow-hidden">
+            <div class="p-6 rounded-3xl bg-[#E8F5E9] border-2 border-[#2E7D32]/25 shadow-sm relative overflow-hidden">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-[#1B5E20] bg-emerald-100 px-2.5 py-0.5 rounded-full">
                         Efectivo Real en Caja
                     </span>
-                    <i class="fa-solid fa-money-bill-wave text-2xl text-emerald-500/70"></i>
+                    <i class="fa-solid fa-money-bill-wave text-2xl text-[#2E7D32]/70"></i>
                 </div>
                 <div class="mt-3">
-                    <span class="text-3xl font-black text-emerald-950 tracking-tight">S/ {{ number_format($efectivoTotal, 2) }}</span>
+                    <span class="text-3xl font-black text-[#1B5E20] tracking-tight">S/ {{ number_format($efectivoTotal, 2) }}</span>
                 </div>
-                <p class="text-xs text-emerald-800 font-medium mt-2 leading-tight">
-                    <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Dinero físico que debe entregar el cajero al final del turno.
+                <p class="text-xs text-[#1B5E20] font-medium mt-2 leading-tight">
+                    <i class="fa-solid fa-circle-check text-[#2E7D32] mr-1"></i> Dinero físico que debe entregar el cajero al final del turno.
                 </p>
             </div>
 
@@ -162,7 +162,7 @@
                             </span>
                         </td>
                         <td class="py-3 px-4 text-center font-black text-slate-900 text-sm">{{ $fila['unidades'] }}</td>
-                        <td class="py-3 px-4 text-right font-mono font-bold text-emerald-700">S/ {{ number_format($fila['efectivo'], 2) }}</td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-[#2E7D32]">S/ {{ number_format($fila['efectivo'], 2) }}</td>
                         <td class="py-3 px-4 text-right font-mono font-bold text-amber-700">S/ {{ number_format($fila['descuento_leche'], 2) }}</td>
                         <td class="py-3 px-4 text-right font-mono font-black text-slate-900">S/ {{ number_format($fila['total_monto'], 2) }}</td>
                     </tr>
@@ -174,7 +174,7 @@
                             Totales cierre de caja
                         </td>
                         <td class="py-3.5 px-4 text-center font-black text-slate-900 text-base">{{ $totalUnidadesDia }}</td>
-                        <td class="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-sm">S/ {{ number_format($efectivoTotal, 2) }}</td>
+                        <td class="py-3.5 px-4 text-right font-mono font-black text-[#1B5E20] text-sm">S/ {{ number_format($efectivoTotal, 2) }}</td>
                         <td class="py-3.5 px-4 text-right font-mono font-black text-amber-800 text-sm">S/ {{ number_format($descuentoLecheTotal, 2) }}</td>
                         <td class="py-3.5 px-4 text-right font-mono font-black text-slate-900 text-sm">S/ {{ number_format($totalMontoDia, 2) }}</td>
                     </tr>
@@ -184,9 +184,9 @@
 
         <!-- ACCIÓN PARA CERRAR CAJA DE HOY (DEJA LA BANDEJA EN BLANCO) -->
         @if($ventasHoy->isNotEmpty() && $fechaCierre === $today)
-        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200/60 no-print">
-            <div class="text-xs text-emerald-900">
-                <i class="fa-solid fa-circle-info text-emerald-600 mr-1.5 text-sm"></i>
+        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#E8F5E9]/50 p-4 rounded-2xl border border-[#2E7D32]/25 no-print">
+            <div class="text-xs text-[#1B5E20]">
+                <i class="fa-solid fa-circle-info text-[#2E7D32] mr-1.5 text-sm"></i>
                 Al confirmar el cierre, se conciliarán <strong>S/ {{ number_format($efectivoTotal, 2) }}</strong> en efectivo y la tabla de ventas de hoy volverá a blanco.
             </div>
             <form method="POST" action="{{ route('ventas.close-cash') }}" onsubmit="return confirm('¿Confirmas el cierre de caja de hoy?\n\n• Efectivo en caja: S/ {{ number_format($efectivoTotal, 2) }}\n• Descuento en leche: S/ {{ number_format($descuentoLecheTotal, 2) }}\n• Unidades: {{ $totalUnidadesDia }}\n\nLa bandeja de ventas de hoy volverá a blanco.');">
@@ -198,8 +198,8 @@
             </form>
         </div>
         @elseif($closureToday && $fechaCierre === $today)
-        <div class="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-emerald-800 font-bold bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200">
-            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+        <div class="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-[#1B5E20] font-bold bg-[#E8F5E9] p-3.5 rounded-2xl border border-[#2E7D32]/25">
+            <i class="fa-solid fa-circle-check text-[#2E7D32] text-base"></i>
             <span>Caja de hoy cerrada a las {{ $closureToday->closed_at ? $closureToday->closed_at->format('H:i') : '' }} por {{ $closureToday->closer ? $closureToday->closer->name : 'Cajero' }}. Efectivo arqueado: S/ {{ number_format($closureToday->total_cash, 2) }}.</span>
         </div>
         @endif
@@ -214,7 +214,7 @@
 
         <x-slot:acciones>
             <a href="{{ route('ventas.create') }}"
-                class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap no-print">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap no-print">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </a>
             <a href="{{ route('ventas.receipts') }}"
@@ -228,7 +228,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="search" value="{{ request('search') }}" placeholder="Cliente o recibo..."
-                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-spark-lime font-bold text-[10px] uppercase">Buscar</button>
                 @if(request('search'))
@@ -259,7 +259,7 @@
             </td>
             <td class="py-3 px-4">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase
-                    {{ $sale->customer->type === 'proveedor' ? 'bg-blue-100 text-blue-900' : ($sale->customer->type === 'mayorista' ? 'bg-lime-100 text-spark-limeText' : 'bg-slate-100 text-slate-700') }}">
+                    {{ $sale->customer->type === 'proveedor' ? 'bg-blue-100 text-blue-900' : ($sale->customer->type === 'mayorista' ? 'bg-[#1565C0]/10 text-spark-limeText' : 'bg-slate-100 text-slate-700') }}">
                     {{ $sale->customer->clientType->name ?? $sale->customer->type }}
                 </span>
             </td>
@@ -272,7 +272,7 @@
                     <i class="fa-solid fa-receipt text-[9px]"></i> A Cuenta Leche
                 </span>
                 @else
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" title="Efectivo cobrado en ventanilla">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F5E9] text-[#1B5E20] border border-[#2E7D32]/25" title="Efectivo cobrado en ventanilla">
                     <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Efectivo en Caja
                 </span>
                 @endif
@@ -280,7 +280,7 @@
             <td class="py-3 px-4 text-slate-500">{{ $sale->seller ? $sale->seller->name : 'Planta' }}</td>
             <td class="py-3 px-4 text-slate-400 font-mono text-[11px]">{{ \Carbon\Carbon::parse($sale->sold_at)->format('H:i') }}</td>
             <td class="py-3 px-4 text-right no-print">
-                <a href="{{ route('ventas.receipt', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-black font-bold text-xs shadow-sm transition">
+                <a href="{{ route('ventas.receipt', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-[#A33C00] font-bold text-xs shadow-sm transition">
                     <i class="fa-solid fa-receipt text-xs"></i> <span>Recibo</span>
                 </a>
             </td>

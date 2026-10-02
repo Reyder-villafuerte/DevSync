@@ -35,7 +35,7 @@
 
         @if($coleccion->hasMorePages())
         <a href="{{ $coleccion->nextPageUrl() }}"
-            class="px-3 py-1.5 rounded-lg bg-spark-dark hover:bg-black text-spark-lime font-bold text-[10px] uppercase">Siguiente</a>
+            class="px-3 py-1.5 rounded-lg bg-spark-dark hover:bg-[#A33C00] text-spark-lime font-bold text-[10px] uppercase">Siguiente</a>
         @else
         <span class="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-300 font-bold text-[10px] uppercase">Siguiente</span>
         @endif

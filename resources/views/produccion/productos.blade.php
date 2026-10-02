@@ -31,7 +31,7 @@
         <x-slot:acciones>
             @if($hayConQueArmar)
             <button type="button" data-nuevo-producto
-                class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </button>
             @endif
@@ -42,7 +42,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Nombre o código..."
-                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <select name="categoria" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                     <option value="">Todas las categorías</option>
@@ -90,7 +90,7 @@
                     {{ rtrim(rtrim(number_format($renglon->quantity_per_unit, 4, '.', ''), '0'), '.') }}
                     {{ $renglon->unidadIngrediente() }} de <strong>{{ $renglon->nombreIngrediente() }}</strong>
                     @if($renglon->esProducto())
-                    <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-lime-100 text-spark-limeText">Producto</span>
+                    <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-[#1565C0]/10 text-spark-limeText">Producto</span>
                     @endif
                 </div>
                 @empty
@@ -117,7 +117,7 @@
 
 {{-- Modal por producto: su receta y sus tarifas --}}
 @foreach($productos as $producto)
-<div id="modalProducto{{ $producto->id }}" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalProducto{{ $producto->id }}" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-3xl rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -259,7 +259,7 @@
 
 @if($hayConQueArmar)
 {{-- Modal: crear producto --}}
-<div id="modalProducto" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalProducto" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-3xl rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -341,7 +341,7 @@
                         <span class="text-[10px] text-slate-400">Cuánto consume una unidad. Aquí van los litros de leche.</span>
                     </div>
                     <button type="button" id="agregarRenglon"
-                        class="px-3 py-1.5 rounded-lg bg-spark-dark hover:bg-black text-spark-lime font-bold text-[10px] uppercase">
+                        class="px-3 py-1.5 rounded-lg bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-bold text-[10px] uppercase">
                         <i class="fa-solid fa-plus mr-1"></i> Insumo
                     </button>
                 </div>
@@ -351,7 +351,7 @@
 
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
                     Crear producto
                 </button>
             </div>
@@ -386,7 +386,7 @@
                 class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800">
         </div>
         <div class="col-span-2">
-            <button type="button" class="quitar-fila w-full px-3 py-2.5 rounded-xl bg-rose-50 text-rose-600 font-bold text-[10px] uppercase">Quitar</button>
+            <button type="button" class="quitar-fila w-full px-3 py-2.5 rounded-xl bg-[#FFEBEE] text-[#C62828] font-bold text-[10px] uppercase">Quitar</button>
         </div>
     </div>
 </template>
@@ -439,7 +439,7 @@
                 class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-right font-semibold text-slate-800 text-xs">
         </div>
         <button type="button" data-quitar-tarifa
-            class="px-3 py-2.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] uppercase">
+            class="px-3 py-2.5 rounded-lg bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828] font-bold text-[10px] uppercase">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>

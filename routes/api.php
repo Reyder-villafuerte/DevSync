@@ -1,28 +1,15 @@
 <?php
 
+use App\Http\Controllers\Api\SyncController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\MobileSyncController;
-use App\Http\Controllers\Api\SyncController;
-
-// Autenticación móvil con entrega de tokens y avisos de login
-Route::post('/mobile/login', [MobileSyncController::class, 'login']);
 
 // Sincronización offline-first de MilkFlowMovil: login por DNI o correo
-Route::post('/sync/login', [SyncController::class, 'login']);
+Route::post('/sync/login', [SyncController::class, 'login'])->middleware('throttle:10,1');
 
 // Endpoints protegidos para la app móvil (Acopiadores y Productores)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', fn(Request $request) => $request->user());
-
-    // Acopiador: descargar lista de proveedores de su zona para trabajo offline
-    Route::get('/mobile/collector/route', [MobileSyncController::class, 'getCollectorRoute']);
-
-    // Acopiador: subir paquete de entregas registradas en ruta 4:30 AM
-    Route::post('/mobile/collector/sync', [MobileSyncController::class, 'syncDeliveries']);
-
-    // Productor: consultar entregas diarias y resultados de calidad Lactoscan
-    Route::get('/mobile/producer/deliveries', [MobileSyncController::class, 'getProducerDeliveries']);
+    Route::get('/user', fn (Request $request) => $request->user());
 
     // Motor de sincronización general (todas las pantallas del móvil)
     Route::post('/sync/logout', [SyncController::class, 'logout']);

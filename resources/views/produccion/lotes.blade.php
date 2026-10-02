@@ -15,7 +15,7 @@
         <x-slot:acciones>
             @if($puedeOperar && $productos->isNotEmpty())
             <button type="button" data-nuevo-lote
-                class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </button>
             @endif
@@ -72,7 +72,7 @@
                     @if($orden->status === 'planificada')
                     <span class="px-3 py-2 rounded-xl bg-slate-100 text-slate-500 font-bold text-[10px] uppercase whitespace-nowrap">Sin iniciar</span>
                     @elseif($orden->isReady())
-                    <span class="px-3 py-2 rounded-xl bg-lime-100 text-spark-limeText font-bold text-[10px] uppercase whitespace-nowrap">Listo para cerrar</span>
+                    <span class="px-3 py-2 rounded-xl bg-[#1565C0]/10 text-spark-limeText font-bold text-[10px] uppercase whitespace-nowrap">Listo para cerrar</span>
                     @else
                     <span class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-[10px] uppercase whitespace-nowrap">
                         Faltan {{ $orden->minutesRemaining() }} min
@@ -82,7 +82,7 @@
                     @if($orden->status === 'planificada')
                     <form action="{{ route('produccion.lotes.iniciar', $orden) }}" method="POST">
                         @csrf
-                        <button type="submit" class="px-3 py-2 rounded-xl bg-spark-dark text-spark-lime font-bold text-[10px] uppercase">Iniciar</button>
+                        <button type="submit" class="px-3 py-2 rounded-xl bg-[#E65100] text-spark-lime font-bold text-[10px] uppercase">Iniciar</button>
                     </form>
                     @elseif($orden->isReady())
                     <form action="{{ route('produccion.lotes.terminar', $orden) }}" method="POST" class="flex items-end gap-2">
@@ -90,7 +90,7 @@
                         <input type="number" step="0.01" min="0.01" name="produced_quantity" value="{{ $orden->planned_quantity }}"
                             title="Salió realmente"
                             class="w-24 p-2 bg-slate-50 border border-slate-200 rounded-xl text-right font-semibold">
-                        <button type="submit" class="px-3 py-2 rounded-xl bg-spark-dark text-spark-lime font-bold text-[10px] uppercase">Terminar</button>
+                        <button type="submit" class="px-3 py-2 rounded-xl bg-[#E65100] text-spark-lime font-bold text-[10px] uppercase">Terminar</button>
                     </form>
                     @else
                     <span class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-[10px] uppercase whitespace-nowrap">
@@ -101,7 +101,7 @@
                     <form action="{{ route('produccion.lotes.cancelar', $orden) }}" method="POST"
                         onsubmit="return confirm('¿Cancelar el lote {{ $orden->batch_number }}? Se devolverán los ingredientes.');">
                         @csrf
-                        <button type="submit" class="px-3 py-2 rounded-xl bg-rose-50 text-rose-600 font-bold text-[10px] uppercase">Cancelar</button>
+                        <button type="submit" class="px-3 py-2 rounded-xl bg-[#FFEBEE] text-[#C62828] font-bold text-[10px] uppercase">Cancelar</button>
                     </form>
                     @endif
                 </div>
@@ -122,7 +122,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Número de lote..."
-                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-52 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <select name="estado" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                     <option value="">Terminados y cancelados</option>
@@ -156,7 +156,7 @@
             </td>
             <td class="py-3 px-4 text-slate-500">{{ $orden->finished_at?->format('d/m/Y H:i') ?? '—' }}</td>
             <td class="py-3 px-4 text-right">
-                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full {{ $orden->status === 'terminada' ? 'bg-lime-100 text-spark-limeText' : 'bg-rose-50 text-rose-600' }}">
+                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full {{ $orden->status === 'terminada' ? 'bg-[#1565C0]/10 text-spark-limeText' : 'bg-[#FFEBEE] text-[#C62828]' }}">
                     {{ $orden->status }}
                 </span>
             </td>
@@ -168,7 +168,7 @@
 
 @if($puedeOperar && $productos->isNotEmpty())
 {{-- Modal: nuevo lote --}}
-<div id="modalLote" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalLote" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-3xl rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -205,7 +205,7 @@
                 <label class="flex items-center gap-2 text-[11px] font-bold text-slate-600">
                     <input type="checkbox" name="iniciar_ahora" value="1" checked> Iniciar ya
                 </label>
-                <button type="submit" class="w-full bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
+                <button type="submit" class="w-full bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
                     Registrar lote(s)
                 </button>
             </div>
@@ -241,7 +241,7 @@
 
             <div class="md:col-span-1 flex justify-center">
                 <button type="button" data-role="quitar"
-                    class="w-full h-[42px] flex items-center justify-center rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-black text-sm">
+                    class="w-full h-[42px] flex items-center justify-center rounded-xl bg-[#FFEBEE] hover:bg-red-100 text-[#C62828] font-black text-sm">
                     &times;
                 </button>
             </div>
@@ -330,7 +330,7 @@
                 const cantidad = linea.querySelector('[data-role="cantidad"]');
                 const stockEl = linea.querySelector('[data-role="stock"]');
 
-                stockEl.classList.remove('text-slate-500', 'text-red-600', 'text-emerald-600');
+                stockEl.classList.remove('text-slate-500', 'text-[#C62828]', 'text-[#2E7D32]');
 
                 if (!select.value) {
                     stockEl.innerHTML = '&hellip;';
@@ -356,7 +356,7 @@
 
                 stockEl.innerHTML = numero(alcance.cantidad) + ' ' + alcance.unidad
                     + (alcance.limita ? '<span class="block text-[9px] font-medium text-slate-400">por ' + alcance.limita + '</span>' : '');
-                stockEl.classList.add(alcance.cantidad > 0 ? 'text-emerald-600' : 'text-red-600');
+                stockEl.classList.add(alcance.cantidad > 0 ? 'text-[#2E7D32]' : 'text-[#C62828]');
 
                 cantidad.dataset.limite = alcance.cantidad;
 

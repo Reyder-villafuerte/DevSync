@@ -7,13 +7,13 @@
     <!-- Header Banner -->
     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#0f1713] text-[#bef264] flex items-center justify-center text-xl shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-[#1565C0] text-white flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-vial-circle-check"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-xl font-black text-slate-900 tracking-tight">Control de Calidad Lactoscan</h1>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/50 uppercase tracking-wide">Físico-Químico</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20 uppercase tracking-wide">Físico-Químico</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">
                     Evaluación de densidad, grasa, acidez y agua añadida. Agenda visitas técnicas automáticas ante desviaciones.
@@ -32,7 +32,7 @@
         @if(Auth::user()->role === 'inspector_calidad')
         <x-slot:acciones>
             <button type="button" data-nuevo-análisis
-                class="px-4 py-2.5 rounded-xl bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-white font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                 <i class="fa-solid fa-plus mr-1"></i> Agregar
             </button>
         </x-slot:acciones>
@@ -45,7 +45,7 @@
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                         <input type="search" name="search" value="{{ request('search') }}" placeholder="Productor o DNI..."
-                            class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#bef264]">
+                            class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                     </div>
                     <select name="zone_id" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                         <option value="">Todas las zonas</option>
@@ -53,7 +53,7 @@
                         <option value="{{ $z->id }}" @selected(request('zone_id') == $z->id)>{{ $z->name }}</option>
                         @endforeach
                     </select>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-[#bef264] font-bold text-[10px] uppercase">Filtrar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-[10px] uppercase">Filtrar</button>
                     @if(request('search') || request('verdict') || request('zone_id'))
                     <a href="{{ route('calidad.index') }}" class="text-[11px] font-bold text-slate-500 underline">Quitar filtros</a>
                     @endif
@@ -74,7 +74,7 @@
                     @foreach($veredictos as $clave => [$etiqueta, $cuantos])
                     @php($activo = request('verdict', '') === $clave)
                     <a href="{{ route('calidad.index', array_merge(request()->except(['verdict', 'page']), $clave ? ['verdict' => $clave] : [])) }}"
-                        class="px-3 py-1.5 rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 {{ $activo ? 'bg-[#0f1713] text-[#bef264]' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' }}">
+                        class="px-3 py-1.5 rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 {{ $activo ? 'bg-[#2E7D32] text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' }}">
                         <span>{{ $etiqueta }}</span>
                         <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $activo ? 'bg-white/20' : 'bg-slate-200 text-slate-700' }}">{{ $cuantos }}</span>
                     </a>
@@ -110,7 +110,7 @@
                 <span class="text-slate-400 font-semibold">D:</span> {{ $ana->density ?? '&mdash;' }} &middot;
                 <span class="text-slate-400 font-semibold">Ac:</span> {{ $ana->ph_or_acidity ?? '&mdash;' }}
                 @if($ana->water_addition_percentage > 0)
-                &middot; <span class="text-rose-600 font-bold">Agua: {{ $ana->water_addition_percentage }}%</span>
+                &middot; <span class="text-[#C62828] font-bold">Agua: {{ $ana->water_addition_percentage }}%</span>
                 @endif
                 @if($ana->temperature)
                 &middot; <span class="text-slate-400 font-semibold">T:</span> {{ $ana->temperature }}&deg;C
@@ -118,18 +118,18 @@
             </td>
             <td class="py-3 px-4">
                 @if($ana->verdict === 'conforme')
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#bef264]/30 text-[#0f1713] border border-[#bef264]/60">Conforme</span>
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#1565C0]/10 text-[#1565C0] border border-[#1565C0]/20">Conforme</span>
                 @elseif($ana->verdict === 'acidez_alta')
                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 uppercase">Acidez alta</span>
                 @elseif($ana->verdict === 'adulterada')
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 uppercase">Adulterada (agua)</span>
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FFEBEE] text-[#C62828] border border-[#C62828]/25 uppercase">Adulterada (agua)</span>
                 @else
                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 uppercase">{{ str_replace('_', ' ', $ana->verdict) }}</span>
                 @endif
             </td>
             <td class="py-3 px-4">
                 @forelse($ana->technicalVisits as $tv)
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold {{ $tv->status === 'realizada' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold {{ $tv->status === 'realizada' ? 'bg-[#E8F5E9] text-[#1B5E20] border border-[#2E7D32]/25' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">
                     <i class="fa-solid {{ $tv->status === 'realizada' ? 'fa-check' : 'fa-calendar-check' }} text-[9px]"></i>
                     {{ $tv->scheduled_date }}
                 </span>
@@ -194,8 +194,8 @@
                         <td class="py-3.5 px-3 text-slate-600 max-w-xs">
                             <div class="font-medium text-slate-800">{{ $visit->reason }}</div>
                             @if($visit->resolution_report)
-                                <div class="mt-1.5 text-[11px] text-emerald-800 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200">
-                                    <span class="font-bold text-emerald-900 block mb-0.5"><i class="fa-solid fa-clipboard-check text-emerald-600"></i> Informe de Resolución:</span>
+                                <div class="mt-1.5 text-[11px] text-[#1B5E20] bg-[#E8F5E9]/80 p-2.5 rounded-xl border border-[#2E7D32]/25">
+                                    <span class="font-bold text-[#1B5E20] block mb-0.5"><i class="fa-solid fa-clipboard-check text-[#2E7D32]"></i> Informe de Resolución:</span>
                                     {{ $visit->resolution_report }}
                                 </div>
                             @endif
@@ -205,7 +205,7 @@
                         </td>
                         <td class="py-3.5 px-3">
                             @if($visit->status === 'realizada')
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 w-fit">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-[#1B5E20] border border-[#2E7D32]/25 flex items-center gap-1 w-fit">
                                     <i class="fa-solid fa-check"></i> Realizada
                                 </span>
                             @elseif($visit->status === 'cancelada')
@@ -220,11 +220,11 @@
                         </td>
                         <td class="py-3.5 px-3 text-right">
                             @if($visit->status === 'programada')
-                                <button type="button" onclick="openCompleteVisitModal({{ $visit->id }}, '{{ addslashes($visit->producer->name) }}')" class="px-3 py-1.5 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 ml-auto shadow-sm">
+                                <button type="button" onclick="openCompleteVisitModal({{ $visit->id }}, '{{ addslashes($visit->producer->name) }}')" class="px-3 py-1.5 bg-[#2E7D32] hover:bg-[#A33C00] text-white rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 ml-auto shadow-sm">
                                     <i class="fa-solid fa-clipboard-check"></i> Marcar Realizada
                                 </button>
                             @else
-                                <span class="text-[11px] text-emerald-700 font-bold flex items-center justify-end gap-1">
+                                <span class="text-[11px] text-[#2E7D32] font-bold flex items-center justify-end gap-1">
                                     <i class="fa-solid fa-circle-check"></i> Atendida
                                 </span>
                             @endif
@@ -245,11 +245,11 @@
 </div>
 
 <!-- Modal para Registrar Informe de Resolución de Visita Técnica -->
-<div id="completeVisitModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div id="completeVisitModal" class="fixed inset-0 bg-[rgba(32,30,29,0.55)] backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 border border-slate-100 shadow-2xl space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center text-sm font-bold">
+                <div class="w-9 h-9 rounded-xl bg-[#2E7D32]/10 text-[#2E7D32] flex items-center justify-center text-sm font-bold">
                     <i class="fa-solid fa-clipboard-check"></i>
                 </div>
                 <div>
@@ -266,14 +266,14 @@
             @csrf
             <div>
                 <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Informe de Resolución / Hallazgos en Campo</label>
-                <textarea name="resolution_report" required rows="4" placeholder="Ej: Se capacitó en higiene de cantinas y se calibró la temperatura del tanque de enfriamiento. Muestra tomada arrojó 16°D normal." class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-[#0f1713] focus:ring-0 resize-none"></textarea>
+                <textarea name="resolution_report" required rows="4" placeholder="Ej: Se capacitó en higiene de cantinas y se calibró la temperatura del tanque de enfriamiento. Muestra tomada arrojó 16°D normal." class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-[#1565C0] focus:ring-0 resize-none"></textarea>
             </div>
 
             <div class="flex gap-2 justify-end pt-2">
                 <button type="button" onclick="closeCompleteVisitModal()" class="px-4 py-2.5 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
                     Cancelar
                 </button>
-                <button type="submit" class="px-5 py-2.5 bg-[#0f1713] hover:bg-slate-900 text-[#bef264] text-xs font-bold rounded-2xl transition flex items-center gap-1.5 shadow-md">
+                <button type="submit" class="px-5 py-2.5 bg-[#E65100] hover:bg-[#A33C00] text-white text-xs font-bold rounded-2xl transition flex items-center gap-1.5 shadow-md">
                     <i class="fa-solid fa-check"></i> Guardar y Cerrar Cita
                 </button>
             </div>
@@ -289,14 +289,14 @@ function filterProducersByZone(zoneId, zoneName = 'Todas las zonas') {
 
     // Actualizar estilo visual de los botones de zona
     document.querySelectorAll('.zone-pill').forEach(btn => {
-        btn.classList.remove('bg-[#0f1713]', 'text-[#bef264]', 'shadow-sm');
+        btn.classList.remove('bg-[#2E7D32]', 'text-white', 'shadow-sm');
         btn.classList.add('text-slate-600');
     });
 
     const activeBtn = document.getElementById('zoneBtn_' + zoneId);
     if (activeBtn) {
         activeBtn.classList.remove('text-slate-600');
-        activeBtn.classList.add('bg-[#0f1713]', 'text-[#bef264]', 'shadow-sm');
+        activeBtn.classList.add('bg-[#2E7D32]', 'text-white', 'shadow-sm');
     }
 
     // Actualizar badge indicador
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 @if(Auth::user()->role === 'inspector_calidad')
 {{-- Modal: nueva prueba Lactoscan --}}
-<div id="modalAnalisis" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalAnalisis" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="text-[10px] font-semibold text-slate-400">4 Zonas</span>
                     </label>
                     <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-100/80 rounded-2xl mb-2">
-                        <button type="button" onclick="filterProducersByZone('all')" id="zoneBtn_all" class="zone-pill py-1.5 text-[11px] font-bold rounded-xl bg-[#0f1713] text-[#bef264] shadow-sm transition">
+                        <button type="button" onclick="filterProducersByZone('all')" id="zoneBtn_all" class="zone-pill py-1.5 text-[11px] font-bold rounded-xl bg-[#E65100] text-white shadow-sm transition">
                             Todas
                         </button>
                         @foreach($zones as $z)
@@ -431,10 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <!-- Buscador reactivo dentro de los productores de la zona -->
                     <div class="relative mb-2">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                        <input type="text" id="producerSearchInput" placeholder="Buscar por nombre o DNI..." class="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="text" id="producerSearchInput" placeholder="Buscar por nombre o DNI..." class="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
 
-                    <select name="producer_id" id="producerSelect" required class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0 transition">
+                    <select name="producer_id" id="producerSelect" required class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0 transition">
                         @foreach($producers as $p)
                             <option value="{{ $p->id }}" 
                                     data-zone="{{ $p->today_zone_id ?? $p->zone_id }}" 
@@ -449,49 +449,49 @@ document.addEventListener('DOMContentLoaded', () => {
                         @endforeach
                     </select>
                     <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                        <i class="fa-solid fa-circle-check text-emerald-600"></i> Se muestran los registros del acopiador para la zona seleccionada.
+                        <i class="fa-solid fa-circle-check text-[#2E7D32]"></i> Se muestran los registros del acopiador para la zona seleccionada.
                     </p>
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Fecha de Análisis</label>
-                    <input type="date" name="analysis_date" value="{{ date('Y-m-d') }}" required class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0 transition">
+                    <input type="date" name="analysis_date" value="{{ date('Y-m-d') }}" required class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0 transition">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Grasa (%)</label>
-                        <input type="number" step="0.01" name="fat_percentage" placeholder="3.5" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="fat_percentage" placeholder="3.5" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Sólidos No Grasos</label>
-                        <input type="number" step="0.01" name="snf_percentage" placeholder="8.4" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="snf_percentage" placeholder="8.4" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Densidad (g/cm³)</label>
-                        <input type="number" step="0.01" name="density" placeholder="1.029" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="density" placeholder="1.029" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Proteína (%)</label>
-                        <input type="number" step="0.01" name="protein_percentage" placeholder="3.1" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="protein_percentage" placeholder="3.1" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Agua Añadida (%)</label>
-                        <input type="number" step="0.01" name="water_addition_percentage" placeholder="0.0" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="water_addition_percentage" placeholder="0.0" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Temperatura (°C)</label>
-                        <input type="number" step="0.01" name="temperature" placeholder="15.0" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="temperature" placeholder="15.0" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                     <div class="col-span-2">
                         <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">pH / Acidez (°D)</label>
-                        <input type="number" step="0.01" name="ph_or_acidity" placeholder="17.0" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                        <input type="number" step="0.01" name="ph_or_acidity" placeholder="17.0" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Veredicto del Análisis</label>
-                    <select name="verdict" id="verdictSelect" required class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 font-bold text-slate-800 focus:bg-white focus:border-[#0f1713] focus:ring-0">
+                    <select name="verdict" id="verdictSelect" required class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 font-bold text-slate-800 focus:bg-white focus:border-[#1565C0] focus:ring-0">
                         <option value="conforme">Conforme (Leche Óptima)</option>
                         <option value="acidez_alta">Acidez Alta (Requiere Visita Técnica)</option>
                         <option value="adulterada">Sospecha de Adulteración / Agua</option>
@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Observaciones / Notas de Muestra</label>
-                    <textarea name="notes" rows="2" placeholder="Detalles de la muestra o indicaciones de inspección..." class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#0f1713] focus:ring-0 resize-none"></textarea>
+                    <textarea name="notes" rows="2" placeholder="Detalles de la muestra o indicaciones de inspección..." class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1565C0] focus:ring-0 resize-none"></textarea>
                 </div>
 
                 <!-- Box para agendar cita técnica si hay anomalía -->
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-[#0f1713] hover:bg-slate-900 text-[#bef264] font-bold py-3 rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-2">
+                <button type="submit" class="w-full bg-[#E65100] hover:bg-[#A33C00] text-white font-bold py-3 rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-2">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Guardar Análisis y Notificar
                 </button>
             </form>

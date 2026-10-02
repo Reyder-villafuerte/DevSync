@@ -23,7 +23,7 @@
                     <span class="text-sm font-black text-slate-800">{{ $resumen['inactivos'] }}</span>
                 </div>
                 <button type="button" data-nuevo-usuario
-                    class="px-4 py-2.5 rounded-xl bg-spark-dark hover:bg-black text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
+                    class="px-4 py-2.5 rounded-xl bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black text-[11px] uppercase tracking-wider whitespace-nowrap">
                     <i class="fa-solid fa-plus mr-1"></i> Agregar
                 </button>
             </div>
@@ -34,7 +34,7 @@
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
                     <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Nombre, DNI o correo..."
-                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-spark-lime">
+                        class="w-56 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
                 <select name="rol" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                     <option value="">Todos los roles</option>
@@ -100,7 +100,7 @@
                         onsubmit="return confirm('¿{{ $usuario->is_active ? 'Desactivar' : 'Activar' }} a {{ $usuario->name }}?');">
                         @csrf
                         <button type="submit"
-                            class="px-2.5 py-1.5 rounded-lg font-bold text-[10px] uppercase {{ $usuario->is_active ? 'bg-rose-50 hover:bg-rose-100 text-rose-600' : 'bg-lime-100 hover:bg-lime-200 text-spark-limeText' }}">
+                            class="px-2.5 py-1.5 rounded-lg font-bold text-[10px] uppercase {{ $usuario->is_active ? 'bg-[#FFEBEE] hover:bg-rose-100 text-[#C62828]' : 'bg-[#1565C0]/10 hover:bg-lime-200 text-spark-limeText' }}">
                             {{ $usuario->is_active ? 'Desactivar' : 'Activar' }}
                         </button>
                     </form>
@@ -114,7 +114,7 @@
 </div>
 
 {{-- Modal: crear o editar usuario --}}
-<div id="modalUsuario" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+<div id="modalUsuario" hidden class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(32,30,29,0.55)]">
     <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -192,7 +192,7 @@
 
             <div class="flex gap-2 pt-2">
                 <button type="button" data-cerrar class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase">Cancelar</button>
-                <button type="submit" class="flex-1 bg-spark-dark hover:bg-black text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
+                <button type="submit" class="flex-1 bg-[#E65100] hover:bg-[#A33C00] text-spark-lime font-black py-2.5 rounded-xl text-[11px] uppercase tracking-wider">Guardar</button>
             </div>
         </form>
     </div>

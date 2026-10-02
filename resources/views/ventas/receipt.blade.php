@@ -14,7 +14,7 @@
             <i class="fa-solid fa-arrow-left"></i> <span>Volver a Ventas</span>
         </a>
         @endif
-        <button onclick="window.print()" class="bg-spark-dark hover:bg-black text-spark-lime px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition">
+        <button onclick="window.print()" class="bg-[#E65100] hover:bg-[#A33C00] text-spark-lime px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition">
             <i class="fa-solid fa-print"></i> <span>Imprimir Recibo</span>
         </button>
     </div>
@@ -47,7 +47,7 @@
             </div>
             <div class="flex justify-between">
                 <span class="text-slate-400">Categoría:</span>
-                <span class="uppercase font-bold text-emerald-800">{{ $sale->customer->type }}</span>
+                <span class="uppercase font-bold text-[#1B5E20]">{{ $sale->customer->type }}</span>
             </div>
             @if($sale->customer->dni_ruc)
             <div class="flex justify-between">
@@ -90,7 +90,7 @@
         <div class="pt-4 space-y-1">
             <div class="flex justify-between text-base font-black text-slate-900">
                 <span>TOTAL COBRADO:</span>
-                <span class="text-emerald-700">S/ {{ number_format($sale->total_amount, 2) }}</span>
+                <span class="text-[#2E7D32]">S/ {{ number_format($sale->total_amount, 2) }}</span>
             </div>
             <div class="flex justify-between text-[11px] text-slate-500">
                 <span>MÉTODO:</span>

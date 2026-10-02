@@ -49,7 +49,7 @@
         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Cobrado en Efectivo</span>
             <div class="mt-2">
-                <span class="text-2xl font-black text-emerald-700 font-mono">S/ {{ number_format($totalRecaudadoEfectivo, 2) }}</span>
+                <span class="text-2xl font-black text-[#2E7D32] font-mono">S/ {{ number_format($totalRecaudadoEfectivo, 2) }}</span>
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Recaudado físicamente en caja</p>
         </div>
@@ -79,7 +79,7 @@
                 <div class="relative flex-1 sm:w-72">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar cliente, DNI o #REC..."
-                        class="text-xs pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl w-full focus:bg-white focus:ring-2 focus:ring-spark-lime">
+                        class="text-xs pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl w-full focus:bg-white focus:ring-2 focus:ring-[#1565C0]/30">
                 </div>
 
                 <input type="date" name="fecha" value="{{ request('fecha') }}" onchange="this.form.submit()" title="Filtrar por fecha"
@@ -92,7 +92,7 @@
                     <option value="local" {{ request('tipo_cliente') == 'local' ? 'selected' : '' }}>Locales</option>
                 </select>
 
-                <button type="submit" class="bg-spark-dark hover:bg-black text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition">
+                <button type="submit" class="bg-[#E65100] hover:bg-[#A33C00] text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition">
                     Filtrar
                 </button>
 
@@ -137,7 +137,7 @@
                         </td>
                         <td class="p-3.5">
                             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase
-                                {{ $sale->customer->type === 'proveedor' ? 'bg-blue-100 text-blue-900' : ($sale->customer->type === 'mayorista' ? 'bg-lime-100 text-spark-limeText' : 'bg-slate-100 text-slate-700') }}">
+                                {{ $sale->customer->type === 'proveedor' ? 'bg-blue-100 text-blue-900' : ($sale->customer->type === 'mayorista' ? 'bg-[#1565C0]/10 text-spark-limeText' : 'bg-slate-100 text-slate-700') }}">
                                 {{ $sale->customer->type }}
                             </span>
                         </td>
@@ -150,7 +150,7 @@
                                 <i class="fa-solid fa-receipt text-[9px]"></i> A Cuenta Leche
                             </span>
                             @else
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F5E9] text-[#1B5E20] border border-[#2E7D32]/25">
                                 <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Efectivo
                             </span>
                             @endif
@@ -161,7 +161,7 @@
                                 Cerrado
                             </span>
                             @else
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Pendiente de arqueo">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F5E9] text-[#2E7D32] border border-[#2E7D32]/25" title="Pendiente de arqueo">
                                 Activo
                             </span>
                             @endif
@@ -169,7 +169,7 @@
                         <td class="p-3.5 text-slate-500">{{ $sale->seller ? $sale->seller->name : 'Planta' }}</td>
                         <td class="p-3.5 text-slate-400 font-mono text-[11px]">{{ $sale->sold_at }}</td>
                         <td class="p-3.5 text-right">
-                            <a href="{{ route('ventas.receipt', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-black font-bold text-xs shadow-sm transition">
+                            <a href="{{ route('ventas.receipt', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-spark-dark text-spark-lime hover:bg-[#A33C00] font-bold text-xs shadow-sm transition">
                                 <i class="fa-solid fa-receipt text-xs"></i> <span>Ver Recibo</span>
                             </a>
                         </td>

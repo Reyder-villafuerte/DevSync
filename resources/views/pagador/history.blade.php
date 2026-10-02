@@ -12,7 +12,7 @@
                     </svg>
                 </a>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">Historial de Pagos de Sobres</h1>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-[#1B5E20]">
                     Comprobantes Emitidos
                 </span>
             </div>
@@ -21,7 +21,7 @@
             </p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('pagos.ruta.index') }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+            <a href="{{ route('pagos.ruta.index') }}" class="inline-flex items-center px-4 py-2 bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-sm font-bold rounded-xl shadow-sm transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -117,16 +117,16 @@
                             </td>
                             <td class="py-3 px-4 text-right">
                                 @if($settlement->deductions_total > 0)
-                                    <span class="text-rose-600 font-semibold">- S/ {{ number_format($settlement->deductions_total, 2) }}</span>
+                                    <span class="text-[#C62828] font-semibold">- S/ {{ number_format($settlement->deductions_total, 2) }}</span>
                                 @else
                                     <span class="text-slate-400 font-normal">S/ 0.00</span>
                                 @endif
                             </td>
                             <td class="py-3 px-4 text-right">
-                                <span class="text-base font-black text-emerald-700">
+                                <span class="text-base font-black text-[#2E7D32]">
                                     S/ {{ number_format($settlement->net_total, 2) }}
                                 </span>
-                                <span class="block text-[10px] text-emerald-600 font-bold uppercase">Sobre Entregado</span>
+                                <span class="block text-[10px] text-[#2E7D32] font-bold uppercase">Sobre Entregado</span>
                             </td>
                             <td class="py-3 px-4 text-center text-xs text-slate-600">
                                 {{ $settlement->payer->name ?? 'Pagador' }}
