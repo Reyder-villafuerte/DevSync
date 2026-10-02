@@ -23,7 +23,21 @@ object Fechas {
         "julio", "agosto", "setiembre", "octubre", "noviembre", "diciembre"
     )
 
-    fun hoy(): String = ahoraLocal().date.toString()
+    /**
+     * Fecha de la JORNADA, no del calendario (igual que JornadaOperativa en la web).
+     *
+     * La jornada empieza a las 4:30 AM, cuando sale el camión. Antes de esa hora
+     * todavía se trabaja con la fecha del día anterior; así el teléfono y el
+     * servidor siempre hablan de la misma ruta y del mismo cierre de caja.
+     */
+    fun hoy(): String {
+        val ahora = ahoraLocal()
+        val antesDelCorte = ahora.hour < HORA_CORTE || (ahora.hour == HORA_CORTE && ahora.minute < MINUTO_CORTE)
+        return if (antesDelCorte) ahora.date.minus(DatePeriod(days = 1)).toString() else ahora.date.toString()
+    }
+
+    private const val HORA_CORTE = 4
+    private const val MINUTO_CORTE = 30
 
     fun ahoraIso(): String = Clock.System.now().toString()
 

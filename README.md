@@ -28,20 +28,60 @@ stock), el cambio optimista se deshace en el teléfono y el motivo aparece en la
 **Sincronización**. Si el fallo es de red, la operación se queda en cola y se reintenta sola
 (cada minuto si hay trabajo pendiente, cada cinco si no).
 
-## Estructura
+## Estructura (arquitectura Clean, igual que la guía de Ktor Client en KMP)
 
 ```
 shared/src/commonMain/kotlin/com/example/milkflowmovil/
-├── core/          Errores, resultado, fechas y formato (soles, litros, sin acentos)
-├── dominio/       Modelos espejo del servidor, roles/pantallas y reglas de Huata
-├── datos/
-│   ├── local/     Base local (documento JSON), estado y cola de operaciones
-│   ├── remoto/    Cliente Ktor del API /api/sync
-│   ├── Sincronizador.kt   Subida de la cola + bajada por cursor
-│   └── Repositorio.kt     Fachada única para la interfaz
-├── ui/            Tema, componentes y las pantallas por rol
-└── di/            Armado manual de dependencias
+├── core/                         Resultado, ErrorApp, fechas y formato (soles, litros)
+│
+├── data/                         CAPA DE DATOS: de dónde vienen los datos
+│   ├── remote/
+│   │   ├── HttpClientFactory.kt  createHttpClient(engine): ContentNegotiation, Logging,
+│   │   │                         HttpTimeout y defaultRequest
+│   │   ├── MotorHttp.kt          expect: OkHttp (androidMain) / Darwin (iosMain)
+│   │   ├── MilkFlowRemoteDataSource.kt  única clase que llama a la API /api/sync
+│   │   └── dto/                  @Serializable + @SerialName: el contrato JSON
+│   ├── mapper/                   toDomain() / toDto(): DTO <-> modelo de dominio
+│   ├── local/                    BaseLocal (archivo JSON en el teléfono) y DocumentoLocal
+│   ├── sync/Sincronizador.kt     sube la cola y baja los cambios por cursor
+│   └── repository/               *RepositoryImpl: implementan las interfaces del dominio
+│
+├── domain/                       CAPA DE DOMINIO: Kotlin puro, sin JSON ni Ktor
+│   ├── model/                    Zona, Usuario, Ruta, Entrega... y EstadoApp
+│   ├── rules/Reglas.kt           precios, sobre semanal y merma
+│   ├── repository/               interfaces (contratos) de cada módulo
+│   └── usecase/                  un caso de uso por acción (RegistrarEntregaUseCase...)
+│
+├── presentation/                 CAPA DE PRESENTACIÓN: Compose
+│   ├── App.kt                    raíz: sesión, menú lateral y pantalla actual
+│   ├── viewmodel/                un ViewModel por módulo, expone uiState (StateFlow)
+│   ├── screens/                  pantallas por rol
+│   ├── navigation/               Pantalla (menú por rol) y Navegador
+│   ├── components/               tarjetas, botones y campos reutilizables
+│   └── theme/                    colores y tipografía
+│
+└── di/Contenedor.kt              arma todo: datos -> dominio -> presentación
 ```
+
+Flujo de una acción (por ejemplo, registrar litros en ruta):
+
+```
+Pantalla ──> AcopioViewModel ──> RegistrarEntregaUseCase ──> AcopioRepository (interfaz)
+                                                                   │
+                                        AcopioRepositoryImpl <─────┘
+                                           │ escribe en BaseLocal y encola
+                                           ▼
+                           Sincronizador ──> MilkFlowRemoteDataSource ──> API REST
+```
+
+La pantalla nunca ve un DTO ni JSON: recibe `EstadoApp` (dominio) desde `viewModel.uiState`.
+
+### Configuración de red por plataforma
+
+- **Android:** `androidApp/src/main/res/xml/network_security_config.xml` permite HTTP solo hacia
+  `10.0.2.2`, `127.0.0.1` y `localhost`. Para usar un teléfono físico por Wi-Fi, agrega ahí la IP
+  de la computadora de la planta.
+- **iOS:** `Info.plist` tiene `NSAllowsLocalNetworking` (HTTP solo en la red local).
 
 **Por qué un documento JSON y no SQLite:** a la escala de Huata (decenas de proveedores, cientos
 de entregas por semana) el estado completo cabe de sobra en memoria, el guardado es atómico

@@ -4,21 +4,27 @@ import com.example.milkflowmovil.core.Fechas
 import com.example.milkflowmovil.core.litros
 import com.example.milkflowmovil.core.sinAcentos
 import com.example.milkflowmovil.core.soles
-import com.example.milkflowmovil.dominio.Analisis
-import com.example.milkflowmovil.dominio.Cliente
-import com.example.milkflowmovil.dominio.Descuento
-import com.example.milkflowmovil.dominio.Entrega
-import com.example.milkflowmovil.dominio.Liquidacion
-import com.example.milkflowmovil.dominio.Reglas
-import com.example.milkflowmovil.dominio.Rol
-import com.example.milkflowmovil.dominio.Ruta
-import com.example.milkflowmovil.dominio.Pantalla
-import com.example.milkflowmovil.dominio.Tarifa
-import kotlinx.serialization.json.Json
+import com.example.milkflowmovil.data.mapper.toDomain
+import com.example.milkflowmovil.data.remote.dto.ClienteDto
+import com.example.milkflowmovil.data.remote.dto.EntregaDto
+import com.example.milkflowmovil.data.remote.dto.RutaDto
+import com.example.milkflowmovil.domain.model.Analisis
+import com.example.milkflowmovil.domain.model.Cliente
+import com.example.milkflowmovil.domain.model.Descuento
+import com.example.milkflowmovil.domain.model.Entrega
+import com.example.milkflowmovil.domain.model.Liquidacion
+import com.example.milkflowmovil.domain.model.Rol
+import com.example.milkflowmovil.domain.model.Ruta
+import com.example.milkflowmovil.domain.model.Tarifa
+import com.example.milkflowmovil.domain.rules.Reglas
+import com.example.milkflowmovil.presentation.navigation.Pantalla
+import com.example.milkflowmovil.presentation.navigation.inicio
+import com.example.milkflowmovil.presentation.navigation.puedeVer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.serialization.json.Json
 
 /**
  * Las reglas de Huata calculadas en el teléfono deben dar el mismo número que
@@ -175,36 +181,39 @@ class ReglasTest {
         Analisis(id = 1, productorId = 9, fecha = fecha, agua = agua)
 }
 
-/** El servidor manda decimales como texto o como número según el motor de BD. */
+/**
+ * El servidor manda decimales como texto o como número según el motor de BD.
+ * Se prueba el camino completo: JSON -> DTO -> toDomain().
+ */
 class SerializacionTest {
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     @Test
     fun los_decimales_llegan_como_texto_o_como_numero() {
-        val comoTexto = json.decodeFromString<Entrega>(
+        val comoTexto = json.decodeFromString<EntregaDto>(
             """{"id":1,"collection_route_id":2,"producer_id":3,"liters":"18.50"}"""
         )
-        val comoNumero = json.decodeFromString<Entrega>(
+        val comoNumero = json.decodeFromString<EntregaDto>(
             """{"id":1,"collection_route_id":2,"producer_id":3,"liters":18.5}"""
         )
 
-        assertEquals(18.5, comoTexto.liters)
-        assertEquals(18.5, comoNumero.liters)
+        assertEquals(18.5, comoTexto.toDomain().liters)
+        assertEquals(18.5, comoNumero.toDomain().liters)
     }
 
     @Test
     fun los_booleanos_de_mysql_llegan_como_uno_o_cero() {
-        val fila = json.decodeFromString<Cliente>(
+        val fila = json.decodeFromString<ClienteDto>(
             """{"id":1,"first_name":"Ana","last_name":"Pari","is_wholesale_approved":1}"""
         )
 
-        assertTrue(fila.mayoristaAprobado)
+        assertTrue(fila.toDomain().mayoristaAprobado)
     }
 
     @Test
     fun las_columnas_desconocidas_no_rompen_la_bajada() {
-        val fila = json.decodeFromString<Ruta>(
+        val fila = json.decodeFromString<RutaDto>(
             """{"id":4,"date":"2026-09-14","zone_id":1,"collector_id":2,"columna_nueva":"algo"}"""
         )
 
